@@ -25,7 +25,7 @@ public class SignupDto {
 //                message = "대문자, 소문자, 특수문자, 숫자 포함 8~15자리.")
 //        @Schema(description = "8자~15자 이내의 비밀번호", example = "StrongP@ss123")
         private String password;
-
+        private String confirmPassword;
 //        @Schema(description = "사용자 역할", example = "ADMIN")
         private boolean admin;
 
