@@ -38,7 +38,7 @@ public class EmailService {
         if(userRepository.existsByEmail(toEmail)) throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
 
         //인증코드 생성, 저장 및 이메일 전송
-        String title = "푸드리움 유저 이메일 인증 번호";
+        String title = "유저 이메일 인증 번호";
         String authCode = this.createCode();
         // 이메일 인증 요청 시 인증 번호 Redis에 저장
         redisTool.setValues(AUTH_CODE_PREFIX + toEmail,
