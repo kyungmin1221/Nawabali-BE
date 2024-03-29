@@ -16,6 +16,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @AllArgsConstructor
 @Transactional
@@ -53,7 +55,8 @@ public class CommentService {
                 .nickname(user.getNickname())
                 .contents(comment.getContents())
                 .createdAt(comment.getCreatedAt())
-                .modifiedAt(comment.getModifiedAt())
+                .modifiedAt(LocalDateTime.now())
+                .message("댓글이 작성되었습니다.")
                 .build();
     }
 
@@ -63,22 +66,29 @@ public class CommentService {
         // 본인 확인
         if (username ==  null){
             throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
-        } User user = userRepository.findByEmail(username)
+        } log.info("본인확인" + username);
+        User user = userRepository.findByEmail(username)
                 .orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
+
 
         // 댓글 가져오기
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(()-> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+        log.info("댓글 가져오기" + commentId);
 
         // 본인이 쓴 댓글인지 확인
-        if (!comment.getUser().getId().equals(user.getId())){
+        if (comment.getUser() == null || !comment.getUser().getId().equals(user.getId())){
             throw new CustomException(ErrorCode.UNAUTHORIZED_COMMENT);
         }
         // 댓글 entity에 넣고 저장
-        Comment comment1 = Comment.builder()
-                .contents(dto.getContents())
-                .build();
-        commentRepository.save(comment1);
+//        comment = Comment.builder()
+//                .user(comment.getUser()) // 기존 정보 유지
+//                .post(comment.getPost()) // 기존 정보 유지
+//                .contents(dto.getContents())
+//                .build();
+        comment.setContents(dto.getContents());
+        comment.setModifiedAt(LocalDateTime.now());
+        commentRepository.save(comment);
 
         // 값 리턴하기
         return CommentDto.ResponseDto.builder()
@@ -88,7 +98,8 @@ public class CommentService {
                 .nickname(user.getNickname())
                 .contents(comment.getContents())
                 .createdAt(comment.getCreatedAt())
-                .modifiedAt(comment.getModifiedAt())
+                .modifiedAt(LocalDateTime.now())
+                .message("댓글이 수정되었습니다.")
                 .build();
     }
 

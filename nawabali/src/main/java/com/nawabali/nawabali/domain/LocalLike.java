@@ -11,7 +11,7 @@ import org.springframework.boot.autoconfigure.web.WebProperties;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table (name = "localLike")
+@Table (name = "localLikes")
 @Slf4j (topic = "LocalLikeEntity 로그")
 public class LocalLike {
 

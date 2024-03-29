@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 @Entity
 @Getter
 @NoArgsConstructor
-@Table (name = "like")
+@Table (name = "likes")
 @Slf4j (topic = "LikeDomain 로그")
 public class Like {
 
@@ -20,7 +20,7 @@ public class Like {
     @Column
     private boolean status;
 
-    @Column (columnDefinition = "BIGINT default 0")
+    @Column
     private Long likesCount;
 
     @ManyToOne

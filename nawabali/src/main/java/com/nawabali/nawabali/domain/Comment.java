@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 
 
 @Entity
+@Setter
 @Getter
 @NoArgsConstructor
 @Table (name = "comment")
@@ -33,11 +35,11 @@ public class Comment {
     @LastModifiedDate
     private LocalDateTime modifiedAt;
 
-    @ManyToOne (cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn (name = "user_id")
     private User user;
 
-    @ManyToOne (cascade = CascadeType.REMOVE)
+    @ManyToOne
     @JoinColumn (name = "post_id")
     private Post post;
 
