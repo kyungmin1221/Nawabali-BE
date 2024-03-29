@@ -73,7 +73,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         String jsonResponse = new ObjectMapper().writeValueAsString(successMessage);
         response.getWriter().write(jsonResponse);
+
+        Object principal = authResult.getPrincipal();
+        log.info("Principal class: " + (principal == null ? "null" : principal.getClass().getName()));
+
     }
+
 
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {

@@ -1,0 +1,32 @@
+package com.nawabali.nawabali.constant;
+
+import jakarta.persistence.Embeddable;
+import lombok.Getter;
+
+import java.util.Objects;
+
+@Embeddable
+@Getter
+//값타입은 불변객체인게 유리하므로 Setter는 만들지 말아야함
+public class Address {
+
+    private String city;    // 도시
+
+    private String district;    // 구
+
+    private String street; //도로명 주소
+
+    private String zipcode; //지번 주소
+
+    protected Address() {}  //무분별한 생성을 막기 위해 protected 로 선언
+
+    // 필요시 추가 생성자 필요
+    public Address(String city, String district, String street,String zipcode) {
+        this.city = city;
+        this.district = district;
+        this.street = street;
+        this.zipcode = zipcode;
+    }
+
+
+}

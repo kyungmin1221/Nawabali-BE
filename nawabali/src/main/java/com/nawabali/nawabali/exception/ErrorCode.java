@@ -23,14 +23,14 @@ public enum ErrorCode {
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
     INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),
     UNAUTHORIZED_MEMBER(UNAUTHORIZED, "존재하지 않는 회원입니다."),
-    UNAUTHORIZED_PRODUCT(UNAUTHORIZED, "존재하지 않는 상품입니다."),
-    UNAUTHORIZED_BASKET(UNAUTHORIZED, "존재하지 않는 장바구니입니다."),
+    UNAUTHORIZED_POST(UNAUTHORIZED, "존재하지 않는 게시물입니다."),
+    UNAUTHORIZED_COMMENT(UNAUTHORIZED, "존재하지 않는 댓글입니다."),
 
     // 404 NOT_FOUND: 잘못된 리소스 접근
     REFRESH_TOKEN_NOT_FOUND(NOT_FOUND, "로그아웃 된 사용자입니다"),
     MEMBER_NOT_FOUND(NOT_FOUND, "해당 회원 정보를 찾을 수 없습니다."),
-    PRODUCT_NOT_FOUND(NOT_FOUND, "해당 상품 정보를 찾을 수 없습니다."),
-    BASKET_NOT_FOUND(NOT_FOUND, "해당 장바구니 정보를 찾을 수 없습니다."),
+    POST_NOT_FOUND(NOT_FOUND, "해당 게시물 정보를 찾을 수 없습니다."),
+    COMMENT_NOT_FOUND(NOT_FOUND, "해당 댓글 정보를 찾을 수 없습니다."),
     USER_NOT_FOUND(NOT_FOUND, "해당 사용자를 찾을 수 없습니다."),
 
 

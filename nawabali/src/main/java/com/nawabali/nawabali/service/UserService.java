@@ -1,8 +1,11 @@
 package com.nawabali.nawabali.service;
 
+import com.nawabali.nawabali.constant.Address;
 import com.nawabali.nawabali.constant.UserRoleEnum;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.SignupDto;
+import com.nawabali.nawabali.exception.CustomException;
+import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,7 +33,6 @@ public class UserService {
 
         String password = passwordEncoder.encode(rawPassword);
 
-
         boolean certificated = requestDto.isCertificated();
         if(!certificated){
             throw new IllegalArgumentException("이메일 인증을 진행해주세요.");
@@ -41,15 +43,31 @@ public class UserService {
             role = UserRoleEnum.ADMIN;
         }
 
+        // 프론트엔드로부터 받은 주소 정보를 사용하여 Address 객체 생성
+        Address address = new Address(
+                requestDto.getCity(),
+                requestDto.getDistrict(),
+                requestDto.getStreet(),
+                requestDto.getZipcode()
+        );
+
         User user = User.builder()
                 .username(username)
                 .nickname(nickname)
                 .email(email)
                 .password(password)
                 .role(role)
+                .address(address)
                 .build();
         userRepository.save(user);
-        User responseUser = userRepository.findByEmail(user.getEmail());
+        User responseUser = userRepository.findByEmail(user.getEmail())
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         return new SignupDto.SignupResponseDto(responseUser.getId());
+    }
+
+    public User getUserId(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
     }
 }
