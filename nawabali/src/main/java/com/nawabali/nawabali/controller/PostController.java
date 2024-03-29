@@ -8,10 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,11 +21,27 @@ public class PostController {
     @PostMapping
     public ResponseEntity<PostDto.ResponseDto> createPost(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                           @RequestBody PostDto.RequestDto requestDto) {
-        log.info("userDetails.username : " + userDetails.getUsername());
-        log.info("userDetails.password : " + userDetails.getPassword());
-        log.info("userDetails.getuser : " + userDetails.getUser());
-
         PostDto.ResponseDto responseDto = postService.createPost(userDetails.getUser(), requestDto);
         return ResponseEntity.ok(responseDto);
     }
+
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostDto.ResponseDto> getPost(@PathVariable Long postId) {
+        PostDto.ResponseDto responseDto = postService.getPost(postId);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @PatchMapping("/{postId}")
+    public ResponseEntity<PostDto.ResponseDto> updatePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                          @RequestBody PostDto.PatchDto patchDto) {
+        PostDto.ResponseDto responseDto = postService.updatePost(postId,userDetails.getUser(),patchDto);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<PostDto.DeleteDto> deletePost(@PathVariable Long postId) {
+        PostDto.DeleteDto deleteDto = postService.deletePost(postId);
+        return ResponseEntity.ok(deleteDto);
+    }
 }
+
