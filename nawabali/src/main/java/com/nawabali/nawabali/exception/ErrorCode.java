@@ -38,7 +38,9 @@ public enum ErrorCode {
     DUPLICATE_EMAIL(CONFLICT, "이미 존재하는 이메일입니다."),
     DUPLICATE_NICKNAME(CONFLICT, "이미 존재하는 닉네임입니다."),
     DUPLICATE_FOLDER(CONFLICT, "이미 존재하는 장바구니이름입니다."),
-    DUPLICATE_LIKE(CONFLICT, "이미 좋아요를 누르셨습니다."),
+    DUPLICATE_LIKE_TRUE(CONFLICT, "이미 좋아요 되어있습니다."),
+    DUPLICATE_LIKE_FALSE(CONFLICT, "이미 좋아요가 취소 되어있습니다."),
+
 
     // 500 INTERNAL SERVER ERROR
     SERVER_ERROR(INTERNAL_SERVER_ERROR, "내부 서버 에러입니다.");
