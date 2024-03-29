@@ -6,6 +6,7 @@ import com.nawabali.nawabali.dto.UserDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -51,10 +52,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
         UserRoleEnum role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRole();
 
-        String token = jwtUtil.createAccessToken(username, role);
+        Cookie accessCookie = jwtUtil.createAccessCookie(username, role);
+        Cookie refreshCookie = jwtUtil.createRefreshCookie(username);
         log.info("user email : " + username, role);
-        log.info("token : " + token);
-        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+        log.info("accessCookie value : " + accessCookie.getValue());
+        log.info("refreshCookie value : " + refreshCookie.getValue());
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, accessCookie.getValue());
+        response.addCookie(accessCookie);
 
         // 로그인 성공 메시지를 JSON 형태로 응답 본문에 추가
         response.setContentType("application/json");
@@ -64,7 +68,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         // 로그인 응답 메시지 설정
         Map<String, String> successMessage = new HashMap<>();
         successMessage.put("message", "회원 로그인에 성공");
-        successMessage.put("token", token);     // 토큰 포함 (편의상)
+        successMessage.put("accessToken", accessCookie.getValue());     // 토큰 포함 (편의상)
+        successMessage.put("refreshToken", refreshCookie.getValue());
 
         String jsonResponse = new ObjectMapper().writeValueAsString(successMessage);
         response.getWriter().write(jsonResponse);
