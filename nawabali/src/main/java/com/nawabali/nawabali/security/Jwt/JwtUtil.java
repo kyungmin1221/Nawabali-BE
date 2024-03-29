@@ -40,8 +40,8 @@ public class JwtUtil {
     // 로그 설정
     public static final Logger logger = LoggerFactory.getLogger("JWT 관련 로그");
     // 토큰 만료 시간
-    private final int ACCESS_EXPIRATION_TIME = 600000; //10분
-    public final int REFRESH_EXPIRATION_TIME = 600000 * 3; // 30분
+    private final int ACCESS_EXPIRATION_TIME = 24 * 60 * 60 * 1000; //
+    public final int REFRESH_EXPIRATION_TIME = 30 * 60 * 1000; // 30분
     @PostConstruct
     public void init() {
         byte[] bytes = Base64.getDecoder().decode(secretKey);
@@ -64,32 +64,32 @@ public class JwtUtil {
     }
 
     // 리프레시 토큰 생성
-//    public String createRefreshToken(String email) {
-//        Date now = new Date();
-//        Date expireDate = new Date(now.getTime() + REFRESH_EXPIRATION_TIME);
-//
-//        return Jwts.builder()
-//                .setSubject(email)
-//                .setExpiration(expireDate)
-//                .setIssuedAt(now)
-//                .signWith(key, signatureAlgorithm)
-//                .compact();
-//    }
+    public String createRefreshToken(String email) {
+        Date now = new Date();
+        Date expireDate = new Date(now.getTime() + REFRESH_EXPIRATION_TIME);
+
+        return Jwts.builder()
+                .setSubject(email)
+                .setExpiration(expireDate)
+                .setIssuedAt(now)
+                .signWith(key, signatureAlgorithm)
+                .compact();
+    }
 
     // 쿠키(리프레시) 생성
-//    public Cookie createCookie(String email) {
-//        String cookieValue = createRefreshToken(email);
-//        var refreshTokenCookie = URLEncoder.encode(cookieValue, UTF_8);
-//        Cookie cookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshTokenCookie);
-//        cookie.setHttpOnly(true);
-//        // cookie.setSecure(true); //Https 접근이 아직 활성화 안됨. 활성화되면 바꿔주기
-//        cookie.setPath("/");
-//        cookie.setMaxAge(REFRESH_EXPIRATION_TIME);
-//        return cookie;
-//    }
+    public Cookie createRefreshCookie(String email) {
+        String cookieValue = createRefreshToken(email);
+        var refreshTokenCookie = URLEncoder.encode(cookieValue, UTF_8);
+        Cookie cookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshTokenCookie);
+        cookie.setHttpOnly(true);
+        // cookie.setSecure(true); //Https 접근이 아직 활성화 안됨. 활성화되면 바꿔주기
+        cookie.setPath("/");
+        cookie.setMaxAge(REFRESH_EXPIRATION_TIME);
+        return cookie;
+    }
     // 쿠키(엑세스) 생성
-    public Cookie createCookie(String email, UserRoleEnum role) {
-        String cookieValue = createAccessToken(email,role);
+    public Cookie createAccessCookie(String email, UserRoleEnum role) {
+        String cookieValue = createAccessToken(email, role);
         var accessTokenCookie = URLEncoder.encode(cookieValue, UTF_8);
         Cookie cookie = new Cookie(AUTHORIZATION_HEADER, accessTokenCookie);
         cookie.setPath("/");
@@ -108,6 +108,7 @@ public class JwtUtil {
 
     // 토큰 검증
     public boolean validateToken(String token) {
+        log.info("토큰 검증");
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;

@@ -29,4 +29,15 @@ public class User {
         this.password = password;
         this.role = role;
     }
+
+    @Builder
+    public User(String nickname, String email, Long kakaoId){
+        this.nickname = nickname;
+        this.email = email;
+        this.kakaoId = kakaoId;
+    }
+
+    public void updateKakaoId(Long id) {
+        this.kakaoId = id;
+    }
 }
