@@ -129,7 +129,7 @@ public class KakaoService {
             // 카카오 사용자 email 과 동일한 email 있는지 확인
             // 있다면 카카오아이디 업데이트
             String kakaoEmail = kakaoUser.getEmail();
-            User sameEmailUser = userRepository.findByEmail(kakaoEmail);
+            User sameEmailUser = userRepository.findByEmail(kakaoEmail).orElseThrow(null);
             if(sameEmailUser != null){
                 kakaoUser = sameEmailUser;
                 kakaoUser.updateKakaoId(id);
