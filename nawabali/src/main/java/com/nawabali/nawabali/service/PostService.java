@@ -4,13 +4,17 @@ import com.nawabali.nawabali.constant.Address;
 import com.nawabali.nawabali.constant.Town;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.User;
+import com.nawabali.nawabali.domain.image.PostImage;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.PostRepository;
+import com.nawabali.nawabali.s3.AwsS3Service;
+import jakarta.mail.Multipart;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,10 +26,11 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserService userService;
+    private final AwsS3Service awsS3Service;
 
     // 게시물 생성
     @Transactional
-    public PostDto.ResponseDto createPost(User user, PostDto.RequestDto requestDto) {
+    public PostDto.ResponseDto createPost(User user, PostDto.RequestDto requestDto, List<MultipartFile> files) {
         User findUser = userService.getUserId(user.getId());
 
         Town town = new Town(
@@ -43,11 +48,21 @@ public class PostService {
                 .user(findUser)
                 .build();
 
+        List<String> imageUrls = awsS3Service.uploadFile(files, "postImages");
+        imageUrls.forEach(url -> {
+            PostImage image = new PostImage();
+            image.setFileName(url);
+            image.setImgUrl(url);
+            post.addImage(image);
+        });
+
         postRepository.save(post);
 
         return new PostDto.ResponseDto(post);
 
     }
+
+    // 전체 게시물 조회 - 무한 스크롤
 
 
     // 게시물 조회
@@ -63,7 +78,7 @@ public class PostService {
         if(!post.getUser().getId().equals(user.getId())){
             throw new CustomException(ErrorCode.FORBIDDEN_MEMBER);
         }
-        
+
         Town town = new Town(patchDto.getLatitude(), patchDto.getLongitude());
 
         post.update(patchDto.getTitle(),
