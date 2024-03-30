@@ -30,6 +30,15 @@ public class SignupDto {
         private boolean admin;
 
         private boolean certificated;
+
+        // 주소 정보 관련
+        private String city;
+
+        private String district;
+
+        private String street;
+
+        private String zipcode;
     }
 
     @Getter

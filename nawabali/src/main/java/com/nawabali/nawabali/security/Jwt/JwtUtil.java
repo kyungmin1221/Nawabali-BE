@@ -40,7 +40,7 @@ public class JwtUtil {
     // 로그 설정
     public static final Logger logger = LoggerFactory.getLogger("JWT 관련 로그");
     // 토큰 만료 시간
-    private final int ACCESS_EXPIRATION_TIME = 5 * 1000; //
+    private final int ACCESS_EXPIRATION_TIME = 10 * 60 * 1000; // 10분
     public final int REFRESH_EXPIRATION_TIME = 30 * 60 * 1000; // 30분
     @PostConstruct
     public void init() {
@@ -99,7 +99,7 @@ public class JwtUtil {
     // header 에서 JWT 가져오기
     public String getJwtFromHeader(HttpServletRequest request){
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken)){
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)){
             return bearerToken.substring(7);
         }
         return null;
