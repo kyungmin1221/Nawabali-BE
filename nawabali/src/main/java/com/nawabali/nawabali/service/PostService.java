@@ -69,20 +69,24 @@ public class PostService {
     }
 
     // 전체 게시물 조회 - 무한 스크롤
-    @Transactional(readOnly = true)
     public Slice<PostDto.ResponseDto> getPostsByLatest(Pageable pageable) {
         Slice<Post> postSlice = postRepository.findPostsByLatest(pageable);
         List<PostDto.ResponseDto> content = postSlice.getContent().stream()
                 .map(post -> {
+                    List<String> imageUrls = post.getImages().stream()
+                            .map(PostImage::getImgUrl) // 이미지 URL 추출
+                            .collect(Collectors.toList());
+
                     return new PostDto.ResponseDto(
                             post.getUser().getId(),
                             post.getId(),
                             post.getUser().getNickname(),
                             post.getTitle(),
                             post.getContents(),
-                            post.getCategory().name(),  // enum을 string으로 변환
+                            post.getCategory().name(),
                             post.getCreatedAt(),
-                            post.getModifiedAt()
+                            post.getModifiedAt(),
+                            imageUrls
                     );
                 })
                 .collect(Collectors.toList());
@@ -91,8 +95,7 @@ public class PostService {
     }
 
 
-
-    // 게시물 조회
+    // 상세 게시물 조회
     public PostDto.ResponseDto getPost(Long postId) {
         Post post = getPostId(postId);
         return new PostDto.ResponseDto(post);
@@ -125,8 +128,10 @@ public class PostService {
 
         // AWS S3에서 각 이미지 삭제
         images.forEach(image -> {
-            awsS3Service.deleteFile(image.getFileName());
+            String fullPath = "postImages/" + image.getFileName(); // 폴더 경로를 포함한 전체 경로
+            awsS3Service.deleteFile(fullPath);
         });
+
         postRepository.deleteById(postId);
 
         return new PostDto.DeleteDto("해당 게시물이 삭제되었습니다.");
