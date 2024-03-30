@@ -1,10 +1,8 @@
 package com.nawabali.nawabali.domain;
 
+import com.nawabali.nawabali.dto.CommentDto;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -13,9 +11,11 @@ import java.time.LocalDateTime;
 
 
 @Entity
-@Setter
+//@Setter
 @Getter
+@Builder (toBuilder = true)
 @NoArgsConstructor
+@AllArgsConstructor
 @Table (name = "comment")
 @Slf4j(topic = "CommentDomain 로그")
 public class Comment {
@@ -43,12 +43,9 @@ public class Comment {
     @JoinColumn (name = "post_id")
     private Post post;
 
-    @Builder
-    public Comment (String contents, User user, Post post){
-        this.contents = contents;
-        this.user = user;
-        this.post = post;
-        this.createdAt = LocalDateTime.now();
-    }
+//    public void updateComment ( CommentDto.RequestDto dto) {
+//        this.contents = dto.getContents();
+//        this.modifiedAt = LocalDateTime.now();
+//    }
 
 }

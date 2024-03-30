@@ -44,6 +44,7 @@ public class CommentService {
                 .contents(dto.getContents())
                 .user(user)
                 .post(post)
+                .createdAt(LocalDateTime.now())
                 .build();
         commentRepository.save(comment);
 
@@ -54,7 +55,7 @@ public class CommentService {
                 .commentId(comment.getId())
                 .nickname(user.getNickname())
                 .contents(comment.getContents())
-                .createdAt(comment.getCreatedAt())
+                .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
                 .message("댓글이 작성되었습니다.")
                 .build();
@@ -80,14 +81,11 @@ public class CommentService {
         if (comment.getUser() == null || !comment.getUser().getId().equals(user.getId())){
             throw new CustomException(ErrorCode.UNAUTHORIZED_COMMENT);
         }
+
         // 댓글 entity에 넣고 저장
-//        comment = Comment.builder()
-//                .user(comment.getUser()) // 기존 정보 유지
-//                .post(comment.getPost()) // 기존 정보 유지
-//                .contents(dto.getContents())
-//                .build();
-        comment.setContents(dto.getContents());
-        comment.setModifiedAt(LocalDateTime.now());
+        comment = comment.toBuilder()
+                .contents(dto.getContents())
+                .build();
         commentRepository.save(comment);
 
         // 값 리턴하기
@@ -104,8 +102,12 @@ public class CommentService {
     }
 
     // 댓글 삭제하기
-    public CommentDto.ResponseDto deleteComment(Long commentId, String username) {
+    public CommentDto.DeleteResponseDto deleteComment(Long commentId, String username) {
         // 본인 확인
+        if (username ==  null){
+            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
+        }
+
         User user = userRepository.findByEmail(username)
                 .orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
 
@@ -114,7 +116,7 @@ public class CommentService {
                 .orElseThrow(()-> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
         // 본인이 쓴 댓글인지 확인
-        if (!comment.getUser().getId().equals(user.getId())){
+        if (comment.getUser() == null || !comment.getUser().getId().equals(user.getId())){
             throw new CustomException(ErrorCode.UNAUTHORIZED_COMMENT);
         }
 
@@ -122,7 +124,7 @@ public class CommentService {
         commentRepository.delete(comment);
 
         // id랑 메세지 response로 보내기
-        return CommentDto.ResponseDto.builder()
+        return CommentDto.DeleteResponseDto.builder()
                 .commentId(commentId)
                 .message("댓글이 삭제되었습니다.")
                 .build();
