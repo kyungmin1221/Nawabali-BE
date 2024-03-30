@@ -8,6 +8,7 @@ import com.nawabali.nawabali.global.tool.redis.RedisTool;
 import com.nawabali.nawabali.repository.UserRepository;
 import com.nawabali.nawabali.security.UserDetailsServiceImpl;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwt;
 import io.netty.util.internal.StringUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -63,6 +64,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     log.info("발급한 유저의 email : " + email);
 
                     res.addCookie(newAccessCookie);
+                    res.addHeader(JwtUtil.AUTHORIZATION_HEADER, newAccessToken);
 
                     redisTool.deleteValues(accessToken);
                     log.info("기존 refreshToken 삭제 key :" + accessToken );
@@ -76,8 +78,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                         return;
                     }
                 }else{
-                    log.error("토큰 에러.");
-                    return;
+                    log.error("refreshToken 만료.");
+                    throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
                 }
             }
             else{
