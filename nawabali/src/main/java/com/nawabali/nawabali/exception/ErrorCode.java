@@ -32,6 +32,8 @@ public enum ErrorCode {
     POST_NOT_FOUND(NOT_FOUND, "해당 게시물 정보를 찾을 수 없습니다."),
     COMMENT_NOT_FOUND(NOT_FOUND, "해당 댓글 정보를 찾을 수 없습니다."),
     USER_NOT_FOUND(NOT_FOUND, "해당 사용자를 찾을 수 없습니다."),
+    LIKE_NOT_FOUND(NOT_FOUND, "해당 좋아요를 찾을 수 없습니다."),
+
 
 
     // 409 CONFLICT: 중복된 리소스 (요청이 현재 서버 상태와 충돌될 때)

@@ -87,30 +87,22 @@ public class LikeService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(()-> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        // 좋아요 했으면 삭제하고 저장하기
-        Like like = new Like();
+        Like findLike = likeRepository.findByUserIdAndPostIdAndLikeCategory(user.getId(), postId, dto.getLikeCategory())
+                .orElseThrow(()-> new CustomException(ErrorCode.LIKE_NOT_FOUND));
 
-        if (dto.isStatus() || like.getLikesCount() < 0) {
+        if (!findLike.isStatus() || findLike.getLikesCount() < 0) {
             throw new CustomException(ErrorCode.DUPLICATE_LIKE_FALSE);
         }
 
-        like = Like.builder()
-                .user(user)
-                .post(post)
-                .likeCategory(dto.getLikeCategory())
-                .status(false)
-                .likesCount(like.getLikesCount() - 1)
-                .build();
-
-        likeRepository.delete(like);
+        likeRepository.delete(findLike);
 
         // response 보내기
         return LikeDto.responseDto.builder()
-                .likeId(like.getId())
+                .likeId(findLike.getId())
                 .userId(user.getId())
                 .postId(postId)
-                .likeCategory(like.getLikeCategory())
-                .status(like.isStatus())
+                .likeCategory(findLike.getLikeCategory())
+                .status(findLike.isStatus())
                 .message("좋아요가 취소되었습니다.")
                 .build();
     }
