@@ -40,7 +40,7 @@ public class JwtUtil {
     // 로그 설정
     public static final Logger logger = LoggerFactory.getLogger("JWT 관련 로그");
     // 토큰 만료 시간
-    private final int ACCESS_EXPIRATION_TIME = 24 * 60 * 60 * 1000; //
+    private final int ACCESS_EXPIRATION_TIME = 10 * 60 * 1000; // 10분
     public final int REFRESH_EXPIRATION_TIME = 30 * 60 * 1000; // 30분
     @PostConstruct
     public void init() {
@@ -88,9 +88,8 @@ public class JwtUtil {
         return cookie;
     }
     // 쿠키(엑세스) 생성
-    public Cookie createAccessCookie(String email, UserRoleEnum role) {
-        String cookieValue = createAccessToken(email, role);
-        var accessTokenCookie = URLEncoder.encode(cookieValue, UTF_8);
+    public Cookie createAccessCookie(String token) {
+        var accessTokenCookie = URLEncoder.encode(token, UTF_8);
         Cookie cookie = new Cookie(AUTHORIZATION_HEADER, accessTokenCookie);
         cookie.setPath("/");
         cookie.setMaxAge(ACCESS_EXPIRATION_TIME);
@@ -116,6 +115,8 @@ public class JwtUtil {
             log.error("Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.");
         } catch (ExpiredJwtException e) {
             log.error("Expired JWT token, 만료된 JWT token 입니다.");
+            System.out.println("test");
+            return false;
         } catch (UnsupportedJwtException e) {
             log.error("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.");
         } catch (IllegalArgumentException e) {
@@ -128,5 +129,27 @@ public class JwtUtil {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
 
+    public String getTokenFromCookieAndName(HttpServletRequest req, String cookieName) {
+        Cookie[] cookies = req.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(cookieName)) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null; // Cookie not found
 
+    }
+
+    // JWT substring
+    public String substringToken(String token){
+        if(StringUtils.hasText(token) && token.startsWith("Bearer+")){
+            return token.substring(7);
+        }
+        if(StringUtils.hasText(token) && token.startsWith("Bearer ")){
+            return token.substring(7);
+        }
+        throw new NullPointerException("Not Found Token");
+    }
 }

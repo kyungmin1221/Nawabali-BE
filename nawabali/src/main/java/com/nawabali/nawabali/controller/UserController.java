@@ -2,12 +2,15 @@ package com.nawabali.nawabali.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nawabali.nawabali.dto.SignupDto;
+import com.nawabali.nawabali.security.UserDetailsImpl;
+import com.nawabali.nawabali.security.UserDetailsServiceImpl;
 import com.nawabali.nawabali.service.KakaoService;
 import com.nawabali.nawabali.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,5 +35,10 @@ public class UserController {
     @GetMapping("/test")
     public String test(){
         return "login";
+    }
+
+    @GetMapping("test1")
+    public void test1(@AuthenticationPrincipal UserDetailsImpl userDetails){
+        System.out.println("userDetails.getUser() = " + userDetails.getUser().getEmail());
     }
 }
