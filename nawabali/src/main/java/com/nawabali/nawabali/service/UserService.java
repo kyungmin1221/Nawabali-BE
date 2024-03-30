@@ -46,9 +46,7 @@ public class UserService {
         // 프론트엔드로부터 받은 주소 정보를 사용하여 Address 객체 생성
         Address address = new Address(
                 requestDto.getCity(),
-                requestDto.getDistrict(),
-                requestDto.getStreet(),
-                requestDto.getZipcode()
+                requestDto.getDistrict()
         );
 
         User user = User.builder()

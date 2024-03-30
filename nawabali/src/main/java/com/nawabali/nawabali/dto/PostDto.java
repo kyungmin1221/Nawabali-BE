@@ -22,6 +22,10 @@ public class PostDto {
 
         private Category category;
 
+        private Double latitude;
+
+        private Double longitude;
+
     }
 
     @Getter
@@ -57,5 +61,35 @@ public class PostDto {
             this.createdAt = post.getCreatedAt();
             this.modifiedAt = post.getModifiedAt();
         }
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class PatchDto {
+
+        private String title;
+
+        private String contents;
+
+        private Category category;
+
+        private Double latitude;
+
+        private Double longitude;
+
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class DeleteDto {
+
+        private String message;
+
     }
 }
