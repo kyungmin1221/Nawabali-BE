@@ -1,5 +1,6 @@
 package com.nawabali.nawabali.dto;
 
+import com.nawabali.nawabali.constant.LikeCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,6 +16,7 @@ public class LikeDto {
     @NoArgsConstructor
     public static class requestDto {
 
+        private LikeCategory likeCategory;
         private boolean status;
 
     }
@@ -28,6 +30,7 @@ public class LikeDto {
         private Long likeId;
         private Long postId;
         private Long userId;
+        private LikeCategory likeCategory;
         private boolean status;
         private String message;
 

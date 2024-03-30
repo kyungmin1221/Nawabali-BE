@@ -1,6 +1,8 @@
 package com.nawabali.nawabali.domain;
 
+import com.nawabali.nawabali.constant.LikeCategory;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Table (name = "likes")
 @Slf4j (topic = "LikeDomain 로그")
@@ -17,25 +21,22 @@ public class Like {
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column (nullable = false)
+    @Enumerated (EnumType.STRING)
+    private LikeCategory likeCategory;
+
+    @Column (nullable = false)
     private boolean status;
 
-    @Column
+    @Column (nullable = false)
     private Long likesCount;
 
-    @ManyToOne
+    @ManyToOne (fetch = FetchType.LAZY) // 성능향상에 좋다.
     @JoinColumn (name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne (fetch = FetchType.LAZY)
     @JoinColumn (name = "post_id")
     private Post post;
 
-    @Builder
-    public Like (boolean status, Long likesCount, User user, Post post) {
-        this.status = status;
-        this.likesCount = likesCount;
-        this.user = user;
-        this.post = post;
-    }
 }
