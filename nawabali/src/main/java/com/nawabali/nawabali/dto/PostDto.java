@@ -61,6 +61,7 @@ public class PostDto {
             this.createdAt = post.getCreatedAt();
             this.modifiedAt = post.getModifiedAt();
         }
+
     }
 
     @Getter
