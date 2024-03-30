@@ -28,6 +28,9 @@ dependencies {
 	implementation 'com.sun.xml.bind:jaxb-impl:2.3.3'
 	implementation 'com.sun.xml.bind:jaxb-core:2.3.0.1'
 
+	// https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-ui
+	implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.7.0'
+
 	// email
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: '3.0.5'
 
