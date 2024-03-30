@@ -69,4 +69,21 @@ public class AwsS3Service {
         amazonS3.deleteObject(new DeleteObjectRequest(bucket, fileName));
         System.out.println(bucket);
     }
+
+    public String uploadSingleFile(MultipartFile multipartFile, String dirName){
+        String fileName = createFileName(multipartFile.getOriginalFilename());
+        String filePath = dirName + "/" + fileName; // 폴더 경로 추가
+        ObjectMetadata objectMetadata = new ObjectMetadata();
+        objectMetadata.setContentLength(multipartFile.getSize());
+        objectMetadata.setContentType(multipartFile.getContentType());
+
+        try (InputStream inputStream = multipartFile.getInputStream()) {
+            amazonS3.putObject(new PutObjectRequest(bucket, filePath, inputStream, objectMetadata)
+                    .withCannedAcl(CannedAccessControlList.PublicRead));
+            // S3 URL 생성 및 리스트에 추가
+            return amazonS3.getUrl(bucket, filePath).toString();
+        } catch (IOException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
+        }
+    }
 }
