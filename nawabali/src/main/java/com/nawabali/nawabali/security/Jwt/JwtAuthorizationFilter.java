@@ -52,10 +52,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
                     Claims info = jwtUtil.getUserInfoFromToken(refreshToken);
                     String email = info.getSubject();
-                    User user = userRepository.findByEmail(email);
-                    if(user==null){
-                        throw new CustomException(ErrorCode.USER_NOT_FOUND);
-                    }
+                    User user = userRepository.findByEmail(email).orElseThrow(
+                            ()-> new CustomException(ErrorCode.USER_NOT_FOUND));
                     UserRoleEnum role = user.getRole();
                     // 새로운 access, refresh Token 발행
                     String newAccessToken = jwtUtil.createAccessToken(email, role);
