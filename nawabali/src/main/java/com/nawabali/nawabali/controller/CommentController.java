@@ -1,12 +1,9 @@
 package com.nawabali.nawabali.controller;
 
-import com.nawabali.nawabali.domain.Comment;
 import com.nawabali.nawabali.dto.CommentDto;
 import com.nawabali.nawabali.service.CommentService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;

@@ -1,6 +1,5 @@
 package com.nawabali.nawabali.domain;
 
-import com.nawabali.nawabali.dto.CommentDto;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +10,6 @@ import java.time.LocalDateTime;
 
 
 @Entity
-//@Setter
 @Getter
 @Builder (toBuilder = true)
 @NoArgsConstructor
@@ -42,10 +40,5 @@ public class Comment {
     @ManyToOne
     @JoinColumn (name = "post_id")
     private Post post;
-
-//    public void updateComment ( CommentDto.RequestDto dto) {
-//        this.contents = dto.getContents();
-//        this.modifiedAt = LocalDateTime.now();
-//    }
 
 }

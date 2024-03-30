@@ -10,9 +10,7 @@ import com.nawabali.nawabali.repository.CommentRepository;
 import com.nawabali.nawabali.repository.PostRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,8 +79,8 @@ public class CommentService {
         if (comment.getUser() == null || !comment.getUser().getId().equals(user.getId())){
             throw new CustomException(ErrorCode.UNAUTHORIZED_COMMENT);
         }
-
         // 댓글 entity에 넣고 저장
+
         comment = comment.toBuilder()
                 .contents(dto.getContents())
                 .build();
