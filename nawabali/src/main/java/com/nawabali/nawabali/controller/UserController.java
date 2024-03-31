@@ -44,16 +44,16 @@ public class UserController {
     @PostMapping("/{userId}/profileImage")
     public ResponseEntity<UserDto.ProfileImageDto> createProfileImage(@PathVariable Long userId,
                                                                       @AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                                      MultipartFile multipartFile) {
-        UserDto.ProfileImageDto profileImageDto = userService.createProfileImage(userId, userDetails, multipartFile);
+                                                                      @RequestParam("file") MultipartFile file) {
+        UserDto.ProfileImageDto profileImageDto = userService.createProfileImage(userId, userDetails, file);
         return ResponseEntity.ok(profileImageDto);
     }
 
     @PatchMapping("/{userId}/profileImage")
     public ResponseEntity<UserDto.ProfileImageDto> updateProfileImage(@PathVariable Long userId,
                                                                       @AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                                      MultipartFile multipartFile) {
-        UserDto.ProfileImageDto profileImageDto = userService.updateProfileImage(userId, userDetails, multipartFile);
+                                                                      @RequestParam("file") MultipartFile file) {
+        UserDto.ProfileImageDto profileImageDto = userService.updateProfileImage(userId, userDetails, file);
         return ResponseEntity.ok(profileImageDto);
     }
 

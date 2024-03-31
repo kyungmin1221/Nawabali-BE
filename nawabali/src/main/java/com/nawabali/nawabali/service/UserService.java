@@ -77,13 +77,15 @@ public class UserService {
 
     @Transactional
     public UserDto.ProfileImageDto createProfileImage(Long userId, UserDetailsImpl userDetails, MultipartFile multipartFile) {
-        if(!userId.equals(userDetails.getUser().getId())){
+        User user = userDetails.getUser();
+        if(!userId.equals(user.getId())){
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
         String url = awsS3Service.uploadSingleFile(multipartFile, "profileImage");
         ProfileImage profileImage = ProfileImage.builder()
-                .fileName(url)
+                .fileName(multipartFile.getOriginalFilename())
                 .imgUrl(url)
+                .user(user)
                 .build();
         profileImageRepository.save(profileImage);
         return new UserDto.ProfileImageDto(profileImage);
@@ -99,7 +101,7 @@ public class UserService {
 
         ProfileImage profileImage = profileImageRepository.findById(user.getProfileImage().getId()).orElseThrow(()->
                 new CustomException(ErrorCode.PROFILEIMAGE_NOT_FOUND));
-        profileImage.updateFileName(url);
+        profileImage.updateFileName(multipartFile.getOriginalFilename());
         profileImage.updateImgUrl(url);
         profileImageRepository.save(profileImage);
 
@@ -114,7 +116,6 @@ public class UserService {
         }
         ProfileImage profileImage = profileImageRepository.findById(user.getProfileImage().getId()).orElseThrow(()->
                 new CustomException(ErrorCode.PROFILEIMAGE_NOT_FOUND));
-        awsS3Service.deleteFile(profileImage.getFileName());
         profileImageRepository.delete(profileImage);
         return new UserDto.DeleteDto("프로필사진이 삭제되었습니다.");
     }
