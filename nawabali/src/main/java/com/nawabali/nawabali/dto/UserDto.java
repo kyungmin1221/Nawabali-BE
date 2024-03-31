@@ -33,13 +33,13 @@ public class UserDto {
         Long id;
         String fileName;
         String imgUrl;
-        User user;
+        Long userId;
 
         public ProfileImageDto(ProfileImage profileImage) {
             this.id = profileImage.getId();
             this.fileName = profileImage.getFileName();
             this.imgUrl = profileImage.getImgUrl();
-            this.user = profileImage.getUser();
+            this.userId = profileImage.getUser().getId();
         }
     }
 

@@ -38,17 +38,22 @@ public class User {
 
     private Long kakaoId;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ProfileImage profileImage;
 
     @Builder
-    public User(String username, String nickname, String email, String password, UserRoleEnum role, Address address) {
+    public User(String username, String nickname, String email, String password, UserRoleEnum role, Address address, ProfileImage profileImage) {
         this.username = username;
         this.nickname = nickname;
         this.email = email;
         this.password = password;
         this.role = role;
         this.address = address;
+        this.profileImage = profileImage;
+
+        if (profileImage != null) {
+            profileImage.setUser(this);
+        }
     }
 
     @Builder

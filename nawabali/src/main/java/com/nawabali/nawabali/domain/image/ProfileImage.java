@@ -37,4 +37,8 @@ public class ProfileImage {
     public void updateImgUrl(String imgUrl) {
         this.imgUrl = imgUrl;
     }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }
