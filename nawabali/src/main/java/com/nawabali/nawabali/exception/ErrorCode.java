@@ -17,6 +17,8 @@ public enum ErrorCode {
     MISMATCH_REFRESH_TOKEN(BAD_REQUEST, "리프레시 토큰의 유저 정보가 일치하지 않습니다"),
     WRONG_USERNAME(BAD_REQUEST, "아이디가 잘못 입력되었습니다."),
     WRONG_PASSWORD(UNAUTHORIZED, "비밀번호가 잘못 입력되었습니다."),
+    MISMATCH_PASSWORD(BAD_REQUEST,"두 비밀번호가 일치하지 않습니다."),
+    UNVERIFIED_EMAIL(BAD_REQUEST, "이메일 인증이 완료되지 않았습니다."),
     WRONG_MULTIPARTFILE(BAD_REQUEST, "Multipartfile에 문제가 있습니다"),
     WRONG_DTO(BAD_REQUEST,"DTO를 다시 확인해주세요"),
     MISMATCH_ID(BAD_REQUEST,"잘못된 요청입니다."),

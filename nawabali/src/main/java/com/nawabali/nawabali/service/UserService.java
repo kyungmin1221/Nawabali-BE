@@ -29,7 +29,7 @@ public class UserService {
     private final ProfileImageRepository profileImageRepository;
 
     @Transactional
-    public SignupDto.SignupResponseDto signup(SignupDto.SignupRequestDto requestDto) {
+    public ResponseEntity<SignupDto.SignupResponseDto> signup(SignupDto.SignupRequestDto requestDto) {
         String username = requestDto.getUsername();
         String email = requestDto.getEmail();
         String nickname = requestDto.getNickname();
@@ -37,14 +37,16 @@ public class UserService {
 
         // 비밀번호 일치 검증
         if(!rawPassword.equals(requestDto.getConfirmPassword())){
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new CustomException(ErrorCode.MISMATCH_PASSWORD);
+//            CustomException customException = new CustomException(ErrorCode.MISMATCH_PASSWORD);
+//            return new ResponseEntity<>(customException, customException.getErrorCode().getHttpStatus());
         }
 
         String password = passwordEncoder.encode(rawPassword);
 
         boolean certificated = requestDto.isCertificated();
         if(!certificated){
-            throw new IllegalArgumentException("이메일 인증을 진행해주세요.");
+            throw new CustomException(ErrorCode.UNVERIFIED_EMAIL);
         }
         // 관리자 권한 부여
         UserRoleEnum role = UserRoleEnum.USER;
@@ -70,7 +72,7 @@ public class UserService {
         userRepository.save(user);
         User responseUser = userRepository.findByEmail(user.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-        return new SignupDto.SignupResponseDto(responseUser.getId());
+        return ResponseEntity.ok(new SignupDto.SignupResponseDto(responseUser.getId()));
     }
 
 
