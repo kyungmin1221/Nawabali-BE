@@ -5,9 +5,11 @@ import com.nawabali.nawabali.constant.Town;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.domain.image.PostImage;
+import com.nawabali.nawabali.dto.CommentDto;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
+import com.nawabali.nawabali.repository.CommentRepository;
 import com.nawabali.nawabali.repository.PostImageRepository;
 import com.nawabali.nawabali.repository.PostRepository;
 import com.nawabali.nawabali.s3.AwsS3Service;
@@ -33,6 +35,7 @@ public class PostService {
     private final PostImageRepository postImageRepository;
     private final UserService userService;
     private final AwsS3Service awsS3Service;
+    private final CommentRepository commentRepository;
 
     // 게시물 생성
     @Transactional
@@ -86,7 +89,8 @@ public class PostService {
                             post.getCategory().name(),
                             post.getCreatedAt(),
                             post.getModifiedAt(),
-                            imageUrls
+                            imageUrls,
+                            post.getComments().size()
                     );
                 })
                 .collect(Collectors.toList());
@@ -96,9 +100,9 @@ public class PostService {
 
 
     // 상세 게시물 조회
-    public PostDto.ResponseDto getPost(Long postId) {
+    public PostDto.ResponseDetailDto getPost(Long postId) {
         Post post = getPostId(postId);
-        return new PostDto.ResponseDto(post);
+        return new PostDto.ResponseDetailDto(post);
     }
 
     // 게시물 수정 - 사용자 신원 확인

@@ -8,6 +8,9 @@ import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.domain.image.ProfileImage;
 import lombok.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class UserDto {
     @Getter
     @Setter
@@ -42,6 +45,8 @@ public class UserDto {
         UserRankEnum rank;
         Long localCount;
         Long likesCount;
+        List<BookMarkDto.ResponseDto> bookmarks;
+
 
         public UserInfoResponseDto(User user) {
             this.id = user.getId();
@@ -50,6 +55,11 @@ public class UserDto {
             this.city = user.getAddress().getCity();
             this.district = user.getAddress().getDistrict();
             this.rank = user.getRank();
+            this.bookmarks = user.getBookMarks().stream()
+                    .map(bookmark -> BookMarkDto.ResponseDto.builder()
+                            .userId(bookmark.getUser().getId())
+                            .bookmarkId(bookmark.getId())
+                            .build()).collect(Collectors.toList());
         }
     }
 

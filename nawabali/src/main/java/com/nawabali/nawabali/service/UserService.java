@@ -5,6 +5,7 @@ import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.constant.UserRoleEnum;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.domain.image.ProfileImage;
+import com.nawabali.nawabali.dto.BookMarkDto;
 import com.nawabali.nawabali.dto.SignupDto;
 import com.nawabali.nawabali.dto.UserDto;
 import com.nawabali.nawabali.exception.CustomException;
@@ -20,8 +21,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -119,13 +124,17 @@ public class UserService {
         return new UserDto.DeleteDto("프로필사진이 삭제되었습니다.");
     }
 
-    @Transactional
+
     public UserDto.UserInfoResponseDto getUserInfo(Long userId, User user) {
 
         if (isMatchUserId(userId, user)) {
 
             Long localCount = 1L; // 물어볼것, 수정해야할 부분
             Long likesCount = 1L;
+
+            List<BookMarkDto.ResponseDto> bookmarks = user.getBookMarks().stream()
+                    .map(bookMark -> new BookMarkDto.ResponseDto(bookMark.getId(), bookMark.getUser().getId()))
+                    .collect(Collectors.toList());
 
             return UserDto.UserInfoResponseDto.builder()
                     .id(user.getId())
@@ -136,6 +145,7 @@ public class UserService {
                     .district(user.getAddress().getDistrict())
                     .localCount(localCount)
                     .likesCount(likesCount)
+                    .bookmarks(bookmarks)
                     .build();
         }
         throw new CustomException(ErrorCode.MISMATCH_ID);

@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.ErrorResponse;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -46,8 +47,11 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostImage> images = new ArrayList<>();
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<Comment> comments = new ArrayList<>();
 
-    @Builder(toBuilder = true)
+
+    @Builder
     public Post(String title, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt,
                 Category category, Town town, User user) {
 
