@@ -11,3 +11,5 @@
 /.idea/vcs.xml
 /.idea/workspace.xml
 /.idea/uiDesigner.xml
+/nawabali/src/main/generated/com/nawabali/nawabali/domain/QComment.java
+/nawabali/src/main/generated/com/nawabali/nawabali/domain/QLike.java
