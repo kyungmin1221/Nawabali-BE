@@ -3,12 +3,9 @@ package com.nawabali.nawabali.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nawabali.nawabali.dto.SignupDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
-import com.nawabali.nawabali.security.UserDetailsServiceImpl;
 import com.nawabali.nawabali.service.KakaoService;
 import com.nawabali.nawabali.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,7 +14,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,8 +26,10 @@ public class UserController {
 
     @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "회원가입에 사용하는 API")
-    @ApiResponses()
-    public SignupDto.SignupResponseDto signup(@RequestBody SignupDto.SignupRequestDto requestDto) {
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회원가입 성공")
+    })
+    public ResponseEntity<SignupDto.SignupResponseDto> signup(@RequestBody @Valid SignupDto.SignupRequestDto requestDto) {
         return userService.signup(requestDto);
     }
 

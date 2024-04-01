@@ -8,6 +8,7 @@ import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +21,7 @@ public class UserService {
 
 
     @Transactional
-    public SignupDto.SignupResponseDto signup(SignupDto.SignupRequestDto requestDto) {
+    public ResponseEntity<SignupDto.SignupResponseDto> signup(SignupDto.SignupRequestDto requestDto) {
         String username = requestDto.getUsername();
         String email = requestDto.getEmail();
         String nickname = requestDto.getNickname();
@@ -29,6 +30,8 @@ public class UserService {
         // 비밀번호 일치 검증
         if(!rawPassword.equals(requestDto.getConfirmPassword())){
             throw new CustomException(ErrorCode.MISMATCH_PASSWORD);
+//            CustomException customException = new CustomException(ErrorCode.MISMATCH_PASSWORD);
+//            return new ResponseEntity<>(customException, customException.getErrorCode().getHttpStatus());
         }
 
         String password = passwordEncoder.encode(rawPassword);
@@ -60,7 +63,7 @@ public class UserService {
         userRepository.save(user);
         User responseUser = userRepository.findByEmail(user.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-        return new SignupDto.SignupResponseDto(responseUser.getId());
+        return ResponseEntity.ok(new SignupDto.SignupResponseDto(responseUser.getId()));
     }
 
     public User getUserId(Long userId) {
