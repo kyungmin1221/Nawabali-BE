@@ -21,6 +21,7 @@ public enum ErrorCode {
     UNVERIFIED_EMAIL(BAD_REQUEST, "이메일 인증이 완료되지 않았습니다."),
     WRONG_MULTIPARTFILE(BAD_REQUEST, "Multipartfile에 문제가 있습니다"),
     WRONG_DTO(BAD_REQUEST,"DTO를 다시 확인해주세요"),
+    MISMATCH_ID(BAD_REQUEST,"잘못된 요청입니다."),
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
     INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),
@@ -37,6 +38,7 @@ public enum ErrorCode {
     POST_NOT_FOUND(NOT_FOUND, "해당 게시물 정보를 찾을 수 없습니다."),
     COMMENT_NOT_FOUND(NOT_FOUND, "해당 댓글 정보를 찾을 수 없습니다."),
     USER_NOT_FOUND(NOT_FOUND, "해당 사용자를 찾을 수 없습니다."),
+    PROFILEIMAGE_NOT_FOUND(NOT_FOUND, "해당 프로필이미지를 찾을 수 없습니다."),
 
 
     // 409 CONFLICT: 중복된 리소스 (요청이 현재 서버 상태와 충돌될 때)

@@ -16,11 +16,12 @@ public class SignupDto {
     public static class SignupRequestDto{
 
         @Email
+        @NotBlank
         @Schema(description = "이메일 형식으로 입력. 조건 미충족으로 폼 제출 시 exception 발생", example = "a@a.com")
         private String email;
 
-        @Schema(description = "이름", example = "a")
         @NotBlank
+        @Schema(description = "이름", example = "a")
         private String username;
         @Schema(description = "닉네임, 중복불가, 특수문자 제외 3자이상 10자이하 입력. 조건 미충족으로 폼 제출 시 exception 발생", example = "안양시터줏대감")
         @NotBlank
@@ -48,6 +49,7 @@ public class SignupDto {
         @NotBlank
         @Schema(description = "군, 구. Null 상태로 폼 제출시 exception 발생", example = "동안구")
         private String district;
+
     }
 
     @Getter

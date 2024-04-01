@@ -5,8 +5,13 @@ import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.PostService;
 import jakarta.mail.Multipart;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -24,13 +29,24 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<PostDto.ResponseDto> createPost(
-            @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestPart("requestDto") PostDto.RequestDto requestDto,
+            @AuthenticationPrincipal UserDetailsImpl userDetails, @Valid @RequestPart("requestDto") PostDto.RequestDto requestDto,
             @RequestParam("files") List<MultipartFile> files) {
         PostDto.ResponseDto responseDto = postService.createPost(userDetails.getUser(), requestDto, files);
         return ResponseEntity.ok(responseDto);
     }
 
 
+    @GetMapping
+    public ResponseEntity<Slice<PostDto.ResponseDto>> getPostsByLatest(
+            @PageableDefault(size = 10, sort = "createdAt",
+                    direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        // 서비스 레이어에서 최신 게시물 조회
+        Slice<PostDto.ResponseDto> postsSlice = postService.getPostsByLatest(pageable);
+        // 조회 결과 반환
+        return ResponseEntity.ok(postsSlice);
+    }
+    
     @GetMapping("/{postId}")
     public ResponseEntity<PostDto.ResponseDto> getPost(@PathVariable Long postId) {
         PostDto.ResponseDto responseDto = postService.getPost(postId);
