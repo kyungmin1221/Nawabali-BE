@@ -63,6 +63,20 @@ public class JwtUtil {
 
     }
 
+    // 카카오 로그인 - 엑세스 토큰 생생 - 권한 필요없음
+    public String createAccessToken(String username) {
+        Date now = new Date();
+        Date expireDate = new Date(now.getTime() + ACCESS_EXPIRATION_TIME);
+
+        return BEARER_PREFIX + Jwts.builder()
+                .setSubject(username) // 사용자 식별자값(ID)
+                .setIssuedAt(now) // 발급일
+                .setExpiration(expireDate) // 만료 시간
+                .signWith(key, signatureAlgorithm) // 암호화 알고리즘
+                .compact();
+    }
+
+
     // 리프레시 토큰 생성
     public String createRefreshToken(String email) {
         Date now = new Date();

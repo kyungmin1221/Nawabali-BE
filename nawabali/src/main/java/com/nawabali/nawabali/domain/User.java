@@ -39,7 +39,7 @@ public class User {
     private Address address;
 
     @Column
-    private Long kakaoId;
+    private String kakaoId;
 
     @Column(nullable = false, name = "user_rank")
     @Enumerated(EnumType.STRING)
@@ -65,13 +65,13 @@ public class User {
     }
 
     @Builder
-    public User(String nickname, String email, Long kakaoId){
+    public User(String nickname, String email, String kakaoId){
         this.nickname = nickname;
         this.email = email;
         this.kakaoId = kakaoId;
     }
 
-    public void updateKakaoId(Long id) {
+    public void updateKakaoId(String id) {
         this.kakaoId = id;
     }
 

@@ -28,13 +28,10 @@ public class PostDto {
         @NotBlank
         private String contents;
 
-        @NotBlank
         private Category category;
 
-        @NotBlank
         private Double latitude;
 
-        @NotBlank
         private Double longitude;
 
     }
