@@ -7,6 +7,7 @@ import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.KakaoService;
 import com.nawabali.nawabali.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,7 +22,7 @@ public class UserController {
     private final KakaoService kakaoService;
 
     @PostMapping("/signup")
-    public SignupDto.SignupResponseDto signup(@RequestBody SignupDto.SignupRequestDto requestDto) {
+    public SignupDto.SignupResponseDto signup(@RequestBody @Valid SignupDto.SignupRequestDto requestDto) {
         return userService.signup(requestDto);
     }
 
@@ -29,6 +30,21 @@ public class UserController {
     public String kakaoLogin(@RequestParam String code, HttpServletResponse res) throws JsonProcessingException {
         kakaoService.kakaoLogin(code, res);
         return "redirect:/users/test";
+    }
+
+    @GetMapping("/{userId}")
+    public UserDto.UserInfoResponseDto getUserInfo(@PathVariable Long userId, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return userService.getUserInfo(userId, userDetails.getUser());
+    }
+
+    @PatchMapping("/{userId}")
+    public UserDto.UserInfoResponseDto updateUserInfo(@PathVariable Long userId, @AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody UserDto.UserInfoRequestDto userInfoRequestDto){
+        return userService.updateUserInfo(userId, userDetails.getUser(), userInfoRequestDto);
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<UserDto.deleteResponseDto> deleteUserInfo(@PathVariable Long userId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return userService.deleteUserInfo(userId, userDetails.getUser());
     }
 
     @GetMapping("/test")

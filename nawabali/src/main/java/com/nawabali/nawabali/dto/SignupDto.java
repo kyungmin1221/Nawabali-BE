@@ -24,8 +24,9 @@ public class SignupDto {
         @NotBlank
         private String nickname;
 
-//        @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*\\W)[a-zA-Z0-9\\W]{8,15}$",
-//                message = "대문자, 소문자, 특수문자, 숫자 포함 8~15자리.")
+        @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*\\W)[a-zA-Z0-9\\W]{8,15}$",
+                message = "대문자, 소문자, 특수문자, 숫자 포함 8~15자리.")
+//        @Schema(description = "8자~15자 이내의 비밀번호", example = "StrongP@ss123")
         private String password;
 
         private String confirmPassword;
@@ -35,8 +36,10 @@ public class SignupDto {
         private boolean certificated;
 
         // 주소 정보 관련
+        @NotBlank
         private String city;
 
+        @NotBlank
         private String district;
 
     }
