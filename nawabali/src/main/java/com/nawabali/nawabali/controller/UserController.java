@@ -6,6 +6,12 @@ import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.security.UserDetailsServiceImpl;
 import com.nawabali.nawabali.service.KakaoService;
 import com.nawabali.nawabali.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +23,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@Tag(name = "User", description = "회원가입, 카카오로그인")
 public class UserController {
     private final UserService userService;
     private final KakaoService kakaoService;
 
     @PostMapping("/signup")
+    @Operation(summary = "회원가입", description = "회원가입에 사용하는 API")
+    @ApiResponses()
     public SignupDto.SignupResponseDto signup(@RequestBody SignupDto.SignupRequestDto requestDto) {
         return userService.signup(requestDto);
     }

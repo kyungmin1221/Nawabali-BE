@@ -47,7 +47,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             log.info("저장된 refreshToken :" + refreshToken);
 
             if(!jwtUtil.validateToken(accessToken)){
-                if(StringUtils.hasText(refreshToken)){
+                if(!refreshToken.equals("false")){
                     log.info("refresh 토큰 존재. accessToken 재발급 진행");
 
                     Claims info = jwtUtil.getUserInfoFromToken(refreshToken);
@@ -76,7 +76,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                         return;
                     }
                 }else{
-                    log.error("refreshToken 만료.");
+
                     throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
                 }
             }

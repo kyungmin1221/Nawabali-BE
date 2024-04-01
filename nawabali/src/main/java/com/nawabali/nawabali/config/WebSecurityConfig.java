@@ -66,6 +66,9 @@ public class WebSecurityConfig {
                         .requestMatchers("/users/test").permitAll()
                         .requestMatchers("/users/kakao/callback").permitAll()
                         .requestMatchers("/users/test1").permitAll()
+                        .requestMatchers("/swagger/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/api-test").permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
 
