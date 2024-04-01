@@ -4,8 +4,11 @@ import com.nawabali.nawabali.constant.Address;
 import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.constant.UserRoleEnum;
 import com.nawabali.nawabali.dto.UserDto;
+import com.nawabali.nawabali.domain.image.ProfileImage;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
@@ -42,8 +45,11 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRankEnum rank;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private ProfileImage profileImage;
+
     @Builder
-    public User(String username, String nickname, String email, String password, UserRoleEnum role, Address address, UserRankEnum rank) {
+    public User(String username, String nickname, String email, String password, UserRoleEnum role, Address address, ProfileImage profileImage) {
         this.username = username;
         this.nickname = nickname;
         this.email = email;
@@ -51,6 +57,11 @@ public class User {
         this.role = role;
         this.address = address;
         this.rank = rank;
+        this.profileImage = profileImage;
+
+        if (profileImage != null) {
+            profileImage.setUser(this);
+        }
     }
 
     @Builder

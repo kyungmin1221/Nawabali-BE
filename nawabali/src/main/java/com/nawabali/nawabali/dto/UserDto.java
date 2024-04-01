@@ -4,6 +4,8 @@ import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.domain.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import com.nawabali.nawabali.domain.User;
+import com.nawabali.nawabali.domain.image.ProfileImage;
 import lombok.*;
 
 public class UserDto {
@@ -70,5 +72,31 @@ public class UserDto {
     @Setter
     public static class deleteResponseDto {
         final String message = "회원탈퇴가 완료되었습니다.";
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ProfileImageDto {
+        Long id;
+        String fileName;
+        String imgUrl;
+        Long userId;
+
+        public ProfileImageDto(ProfileImage profileImage) {
+            this.id = profileImage.getId();
+            this.fileName = profileImage.getFileName();
+            this.imgUrl = profileImage.getImgUrl();
+            this.userId = profileImage.getUser().getId();
+        }
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class DeleteDto {
+        private String message;
     }
 }
