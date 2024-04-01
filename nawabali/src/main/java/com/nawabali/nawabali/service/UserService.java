@@ -73,10 +73,6 @@ public class UserService {
         return new SignupDto.SignupResponseDto(responseUser.getId());
     }
 
-    public User getUserId(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-    }
 
     @Transactional
     public UserDto.ProfileImageDto createProfileImage(Long userId, UserDetailsImpl userDetails, MultipartFile multipartFile) {
@@ -153,7 +149,7 @@ public class UserService {
         throw new CustomException(ErrorCode.MISMATCH_ID);
     }
 
-
+    @Transactional
     public ResponseEntity<UserDto.deleteResponseDto> deleteUserInfo(Long userId, User user) {
         if(isMatchUserId(userId, user)){
             userRepository.delete(user);
@@ -169,5 +165,10 @@ public class UserService {
         Long existUserId = existUser.getId();
         Long detailsUserId = user.getId();
         return existUserId.equals(detailsUserId);
+    }
+
+    public User getUserId(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     }
 }

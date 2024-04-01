@@ -34,6 +34,10 @@ public class QUser extends EntityPathBase<User> {
 
     public final StringPath password = createString("password");
 
+    public final com.nawabali.nawabali.domain.image.QProfileImage profileImage;
+
+    public final EnumPath<com.nawabali.nawabali.constant.UserRankEnum> rank = createEnum("rank", com.nawabali.nawabali.constant.UserRankEnum.class);
+
     public final EnumPath<com.nawabali.nawabali.constant.UserRoleEnum> role = createEnum("role", com.nawabali.nawabali.constant.UserRoleEnum.class);
 
     public final StringPath username = createString("username");
@@ -57,6 +61,7 @@ public class QUser extends EntityPathBase<User> {
     public QUser(Class<? extends User> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.address = inits.isInitialized("address") ? new com.nawabali.nawabali.constant.QAddress(forProperty("address")) : null;
+        this.profileImage = inits.isInitialized("profileImage") ? new com.nawabali.nawabali.domain.image.QProfileImage(forProperty("profileImage"), inits.get("profileImage")) : null;
     }
 
 }
