@@ -1,5 +1,7 @@
 package com.nawabali.nawabali.config;
 
+import com.nawabali.nawabali.global.tool.redis.RedisTool;
+import com.nawabali.nawabali.repository.UserRepository;
 import com.nawabali.nawabali.security.Jwt.JwtAuthenticationFilter;
 import com.nawabali.nawabali.security.Jwt.JwtAuthorizationFilter;
 import com.nawabali.nawabali.security.Jwt.JwtUtil;
@@ -24,6 +26,8 @@ public class WebSecurityConfig {
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final RedisTool redisTool;
+    private final UserRepository userRepository;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -32,14 +36,14 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil);
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, redisTool);
         filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
         return filter;
     }
 
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
-        return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
+        return new JwtAuthorizationFilter(jwtUtil, userDetailsService, redisTool,userRepository);
     }
 
     @Bean
@@ -56,11 +60,12 @@ public class WebSecurityConfig {
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll() // resources 접근 허용 설정
                         .requestMatchers("/").permitAll() // 메인 페이지 요청 허가
                         .requestMatchers("/users/signup").permitAll()
-                        .requestMatchers("/users/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
                         .requestMatchers("/posts").permitAll()
                         .requestMatchers(HttpMethod.GET, "/posts/**").permitAll() // 게시글 상세 조회 허가
                         .requestMatchers("/users/test").permitAll()
                         .requestMatchers("/users/kakao/callback").permitAll()
+                        .requestMatchers("/users/test1").permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
 

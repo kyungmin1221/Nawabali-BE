@@ -14,18 +14,13 @@ public class Address {
 
     private String district;    // 구
 
-    private String street; //도로명 주소
-
-    private String zipcode; //지번 주소
-
     protected Address() {}  //무분별한 생성을 막기 위해 protected 로 선언
 
     // 필요시 추가 생성자 필요
-    public Address(String city, String district, String street,String zipcode) {
+    public Address(String city, String district) {
         this.city = city;
         this.district = district;
-        this.street = street;
-        this.zipcode = zipcode;
+
     }
 
 

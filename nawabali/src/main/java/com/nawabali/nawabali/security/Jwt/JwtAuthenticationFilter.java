@@ -3,6 +3,7 @@ package com.nawabali.nawabali.security.Jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nawabali.nawabali.constant.UserRoleEnum;
 import com.nawabali.nawabali.dto.UserDto;
+import com.nawabali.nawabali.global.tool.redis.RedisTool;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,18 +15,22 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 import java.io.IOException;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j(topic = "로그인 및 JWT 생성")
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final JwtUtil jwtUtil;
-    public JwtAuthenticationFilter(JwtUtil jwtUtil){
+    private final RedisTool redisTool;
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, RedisTool redisTool){
         this.jwtUtil = jwtUtil;
         setFilterProcessesUrl("/users/login");
         super.setUsernameParameter("email");
 
+        this.redisTool = redisTool;
     }
 
     @Override
@@ -52,13 +57,21 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
         UserRoleEnum role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRole();
 
-        Cookie accessCookie = jwtUtil.createAccessCookie(username, role);
+
+        String token = jwtUtil.createAccessToken(username, role);
+        log.info("token : " +token);
+        Cookie accessCookie = jwtUtil.createAccessCookie(token);
+
         Cookie refreshCookie = jwtUtil.createRefreshCookie(username);
+
         log.info("user email : " + username, role);
         log.info("accessCookie value : " + accessCookie.getValue());
         log.info("refreshCookie value : " + refreshCookie.getValue());
-        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, accessCookie.getValue());
+
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
         response.addCookie(accessCookie);
+        // refresh 토큰 redis에 저장
+        redisTool.setValues(token.substring(7), refreshCookie.getValue(), Duration.ofMillis(jwtUtil.REFRESH_EXPIRATION_TIME));
 
         // 로그인 성공 메시지를 JSON 형태로 응답 본문에 추가
         response.setContentType("application/json");

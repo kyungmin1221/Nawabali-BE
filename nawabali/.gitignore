@@ -37,5 +37,5 @@ out/
 .vscode/
 
 # properties 제외 설정
-/src/main/resources/*.properties
+src/main/resources/application.properties
 
