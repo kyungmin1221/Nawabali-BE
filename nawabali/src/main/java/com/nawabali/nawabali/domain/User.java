@@ -2,8 +2,11 @@ package com.nawabali.nawabali.domain;
 
 import com.nawabali.nawabali.constant.Address;
 import com.nawabali.nawabali.constant.UserRoleEnum;
+import com.nawabali.nawabali.domain.image.ProfileImage;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
@@ -35,14 +38,22 @@ public class User {
 
     private Long kakaoId;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private ProfileImage profileImage;
+
     @Builder
-    public User(String username, String nickname, String email, String password, UserRoleEnum role, Address address) {
+    public User(String username, String nickname, String email, String password, UserRoleEnum role, Address address, ProfileImage profileImage) {
         this.username = username;
         this.nickname = nickname;
         this.email = email;
         this.password = password;
         this.role = role;
         this.address = address;
+        this.profileImage = profileImage;
+
+        if (profileImage != null) {
+            profileImage.setUser(this);
+        }
     }
 
     @Builder
