@@ -7,6 +7,7 @@ import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.KakaoService;
 import com.nawabali.nawabali.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
