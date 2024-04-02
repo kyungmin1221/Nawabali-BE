@@ -4,7 +4,6 @@ package com.nawabali.nawabali.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nawabali.nawabali.constant.Address;
 import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.constant.UserRoleEnum;
 import com.nawabali.nawabali.domain.User;
@@ -24,11 +23,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import java.net.URI;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 
@@ -44,7 +40,7 @@ public class KakaoService {
 
 
     @Transactional
-    public void kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
+    public void kakaoLogin(String code , HttpServletResponse response) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getAccessToken(code, "http://localhost:8080/api/user/kakao/callback");
 
@@ -57,12 +53,7 @@ public class KakaoService {
         // 3. 로그인 JWT 토큰 발행 및 리프레시 토큰 저장
         jwtTokenCreate(kakaoUser,response);
 
-//        // 클라이언트에 전달할 응답 생성
-//        return KakaoDto.signupResponseDto.builder()
-//                .userId(kakaoUser.getId())
-//                .accessToken(tokens.get("accessToken"))
-//                .refreshToken(tokens.get("refreshToken"))
-//                .build();
+
     }
 
     // 토큰을 요청하고 카카오 서버에서 토큰을 발급 받음- post요청
@@ -127,12 +118,6 @@ public class KakaoService {
 
     // JWT 토큰 생성 및 리프레시 토큰 저장(레디스) 로직
     private void jwtTokenCreate(User kakaoUser , HttpServletResponse res) {
-//        String accessToken = jwtUtil.createAccessToken(kakaoUser.getUsername());
-//        String refreshToken = jwtUtil.createRefreshToken(kakaoUser.getUsername());
-//
-//        // 리프레시 토큰 Redis에 저장
-//        redisTool.setValues(kakaoUser.getUsername(), refreshToken, Duration.ofDays(30));
-        // 5. 토큰 발행
         String token = jwtUtil.createAccessToken(kakaoUser.getEmail(), kakaoUser.getRole());
         Cookie accessCookie = jwtUtil.createAccessCookie(token);
         Cookie refreshCookie = jwtUtil.createRefreshCookie(kakaoUser.getEmail());
@@ -146,10 +131,6 @@ public class KakaoService {
                 accessCookie.getValue().substring(7),
                 refreshCookie.getValue(),
                 Duration.ofMillis(jwtUtil.REFRESH_EXPIRATION_TIME));
-
-//        Map<String, String> tokens = new HashMap<>();
-//        tokens.put("accessToken", accessCookie);
-//        tokens.put("refreshToken", refreshCookie);
 
     }
 

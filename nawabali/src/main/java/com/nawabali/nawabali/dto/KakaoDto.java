@@ -11,6 +11,7 @@ public class KakaoDto {
     @Builder
     public static class signupResponseDto {
         private Long userId;
+        private String username;
         private String accessToken;
         private String refreshToken;
     }
