@@ -36,9 +36,9 @@ jobs:
       # (3) application.properties 생성
       - name: Make an application.properties
         run: |
-          mkdir -p ./nawabali/src/main/resources 
-          echo "${{ secrets.APPLICATION }}" > ./nawabali/src/main/resources/application.properties 
-          cat ./nawabali/src/main/resources/application.properties
+          mkdir -p ./src/main/resources 
+          echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.properties 
+          cat ./src/main/resources/application.properties
 
       # (4) Gradle build (Test 제외)
       - name: Setup Gradle and Build

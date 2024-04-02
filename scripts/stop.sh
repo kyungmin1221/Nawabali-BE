@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 PROJECT_ROOT="/home/ubuntu/app"
-JAR_FILE="$PROJECT_ROOT/nawabali/build/libs/testCICD-0.0.1-SNAPSHOT.jar"
+JAR_FILE="$PROJECT_ROOT/build/libs/testCICD-0.0.1-SNAPSHOT.jar"
 
-DEPLOY_LOG="$PROJECT_ROOT/nawabali/deploy.log"
+DEPLOY_LOG="$PROJECT_ROOT/deploy.log"
 
 TIME_NOW=$(date +%c)
 
