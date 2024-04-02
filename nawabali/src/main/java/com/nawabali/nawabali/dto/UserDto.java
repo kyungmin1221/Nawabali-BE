@@ -19,19 +19,6 @@ public class UserDto {
         String password;
     }
 
-    @Getter
-    @NoArgsConstructor
-    public static class KakaoUserInfoDto{
-        Long id;
-        String email;
-        String nickname;
-
-        public KakaoUserInfoDto(Long id, String nickname, String email) {
-            this.id = id;
-            this.nickname = nickname;
-            this.email = email;
-        }
-    }
 
     @Getter
     @Builder
@@ -104,5 +91,6 @@ public class UserDto {
     public static class DeleteDto {
         private String message;
     }
+
 
 }

@@ -14,7 +14,7 @@ public class Address {
 
     private String district;    // 구
 
-    protected Address() {}  //무분별한 생성을 막기 위해 protected 로 선언
+    public Address() {}
 
     // 필요시 추가 생성자 필요
     public Address(String city, String district) {
