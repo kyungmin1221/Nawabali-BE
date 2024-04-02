@@ -8,24 +8,26 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/bookmarks/posts")
+@RequestMapping("/bookmarks")
 @RequiredArgsConstructor
 public class BookMarkController {
 
     private final BookMarkService bookMarkService;
 
-    @PostMapping
-    public ResponseEntity<BookMarkDto.ResponseDto> createBookMark(@RequestParam Long userId,
-                                                                      @RequestParam Long postId) {
-        BookMarkDto.ResponseDto responseDto = bookMarkService.createBookMark(userId, postId);
+    @PostMapping("/posts/{postId}")
+    public ResponseEntity<BookMarkDto.ResponseDto> createBookMark(@PathVariable Long postId,
+                                                                  @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        BookMarkDto.ResponseDto responseDto = bookMarkService.toggleBookmark(userDetails.getUser(), postId);
         return ResponseEntity.ok(responseDto);
     }
 
-    // 북마크 삭제
-    @DeleteMapping("/{bookmarkId}")
-    public ResponseEntity<Void> deleteBookMark(@PathVariable Long bookmarkId) {
-        bookMarkService.deleteBookMark(bookmarkId);
-        return ResponseEntity.ok().build();
+    @GetMapping("/users")
+    public ResponseEntity<List<BookMarkDto.UserBookmarkDto>> getBookmarks(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<BookMarkDto.UserBookmarkDto> userBookmarkDto = bookMarkService.getBookmarks(userDetails.getUser());
+        return ResponseEntity.ok(userBookmarkDto);
     }
+
 }

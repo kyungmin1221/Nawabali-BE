@@ -24,9 +24,9 @@ public class QBookMark extends EntityPathBase<BookMark> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public final StringPath message = createString("message");
-
     public final QPost post;
+
+    public final BooleanPath status = createBoolean("status");
 
     public final QUser user;
 

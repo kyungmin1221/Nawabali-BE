@@ -66,6 +66,7 @@ public class User {
         this.rank = rank;
         this.profileImage = profileImage;
 
+
         if (profileImage != null) {
             profileImage.setUser(this);
         }

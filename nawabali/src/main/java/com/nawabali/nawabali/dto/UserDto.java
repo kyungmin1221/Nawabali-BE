@@ -45,7 +45,6 @@ public class UserDto {
         UserRankEnum rank;
         Long localCount;
         Long likesCount;
-        List<BookMarkDto.ResponseDto> bookmarks;
 
 
         public UserInfoResponseDto(User user) {
@@ -55,11 +54,7 @@ public class UserDto {
             this.city = user.getAddress().getCity();
             this.district = user.getAddress().getDistrict();
             this.rank = user.getRank();
-            this.bookmarks = user.getBookMarks().stream()
-                    .map(bookmark -> BookMarkDto.ResponseDto.builder()
-                            .userId(bookmark.getUser().getId())
-                            .bookmarkId(bookmark.getId())
-                            .build()).collect(Collectors.toList());
+
         }
     }
 
@@ -109,4 +104,5 @@ public class UserDto {
     public static class DeleteDto {
         private String message;
     }
+
 }

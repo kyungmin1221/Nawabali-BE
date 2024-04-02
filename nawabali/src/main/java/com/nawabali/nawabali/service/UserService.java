@@ -132,10 +132,6 @@ public class UserService {
             Long localCount = 1L; // 물어볼것, 수정해야할 부분
             Long likesCount = 1L;
 
-            List<BookMarkDto.ResponseDto> bookmarks = user.getBookMarks().stream()
-                    .map(bookMark -> new BookMarkDto.ResponseDto(bookMark.getId(), bookMark.getUser().getId()))
-                    .collect(Collectors.toList());
-
             return UserDto.UserInfoResponseDto.builder()
                     .id(user.getId())
                     .email(user.getEmail())
@@ -145,7 +141,6 @@ public class UserService {
                     .district(user.getAddress().getDistrict())
                     .localCount(localCount)
                     .likesCount(likesCount)
-                    .bookmarks(bookmarks)
                     .build();
         }
         throw new CustomException(ErrorCode.MISMATCH_ID);
@@ -168,9 +163,9 @@ public class UserService {
         throw new CustomException(ErrorCode.MISMATCH_ID);
     }
 
+
     public boolean isMatchUserId(Long userId, User user){
-        User existUser = userRepository.findById(userId).orElseThrow(() ->
-                new CustomException(ErrorCode.USER_NOT_FOUND));
+        User existUser = getUserId(userId);
 
         Long existUserId = existUser.getId();
         Long detailsUserId = user.getId();

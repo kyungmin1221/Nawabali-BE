@@ -15,6 +15,8 @@ public class BookMark {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private boolean status;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -25,8 +27,13 @@ public class BookMark {
 
 
     @Builder
-    public BookMark(User user, Post post) {
+    public BookMark(boolean status, User user, Post post) {
+        this.status = status;
         this.user = user;
         this.post = post;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
     }
 }
