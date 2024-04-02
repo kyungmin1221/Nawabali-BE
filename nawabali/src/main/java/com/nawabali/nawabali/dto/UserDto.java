@@ -100,13 +100,13 @@ public class UserDto {
         private String message;
     }
 
-//    @Getter
-//    @Setter
-//    @AllArgsConstructor
-//    @NoArgsConstructor
-//    @Builder
-//    public class KakaoSignupAddressDto {
-//        private String city;
-//        private String district;
-//    }
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public class KakaoSignupAddressDto {
+        private String city;
+        private String district;
+    }
 }
