@@ -157,13 +157,21 @@ public class JwtUtil {
     }
 
     // JWT substring
+//    public String substringToken(String token){
+//        if(StringUtils.hasText(token) && token.startsWith("Bearer+")){
+//            return token.substring(7);
+//        }
+//        if(StringUtils.hasText(token) && token.startsWith("Bearer ")){
+//            return token.substring(7);
+//        }
+//        throw new NullPointerException("Not Found Token");
+//    }
     public String substringToken(String token){
-        if(StringUtils.hasText(token) && token.startsWith("Bearer+")){
+        if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
             return token.substring(7);
         }
-        if(StringUtils.hasText(token) && token.startsWith("Bearer ")){
-            return token.substring(7);
-        }
-        throw new NullPointerException("Not Found Token");
+        throw new IllegalArgumentException("Invalid or Missing Authorization Header");
     }
+
+
 }

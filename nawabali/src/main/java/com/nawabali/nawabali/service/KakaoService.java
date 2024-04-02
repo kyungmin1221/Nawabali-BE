@@ -5,12 +5,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nawabali.nawabali.constant.Address;
+import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.constant.UserRoleEnum;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.KakaoDto;
 import com.nawabali.nawabali.global.tool.redis.RedisTool;
 import com.nawabali.nawabali.repository.UserRepository;
 import com.nawabali.nawabali.security.Jwt.JwtUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -41,22 +44,25 @@ public class KakaoService {
 
 
     @Transactional
-    public KakaoDto.signupResponseDto kakaoLogin(String code, KakaoDto.addressRequestDto requestDto) throws JsonProcessingException {
+    public void kakaoLogin(String code, HttpServletResponse response) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getAccessToken(code, "http://localhost:8080/api/user/kakao/callback");
 
         // 2. 필요시에 회원가입 및 위치 정보(address 값) 저장
-        User kakaoUser = registerKakaoUserIfNeeded(accessToken, requestDto);
+        User kakaoUser = registerKakaoUserIfNeeded(accessToken);
+        log.info("userinfo : " + kakaoUser.getUsername());
+        log.info("userinfo : " + kakaoUser.getEmail());
+        log.info("userinfo : " + kakaoUser.getNickname());
 
         // 3. 로그인 JWT 토큰 발행 및 리프레시 토큰 저장
-        Map<String, String> tokens = jwtTokenCreate(kakaoUser);
+        jwtTokenCreate(kakaoUser,response);
 
-        // 클라이언트에 전달할 응답 생성
-        return KakaoDto.signupResponseDto.builder()
-                .userId(kakaoUser.getId())
-                .accessToken(tokens.get("accessToken"))
-                .refreshToken(tokens.get("refreshToken"))
-                .build();
+//        // 클라이언트에 전달할 응답 생성
+//        return KakaoDto.signupResponseDto.builder()
+//                .userId(kakaoUser.getId())
+//                .accessToken(tokens.get("accessToken"))
+//                .refreshToken(tokens.get("refreshToken"))
+//                .build();
     }
 
     // 토큰을 요청하고 카카오 서버에서 토큰을 발급 받음- post요청
@@ -90,7 +96,7 @@ public class KakaoService {
     }
 
     // 수정된 회원 가입 및 위치 정보 저장 로직
-    private User registerKakaoUserIfNeeded(String accessToken, KakaoDto.addressRequestDto requestDto) throws JsonProcessingException {
+    private User registerKakaoUserIfNeeded(String accessToken) throws JsonProcessingException {
         KakaoDto.userInfoDto kakaoUserInfo = getKakaoUserInfo(accessToken);
 
         // DB 에 중복된 Kakao Id 가 있는지 확인
@@ -103,10 +109,6 @@ public class KakaoService {
             String password = passwordEncoder.encode(UUID.randomUUID().toString());
 
             UserRoleEnum role = UserRoleEnum.USER; // 기본 역할을 ROLE_USER로 설정
-            Address address = new Address(
-                    requestDto.getCity(),
-                    requestDto.getDistrict()
-            );
 
             kakaoUser = User.builder()
                     .username(kakaoId)
@@ -114,7 +116,7 @@ public class KakaoService {
                     .email(kakaoEmail)
                     .password(password)
                     .role(role)
-                    .address(address) // 위치 정보
+                    .rank(UserRankEnum.RESIDENT)
                     .build();
             userRepository.save(kakaoUser);
         }
@@ -124,18 +126,31 @@ public class KakaoService {
 
 
     // JWT 토큰 생성 및 리프레시 토큰 저장(레디스) 로직
-    private Map<String, String> jwtTokenCreate(User kakaoUser) {
-        String accessToken = jwtUtil.createAccessToken(kakaoUser.getUsername());
-        String refreshToken = jwtUtil.createRefreshToken(kakaoUser.getUsername());
+    private void jwtTokenCreate(User kakaoUser , HttpServletResponse res) {
+//        String accessToken = jwtUtil.createAccessToken(kakaoUser.getUsername());
+//        String refreshToken = jwtUtil.createRefreshToken(kakaoUser.getUsername());
+//
+//        // 리프레시 토큰 Redis에 저장
+//        redisTool.setValues(kakaoUser.getUsername(), refreshToken, Duration.ofDays(30));
+        // 5. 토큰 발행
+        String token = jwtUtil.createAccessToken(kakaoUser.getEmail(), kakaoUser.getRole());
+        Cookie accessCookie = jwtUtil.createAccessCookie(token);
+        Cookie refreshCookie = jwtUtil.createRefreshCookie(kakaoUser.getEmail());
 
-        // 리프레시 토큰 Redis에 저장
-        redisTool.setValues(kakaoUser.getUsername(), refreshToken, Duration.ofDays(30));
+        // 6. 헤더 및 쿠키에 저장
+        res.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+        res.addCookie(accessCookie);
 
-        Map<String, String> tokens = new HashMap<>();
-        tokens.put("accessToken", accessToken);
-        tokens.put("refreshToken", refreshToken);
+        // 7. redis에 리프레시 토큰 저장
+        redisTool.setValues(
+                accessCookie.getValue().substring(7),
+                refreshCookie.getValue(),
+                Duration.ofMillis(jwtUtil.REFRESH_EXPIRATION_TIME));
 
-        return tokens;
+//        Map<String, String> tokens = new HashMap<>();
+//        tokens.put("accessToken", accessCookie);
+//        tokens.put("refreshToken", refreshCookie);
+
     }
 
 
@@ -168,9 +183,13 @@ public class KakaoService {
         );
 
         JsonNode jsonNode = new ObjectMapper().readTree(response.getBody());
+        String properties = jsonNode.toString();
+        log.info("---------");
+        log.info("properties : " + properties);
+        log.info("---------");
         Long id = jsonNode.get("id").asLong();
         String nickname = jsonNode.get("properties").get("nickname").asText();
-        String email = jsonNode.path("kakao_account").path("email").asText(); // path()는 값이 없을 경우 null을 반환하지 않고, "missing node"를 반환합니다.
+        String email = jsonNode.path("kakao_account").path("email").asText();
 
         log.info("카카오 사용자 정보: " + id + ", " + nickname + ", " + email);
         return new KakaoDto.userInfoDto(id, nickname, email);

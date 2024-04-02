@@ -64,8 +64,9 @@ public class WebSecurityConfig {
                         .requestMatchers("/posts").permitAll()
                         .requestMatchers(HttpMethod.GET, "/posts/**").permitAll() // 게시글 상세 조회 허가
                         .requestMatchers("/users/test").permitAll()
-                        .requestMatchers("/users/kakao/callback").permitAll()
                         .requestMatchers("/users/test1").permitAll()
+                        .requestMatchers("/api/user/kakao/callback").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
 

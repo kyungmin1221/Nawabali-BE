@@ -2,28 +2,31 @@ package com.nawabali.nawabali.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nawabali.nawabali.dto.KakaoDto;
+import com.nawabali.nawabali.security.Jwt.JwtUtil;
 import com.nawabali.nawabali.service.KakaoService;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/user")
 @RequiredArgsConstructor
 public class KakaoController {
 
     private final KakaoService kakaoService;
 
+
     // 카카오 로그인 요청 처리
-    @PostMapping("/kakao/login")
-    public ResponseEntity<KakaoDto.signupResponseDto> kakaoLogin(@RequestParam String code,
-                                               @RequestBody KakaoDto.addressRequestDto requestDto) throws JsonProcessingException {
-        KakaoDto.signupResponseDto responseDto = kakaoService.kakaoLogin(code, requestDto);
-        return ResponseEntity.ok(responseDto);
+    @GetMapping("/kakao/callback")
+    public ResponseEntity<?> kakaoLogin(@RequestParam String code,
+                                                                 HttpServletResponse response) throws JsonProcessingException {
+        kakaoService.kakaoLogin(code, response);
+//        return ResponseEntity.ok(responseDto);      // 사용자 수정 화면으로 넘겨줘야
+        return ResponseEntity.ok().body("success");
     }
-
-
-
 
 }
