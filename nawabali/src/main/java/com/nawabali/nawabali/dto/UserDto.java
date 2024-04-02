@@ -8,6 +8,9 @@ import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.domain.image.ProfileImage;
 import lombok.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class UserDto {
     @Getter
     @Setter
@@ -43,6 +46,7 @@ public class UserDto {
         Long localCount;
         Long likesCount;
 
+
         public UserInfoResponseDto(User user) {
             this.id = user.getId();
             this.email = user.getEmail();
@@ -50,6 +54,7 @@ public class UserDto {
             this.city = user.getAddress().getCity();
             this.district = user.getAddress().getDistrict();
             this.rank = user.getRank();
+
         }
     }
 
@@ -99,4 +104,5 @@ public class UserDto {
     public static class DeleteDto {
         private String message;
     }
+
 }

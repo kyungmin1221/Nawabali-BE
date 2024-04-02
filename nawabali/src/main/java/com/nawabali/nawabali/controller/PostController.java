@@ -41,15 +41,14 @@ public class PostController {
             @PageableDefault(size = 10, sort = "createdAt",
                     direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        // 서비스 레이어에서 최신 게시물 조회
         Slice<PostDto.ResponseDto> postsSlice = postService.getPostsByLatest(pageable);
         // 조회 결과 반환
         return ResponseEntity.ok(postsSlice);
     }
     
     @GetMapping("/{postId}")
-    public ResponseEntity<PostDto.ResponseDto> getPost(@PathVariable Long postId) {
-        PostDto.ResponseDto responseDto = postService.getPost(postId);
+    public ResponseEntity<PostDto.ResponseDetailDto> getPost(@PathVariable Long postId) {
+        PostDto.ResponseDetailDto responseDto = postService.getPost(postId);
         return ResponseEntity.ok(responseDto);
     }
 

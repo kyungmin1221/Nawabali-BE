@@ -28,6 +28,7 @@ public class LikeService {
 //    private final LocalLikeRepository localLikeRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final PostService postService;
 
     // 좋아요 추가
     public LikeDto.responseDto createLike(Long postId, LikeDto.requestDto dto, String username) {
@@ -37,9 +38,7 @@ public class LikeService {
                 .orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
 
         // 게시물 가져오기
-        Post post = postRepository.findById(postId)
-                .orElseThrow(()-> new CustomException(ErrorCode.POST_NOT_FOUND));
-
+        Post post = postService.getPostId(postId);
         Optional<Like> findLike = likeRepository.findByUserIdAndPostIdAndLikeCategory(user.getId(), postId, dto.getLikeCategory());
 
         if (findLike.isPresent()){
