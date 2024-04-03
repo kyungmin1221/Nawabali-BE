@@ -115,20 +115,16 @@ public class PostService {
 
     // 게시물 수정 - 사용자 신원 확인
     @Transactional
-    public PostDto.ResponseDto updatePost(Long postId, User user, PostDto.PatchDto patchDto) {
+    public PostDto.PatchDto updatePost(Long postId, User user, PostDto.PatchDto patchDto) {
         Post post = getPostId(postId);
         if(!post.getUser().getId().equals(user.getId())){
             throw new CustomException(ErrorCode.FORBIDDEN_MEMBER);
         }
 
-        Town town = new Town(patchDto.getLatitude(), patchDto.getLongitude());
+        post.update(patchDto.getTitle(), patchDto.getContents());
+        postRepository.save(post);
 
-        post.update(patchDto.getTitle(),
-                patchDto.getContents(),
-                patchDto.getCategory(),
-                town);
-
-        return new PostDto.ResponseDto(post);
+        return new PostDto.PatchDto(post);
     }
 
 

@@ -151,12 +151,10 @@ public class PostDto {
 
         private String contents;
 
-        private Category category;
-
-        private Double latitude;
-
-        private Double longitude;
-
+        public PatchDto(Post post) {
+            this.title = post.getTitle();
+            this.contents = post.getContents();
+        }
     }
 
     @Getter

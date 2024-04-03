@@ -67,11 +67,9 @@ public class Post {
         this.user = user;
     }
 
-    public void update(String title, String contents, Category category, Town town) {
+    public void update(String title, String contents) {
         this.title = title;
         this.contents = contents;
-        this.category = category;
-        this.town = town;
     }
 
     // 이미지 생성

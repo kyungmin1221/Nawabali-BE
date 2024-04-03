@@ -53,10 +53,10 @@ public class PostController {
     }
 
     @PatchMapping("/{postId}")
-    public ResponseEntity<PostDto.ResponseDto> updatePost(@PathVariable Long postId,
+    public ResponseEntity<PostDto.PatchDto> updatePost(@PathVariable Long postId,
                                                           @AuthenticationPrincipal UserDetailsImpl userDetails,
                                                           @RequestBody PostDto.PatchDto patchDto) {
-        PostDto.ResponseDto responseDto = postService.updatePost(postId,userDetails.getUser(),patchDto);
+        PostDto.PatchDto responseDto = postService.updatePost(postId,userDetails.getUser(),patchDto);
         return ResponseEntity.ok(responseDto);
     }
 
