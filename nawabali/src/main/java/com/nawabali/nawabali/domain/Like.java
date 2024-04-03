@@ -1,11 +1,8 @@
 package com.nawabali.nawabali.domain;
 
-import com.nawabali.nawabali.constant.LikeCategory;
+import com.nawabali.nawabali.constant.LikeCategoryEnum;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 @Entity
@@ -23,13 +20,13 @@ public class Like {
 
     @Column (nullable = false)
     @Enumerated (EnumType.STRING)
-    private LikeCategory likeCategory;
+    private LikeCategoryEnum likeCategoryEnum;
 
     @Column (nullable = false)
     private boolean status;
 
-    @Column (nullable = false)
-    private Long likesCount;
+//    @Column (nullable = false)
+//    private Long likesCount;
 
     @ManyToOne (fetch = FetchType.LAZY) // 성능향상에 좋다.
     @JoinColumn (name = "user_id")

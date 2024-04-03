@@ -28,10 +28,13 @@ public class PostDto {
         @NotBlank
         private String contents;
 
+        @NotNull
         private Category category;
 
+        @NotNull
         private Double latitude;
 
+        @NotNull
         private Double longitude;
 
     }
@@ -60,6 +63,10 @@ public class PostDto {
         private LocalDateTime modifiedAt;
 
         private List<String> imageUrls;
+
+        private Long likesCount;
+
+        private Long localLikesCount;
 
         private int commentCount;
 
@@ -111,8 +118,12 @@ public class PostDto {
 
         private List<CommentDto.DetailResponseDto> comments;
 
+        private Long likesCount;
 
-        public ResponseDetailDto(Post post) {
+        private Long localLikesCount;
+
+
+        public ResponseDetailDto(Post post, Long likesCount, Long localLikesCount) {
             this.userId = post.getUser().getId();
             this.postId = post.getId();
             this.nickname = post.getUser().getNickname();
@@ -134,6 +145,8 @@ public class PostDto {
                     .createdAt(comment.getCreatedAt())
                     .modifiedAt(comment.getModifiedAt())
                     .build()).collect(Collectors.toList());
+            this.likesCount = likesCount;
+            this.localLikesCount = localLikesCount;
         }
 
     }
