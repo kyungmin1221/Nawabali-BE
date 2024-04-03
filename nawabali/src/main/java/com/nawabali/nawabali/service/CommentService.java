@@ -4,6 +4,7 @@ import com.nawabali.nawabali.domain.Comment;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.CommentDto;
+import com.nawabali.nawabali.dto.dslDto.CommentDslDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.CommentRepository;
@@ -11,6 +12,8 @@ import com.nawabali.nawabali.repository.PostRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -126,5 +129,10 @@ public class CommentService {
                 .commentId(commentId)
                 .message("댓글이 삭제되었습니다.")
                 .build();
+    }
+
+    // 댓글 조회(무한 스크롤)
+    public Slice<CommentDslDto.ResponseDto> getComments(Long postId, Pageable pageable) {
+        return commentRepository.findCommentsByPostId(postId , pageable);
     }
 }

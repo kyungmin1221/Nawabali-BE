@@ -38,9 +38,9 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<Slice<PostDto.ResponseDto>> getPostsByLatest(
-            @PageableDefault(size = 10, sort = "createdAt",
-                    direction = Sort.Direction.DESC) Pageable pageable
-    ) {
+            @PageableDefault(size = 10,
+                    sort = "createdAt",
+                    direction = Sort.Direction.DESC) Pageable pageable) {
         Slice<PostDto.ResponseDto> postsSlice = postService.getPostsByLatest(pageable);
         // 조회 결과 반환
         return ResponseEntity.ok(postsSlice);
@@ -53,7 +53,8 @@ public class PostController {
     }
 
     @PatchMapping("/{postId}")
-    public ResponseEntity<PostDto.ResponseDto> updatePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails,
+    public ResponseEntity<PostDto.ResponseDto> updatePost(@PathVariable Long postId,
+                                                          @AuthenticationPrincipal UserDetailsImpl userDetails,
                                                           @RequestBody PostDto.PatchDto patchDto) {
         PostDto.ResponseDto responseDto = postService.updatePost(postId,userDetails.getUser(),patchDto);
         return ResponseEntity.ok(responseDto);

@@ -34,6 +34,8 @@ public class QPost extends EntityPathBase<Post> {
 
     public final ListPath<com.nawabali.nawabali.domain.image.PostImage, com.nawabali.nawabali.domain.image.QPostImage> images = this.<com.nawabali.nawabali.domain.image.PostImage, com.nawabali.nawabali.domain.image.QPostImage>createList("images", com.nawabali.nawabali.domain.image.PostImage.class, com.nawabali.nawabali.domain.image.QPostImage.class, PathInits.DIRECT2);
 
+    public final ListPath<Like, QLike> likes = this.<Like, QLike>createList("likes", Like.class, QLike.class, PathInits.DIRECT2);
+
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = createDateTime("modifiedAt", java.time.LocalDateTime.class);
 
     public final StringPath title = createString("title");
