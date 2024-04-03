@@ -78,6 +78,16 @@ clean {
 	delete file(generated)
 }
 
-tasks.named('test') {
+// CI 빌드 test 제외하기 위해 주석처리
+//tasks.named('test') {
+//	useJUnitPlatform()
+//}
+
+test {
 	useJUnitPlatform()
+}
+
+// 빌드 시 plain jar 파일은 만들어지지 않기 위해 추가
+jar {
+	enabled = false
 }

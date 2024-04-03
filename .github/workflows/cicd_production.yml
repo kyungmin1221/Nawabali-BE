@@ -41,6 +41,16 @@ jobs:
           cat ./src/main/resources/application.properties
 
       # (4) Gradle build (Test 제외)
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-    
+
       - name: Setup Gradle and Build
         uses: gradle/actions/setup-gradle@v3
         with:
@@ -55,7 +65,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ secrets.ROLE }}
 
 
       # (6) 빌드 결과물을 S3 버킷에 업로드
