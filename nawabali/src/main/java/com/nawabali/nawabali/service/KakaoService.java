@@ -15,6 +15,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,8 @@ public class KakaoService {
     private final RedisTool redisTool;
     private final RestTemplate restTemplate;
 
+    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
+    private String clientId;
 
     @Transactional
     public void kakaoLogin(String code , HttpServletResponse response) throws JsonProcessingException {
@@ -65,7 +68,7 @@ public class KakaoService {
         // HTTP Body 생성
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "authorization_code");
-        body.add("client_id", "52329a0a112266267bafd3864529e810");
+        body.add("client_id", clientId);
         body.add("redirect_uri", redirect_uri);
         body.add("code", code);
 

@@ -50,6 +50,9 @@ public class Post {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<Like> likes = new ArrayList<>();
+
 
     @Builder
     public Post(String title, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt,
@@ -64,11 +67,9 @@ public class Post {
         this.user = user;
     }
 
-    public void update(String title, String contents, Category category, Town town) {
+    public void update(String title, String contents) {
         this.title = title;
         this.contents = contents;
-        this.category = category;
-        this.town = town;
     }
 
     // 이미지 생성

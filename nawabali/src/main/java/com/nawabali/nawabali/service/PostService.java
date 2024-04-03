@@ -8,6 +8,7 @@ import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.domain.image.PostImage;
 import com.nawabali.nawabali.dto.CommentDto;
 import com.nawabali.nawabali.dto.PostDto;
+import com.nawabali.nawabali.dto.dslDto.PostDslDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.CommentRepository;
@@ -74,28 +75,27 @@ public class PostService {
 
     }
 
-    // 전체 게시물 조회 - 무한 스크롤
+    // 전체 게시물 조회
     public Slice<PostDto.ResponseDto> getPostsByLatest(Pageable pageable) {
-        Slice<Post> postSlice = postRepository.findPostsByLatest(pageable);
+        Slice<PostDslDto.ResponseDto> postSlice = postRepository.findPostsByLatest(pageable);
         List<PostDto.ResponseDto> content = postSlice.getContent().stream()
                 .map(post -> {
-                    List<String> imageUrls = post.getImages().stream()
-                            .map(PostImage::getImgUrl) // 이미지 URL 추출
-                            .collect(Collectors.toList());
+                    Long likesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LIKE);
+                    Long localLikesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
 
                     return new PostDto.ResponseDto(
-                            post.getUser().getId(),
-                            post.getId(),
-                            post.getUser().getNickname(),
+                            post.getUserId(),
+                            post.getPostId(),
+                            post.getNickname(),
                             post.getTitle(),
                             post.getContents(),
-                            post.getCategory().name(),
+                            post.getCategory(),
                             post.getCreatedAt(),
                             post.getModifiedAt(),
-                            imageUrls,
-                            getLikesCount(post.getId(), LikeCategoryEnum.LIKE),
-                            getLikesCount(post.getId(), LikeCategoryEnum.LOCAL_LIKE),
-                            post.getComments().size()
+                            post.getImageUrls(),
+                            likesCount,
+                            localLikesCount,
+                            post.getCommentCount()
                     );
                 })
                 .collect(Collectors.toList());
@@ -109,26 +109,22 @@ public class PostService {
         Post post = getPostId(postId);
         Long likesCount = getLikesCount(postId, LikeCategoryEnum.LIKE);
         Long localLikesCount = getLikesCount(postId, LikeCategoryEnum.LOCAL_LIKE);
-//        return new PostDto.ResponseDto(post, likesCount, localLikesCount);
+
         return new PostDto.ResponseDetailDto(post, likesCount, localLikesCount);
     }
 
     // 게시물 수정 - 사용자 신원 확인
     @Transactional
-    public PostDto.ResponseDto updatePost(Long postId, User user, PostDto.PatchDto patchDto) {
+    public PostDto.PatchDto updatePost(Long postId, User user, PostDto.PatchDto patchDto) {
         Post post = getPostId(postId);
         if(!post.getUser().getId().equals(user.getId())){
             throw new CustomException(ErrorCode.FORBIDDEN_MEMBER);
         }
 
-        Town town = new Town(patchDto.getLatitude(), patchDto.getLongitude());
+        post.update(patchDto.getTitle(), patchDto.getContents());
+        postRepository.save(post);
 
-        post.update(patchDto.getTitle(),
-                patchDto.getContents(),
-                patchDto.getCategory(),
-                town);
-
-        return new PostDto.ResponseDto(post);
+        return new PostDto.PatchDto(post);
     }
 
 
@@ -150,15 +146,14 @@ public class PostService {
     }
 
 
+    public Long getLikesCount(Long postId, LikeCategoryEnum likeCategoryEnum){
+        return likeRepository.countByPostIdAndLikeCategoryEnum(postId, likeCategoryEnum);
+    }
+
     public Post getPostId(Long postId) {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_POST));
 
     }
-
-    public Long getLikesCount(Long postId, LikeCategoryEnum likeCategoryEnum){
-        return likeRepository.countByPostIdAndLikeCategoryEnum(postId, likeCategoryEnum);
-    }
-
 
 }

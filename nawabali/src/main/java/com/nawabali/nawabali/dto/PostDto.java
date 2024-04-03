@@ -44,7 +44,7 @@ public class PostDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class ResponseDto {
+    public static class ResponseDto {       // 게시물 전체 조회 시
 
         private Long userId;
 
@@ -94,7 +94,7 @@ public class PostDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class ResponseDetailDto {
+    public static class ResponseDetailDto {     // 게시물 상세 조회 시
 
         private Long userId;
 
@@ -116,8 +116,6 @@ public class PostDto {
 
         private int commentCount;
 
-        private List<CommentDto.DetailResponseDto> comments;
-
         private Long likesCount;
 
         private Long localLikesCount;
@@ -136,15 +134,6 @@ public class PostDto {
                     .map(PostImage::getImgUrl)
                     .collect(Collectors.toList());
             this.commentCount = post.getComments().size();
-            this.comments = post.getComments().stream().map(comment -> CommentDto.DetailResponseDto.builder()
-                    .postId(comment.getPost().getId())
-                    .userId(comment.getUser().getId())
-                    .commentId(comment.getId())
-                    .nickname(comment.getUser().getNickname())
-                    .contents(comment.getContents())
-                    .createdAt(comment.getCreatedAt())
-                    .modifiedAt(comment.getModifiedAt())
-                    .build()).collect(Collectors.toList());
             this.likesCount = likesCount;
             this.localLikesCount = localLikesCount;
         }
@@ -162,12 +151,10 @@ public class PostDto {
 
         private String contents;
 
-        private Category category;
-
-        private Double latitude;
-
-        private Double longitude;
-
+        public PatchDto(Post post) {
+            this.title = post.getTitle();
+            this.contents = post.getContents();
+        }
     }
 
     @Getter

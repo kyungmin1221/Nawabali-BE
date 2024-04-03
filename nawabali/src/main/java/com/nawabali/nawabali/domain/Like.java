@@ -25,9 +25,6 @@ public class Like {
     @Column (nullable = false)
     private boolean status;
 
-//    @Column (nullable = false)
-//    private Long likesCount;
-
     @ManyToOne (fetch = FetchType.LAZY) // 성능향상에 좋다.
     @JoinColumn (name = "user_id")
     private User user;
