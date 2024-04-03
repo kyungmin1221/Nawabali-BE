@@ -1,6 +1,7 @@
 package com.nawabali.nawabali.service;
 
 import com.nawabali.nawabali.constant.Address;
+import com.nawabali.nawabali.constant.LikeCategoryEnum;
 import com.nawabali.nawabali.constant.Town;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.User;
@@ -8,6 +9,7 @@ import com.nawabali.nawabali.domain.image.PostImage;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
+import com.nawabali.nawabali.repository.LikeRepository;
 import com.nawabali.nawabali.repository.PostImageRepository;
 import com.nawabali.nawabali.repository.PostRepository;
 import com.nawabali.nawabali.s3.AwsS3Service;
@@ -33,6 +35,7 @@ public class PostService {
     private final PostImageRepository postImageRepository;
     private final UserService userService;
     private final AwsS3Service awsS3Service;
+    private final LikeRepository likeRepository;
 
     // 게시물 생성
     @Transactional
@@ -86,7 +89,9 @@ public class PostService {
                             post.getCategory().name(),
                             post.getCreatedAt(),
                             post.getModifiedAt(),
-                            imageUrls
+                            imageUrls,
+                            getLikesCount(post.getId(), LikeCategoryEnum.LIKE),
+                            getLikesCount(post.getId(), LikeCategoryEnum.LOCAL_LIKE)
                     );
                 })
                 .collect(Collectors.toList());
@@ -98,7 +103,9 @@ public class PostService {
     // 상세 게시물 조회
     public PostDto.ResponseDto getPost(Long postId) {
         Post post = getPostId(postId);
-        return new PostDto.ResponseDto(post);
+        Long likesCount = getLikesCount(postId, LikeCategoryEnum.LIKE);
+        Long localLikesCount = getLikesCount(postId, LikeCategoryEnum.LOCAL_LIKE);
+        return new PostDto.ResponseDto(post, likesCount, localLikesCount);
     }
 
     // 게시물 수정 - 사용자 신원 확인
@@ -142,6 +149,10 @@ public class PostService {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_POST));
 
+    }
+
+    public Long getLikesCount(Long postId, LikeCategoryEnum likeCategoryEnum){
+        return likeRepository.countByPostIdAndLikeCategoryEnum(postId, likeCategoryEnum);
     }
 
 

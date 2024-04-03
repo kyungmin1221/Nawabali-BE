@@ -28,13 +28,13 @@ public class PostDto {
         @NotBlank
         private String contents;
 
-        @NotBlank
+        @NotNull
         private Category category;
 
-        @NotBlank
+        @NotNull
         private Double latitude;
 
-        @NotBlank
+        @NotNull
         private Double longitude;
 
     }
@@ -63,6 +63,28 @@ public class PostDto {
         private LocalDateTime modifiedAt;
 
         private List<String> imageUrls;
+
+        private Long likesCount;
+
+        private Long localLikesCount;
+
+        // 좋아요 카운팅이 필요한 dto
+        public ResponseDto(Post post, Long likesCount, Long localLikesCount) {
+            this.userId = post.getUser().getId();
+            this.postId = post.getId();
+            this.nickname = post.getUser().getNickname();
+            this.title = post.getTitle();
+            this.contents = post.getContents();
+            this.category = post.getCategory().name();
+            this.createdAt = post.getCreatedAt();
+            this.modifiedAt = post.getModifiedAt();
+            this.imageUrls = post.getImages().stream()
+                    .map(PostImage::getImgUrl)
+                    .collect(Collectors.toList());
+            this.likesCount = likesCount;
+            this.localLikesCount = localLikesCount;
+
+        }
 
         public ResponseDto(Post post) {
             this.userId = post.getUser().getId();

@@ -22,6 +22,7 @@ public enum ErrorCode {
     WRONG_MULTIPARTFILE(BAD_REQUEST, "Multipartfile에 문제가 있습니다"),
     WRONG_DTO(BAD_REQUEST,"DTO를 다시 확인해주세요"),
     MISMATCH_ID(BAD_REQUEST,"잘못된 요청입니다."),
+    MISMATCH_ADDRESS(BAD_REQUEST, "동네인증 좋아요는 해당 지역의 회원만 누를 수 있습니다."),
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
     INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),
