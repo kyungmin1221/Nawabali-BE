@@ -68,23 +68,8 @@ public class PostDto {
 
         private Long localLikesCount;
 
-        // 좋아요 카운팅이 필요한 dto
-        public ResponseDto(Post post, Long likesCount, Long localLikesCount) {
-            this.userId = post.getUser().getId();
-            this.postId = post.getId();
-            this.nickname = post.getUser().getNickname();
-            this.title = post.getTitle();
-            this.contents = post.getContents();
-            this.category = post.getCategory().name();
-            this.createdAt = post.getCreatedAt();
-            this.modifiedAt = post.getModifiedAt();
-            this.imageUrls = post.getImages().stream()
-                    .map(PostImage::getImgUrl)
-                    .collect(Collectors.toList());
-            this.likesCount = likesCount;
-            this.localLikesCount = localLikesCount;
+        private int commentCount;
 
-        }
 
         public ResponseDto(Post post) {
             this.userId = post.getUser().getId();
@@ -98,7 +83,70 @@ public class PostDto {
             this.imageUrls = post.getImages().stream()
                     .map(PostImage::getImgUrl)
                     .collect(Collectors.toList());
+            this.commentCount = post.getComments().size();
 
+        }
+
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class ResponseDetailDto {
+
+        private Long userId;
+
+        private Long postId;
+
+        private String nickname;
+
+        private String title;
+
+        private String contents;
+
+        private String category;
+
+        private LocalDateTime createdAt;
+
+        private LocalDateTime modifiedAt;
+
+        private List<String> imageUrls;
+
+        private int commentCount;
+
+        private List<CommentDto.DetailResponseDto> comments;
+
+        private Long likesCount;
+
+        private Long localLikesCount;
+
+
+        public ResponseDetailDto(Post post, Long likesCount, Long localLikesCount) {
+            this.userId = post.getUser().getId();
+            this.postId = post.getId();
+            this.nickname = post.getUser().getNickname();
+            this.title = post.getTitle();
+            this.contents = post.getContents();
+            this.category = post.getCategory().name();
+            this.createdAt = post.getCreatedAt();
+            this.modifiedAt = post.getModifiedAt();
+            this.imageUrls = post.getImages().stream()
+                    .map(PostImage::getImgUrl)
+                    .collect(Collectors.toList());
+            this.commentCount = post.getComments().size();
+            this.comments = post.getComments().stream().map(comment -> CommentDto.DetailResponseDto.builder()
+                    .postId(comment.getPost().getId())
+                    .userId(comment.getUser().getId())
+                    .commentId(comment.getId())
+                    .nickname(comment.getUser().getNickname())
+                    .contents(comment.getContents())
+                    .createdAt(comment.getCreatedAt())
+                    .modifiedAt(comment.getModifiedAt())
+                    .build()).collect(Collectors.toList());
+            this.likesCount = likesCount;
+            this.localLikesCount = localLikesCount;
         }
 
     }

@@ -10,6 +10,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Entity
 @NoArgsConstructor
@@ -39,7 +42,7 @@ public class User {
     private Address address;
 
     @Column
-    private Long kakaoId;
+    private String kakaoId;
 
     @Column(nullable = false, name = "user_rank")
     @Enumerated(EnumType.STRING)
@@ -48,8 +51,12 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ProfileImage profileImage;
 
+    @OneToMany(mappedBy = "user" ,  fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    private List<BookMark> bookMarks = new ArrayList<>();
+
     @Builder
-    public User(String username, String nickname, String email, String password, UserRoleEnum role, Address address, UserRankEnum rank, ProfileImage profileImage) {
+    public User(String username, String nickname, String email, String password,
+                UserRoleEnum role, Address address, UserRankEnum rank, ProfileImage profileImage) {
         this.username = username;
         this.nickname = nickname;
         this.email = email;
@@ -59,19 +66,20 @@ public class User {
         this.rank = rank;
         this.profileImage = profileImage;
 
+
         if (profileImage != null) {
             profileImage.setUser(this);
         }
     }
 
     @Builder
-    public User(String nickname, String email, Long kakaoId){
+    public User(String nickname, String email, String kakaoId){
         this.nickname = nickname;
         this.email = email;
         this.kakaoId = kakaoId;
     }
 
-    public void updateKakaoId(Long id) {
+    public void updateKakaoId(String id) {
         this.kakaoId = id;
     }
 

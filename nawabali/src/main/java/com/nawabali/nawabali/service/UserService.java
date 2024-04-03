@@ -5,6 +5,7 @@ import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.constant.UserRoleEnum;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.domain.image.ProfileImage;
+import com.nawabali.nawabali.dto.BookMarkDto;
 import com.nawabali.nawabali.dto.SignupDto;
 import com.nawabali.nawabali.dto.UserDto;
 import com.nawabali.nawabali.exception.CustomException;
@@ -20,8 +21,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -121,7 +126,7 @@ public class UserService {
         return new UserDto.DeleteDto("프로필사진이 삭제되었습니다.");
     }
 
-    @Transactional
+
     public UserDto.UserInfoResponseDto getUserInfo(Long userId, User user) {
 
         if (isMatchUserId(userId, user)) {
@@ -160,9 +165,9 @@ public class UserService {
         throw new CustomException(ErrorCode.MISMATCH_ID);
     }
 
+
     public boolean isMatchUserId(Long userId, User user){
-        User existUser = userRepository.findById(userId).orElseThrow(() ->
-                new CustomException(ErrorCode.USER_NOT_FOUND));
+        User existUser = getUserId(userId);
 
         Long existUserId = existUser.getId();
         Long detailsUserId = user.getId();

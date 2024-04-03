@@ -6,9 +6,11 @@ import com.nawabali.nawabali.constant.Town;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.domain.image.PostImage;
+import com.nawabali.nawabali.dto.CommentDto;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
+import com.nawabali.nawabali.repository.CommentRepository;
 import com.nawabali.nawabali.repository.LikeRepository;
 import com.nawabali.nawabali.repository.PostImageRepository;
 import com.nawabali.nawabali.repository.PostRepository;
@@ -35,6 +37,7 @@ public class PostService {
     private final PostImageRepository postImageRepository;
     private final UserService userService;
     private final AwsS3Service awsS3Service;
+    private final CommentRepository commentRepository;
     private final LikeRepository likeRepository;
 
     // 게시물 생성
@@ -91,7 +94,8 @@ public class PostService {
                             post.getModifiedAt(),
                             imageUrls,
                             getLikesCount(post.getId(), LikeCategoryEnum.LIKE),
-                            getLikesCount(post.getId(), LikeCategoryEnum.LOCAL_LIKE)
+                            getLikesCount(post.getId(), LikeCategoryEnum.LOCAL_LIKE),
+                            post.getComments().size()
                     );
                 })
                 .collect(Collectors.toList());
@@ -101,11 +105,12 @@ public class PostService {
 
 
     // 상세 게시물 조회
-    public PostDto.ResponseDto getPost(Long postId) {
+    public PostDto.ResponseDetailDto getPost(Long postId) {
         Post post = getPostId(postId);
         Long likesCount = getLikesCount(postId, LikeCategoryEnum.LIKE);
         Long localLikesCount = getLikesCount(postId, LikeCategoryEnum.LOCAL_LIKE);
-        return new PostDto.ResponseDto(post, likesCount, localLikesCount);
+//        return new PostDto.ResponseDto(post, likesCount, localLikesCount);
+        return new PostDto.ResponseDetailDto(post, likesCount, localLikesCount);
     }
 
     // 게시물 수정 - 사용자 신원 확인

@@ -40,7 +40,7 @@ public class LikeService {
                 .orElseThrow(()-> new CustomException(ErrorCode.POST_NOT_FOUND));
 
         // 해당 게시물에 좋아요를 눌렀는지 확인
-        Like findLike = likeRepository.findByUserIdAndPostId(user.getId(), postId);
+        Like findLike = likeRepository.findByUserIdAndPostIdAndLikeCategoryEnum(user.getId(), postId, LikeCategoryEnum.LIKE);
 
         if (findLike != null && findLike.isStatus()){
             // 좋아요를 이미 눌렀다면, 좋아요 내역 삭제
