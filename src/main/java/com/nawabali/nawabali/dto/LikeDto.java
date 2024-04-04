@@ -1,10 +1,7 @@
 package com.nawabali.nawabali.dto;
 
-import com.nawabali.nawabali.constant.LikeCategory;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.nawabali.nawabali.constant.LikeCategoryEnum;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j (topic = "LikeDto 로그")
@@ -16,7 +13,7 @@ public class LikeDto {
     @NoArgsConstructor
     public static class requestDto {
 
-        private LikeCategory likeCategory;
+        private LikeCategoryEnum likeCategoryEnum;
         private boolean status;
 
     }
@@ -30,7 +27,7 @@ public class LikeDto {
         private Long likeId;
         private Long postId;
         private Long userId;
-        private LikeCategory likeCategory;
+        private LikeCategoryEnum likeCategoryEnum;
         private boolean status;
         private String message;
 

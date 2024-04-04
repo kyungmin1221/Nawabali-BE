@@ -28,13 +28,13 @@ public class PostDto {
         @NotBlank
         private String contents;
 
-        @NotBlank
+        @NotNull
         private Category category;
 
-        @NotBlank
+        @NotNull
         private Double latitude;
 
-        @NotBlank
+        @NotNull
         private Double longitude;
 
     }
@@ -44,7 +44,7 @@ public class PostDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class ResponseDto {
+    public static class ResponseDto {       // 게시물 전체 조회 시
 
         private Long userId;
 
@@ -64,6 +64,13 @@ public class PostDto {
 
         private List<String> imageUrls;
 
+        private Long likesCount;
+
+        private Long localLikesCount;
+
+        private int commentCount;
+
+
         public ResponseDto(Post post) {
             this.userId = post.getUser().getId();
             this.postId = post.getId();
@@ -76,7 +83,59 @@ public class PostDto {
             this.imageUrls = post.getImages().stream()
                     .map(PostImage::getImgUrl)
                     .collect(Collectors.toList());
+            this.commentCount = post.getComments().size();
 
+        }
+
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class ResponseDetailDto {     // 게시물 상세 조회 시
+
+        private Long userId;
+
+        private Long postId;
+
+        private String nickname;
+
+        private String title;
+
+        private String contents;
+
+        private String category;
+
+        private LocalDateTime createdAt;
+
+        private LocalDateTime modifiedAt;
+
+        private List<String> imageUrls;
+
+        private int commentCount;
+
+        private Long likesCount;
+
+        private Long localLikesCount;
+
+
+        public ResponseDetailDto(Post post, Long likesCount, Long localLikesCount) {
+            this.userId = post.getUser().getId();
+            this.postId = post.getId();
+            this.nickname = post.getUser().getNickname();
+            this.title = post.getTitle();
+            this.contents = post.getContents();
+            this.category = post.getCategory().name();
+            this.createdAt = post.getCreatedAt();
+            this.modifiedAt = post.getModifiedAt();
+            this.imageUrls = post.getImages().stream()
+                    .map(PostImage::getImgUrl)
+                    .collect(Collectors.toList());
+            this.commentCount = post.getComments().size();
+            this.likesCount = likesCount;
+            this.localLikesCount = localLikesCount;
         }
 
     }
@@ -92,12 +151,10 @@ public class PostDto {
 
         private String contents;
 
-        private Category category;
-
-        private Double latitude;
-
-        private Double longitude;
-
+        public PatchDto(Post post) {
+            this.title = post.getTitle();
+            this.contents = post.getContents();
+        }
     }
 
     @Getter

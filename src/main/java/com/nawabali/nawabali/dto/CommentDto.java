@@ -1,5 +1,6 @@
 package com.nawabali.nawabali.dto;
 
+import com.nawabali.nawabali.domain.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,6 +36,22 @@ public class CommentDto {
         private LocalDateTime createdAt;
         private LocalDateTime modifiedAt;
         private String message;
+
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class DetailResponseDto{
+
+        private Long postId;
+        private Long userId;
+        private Long commentId;
+        private String nickname;
+        private String contents;
+        private LocalDateTime createdAt;
+        private LocalDateTime modifiedAt;
 
     }
 

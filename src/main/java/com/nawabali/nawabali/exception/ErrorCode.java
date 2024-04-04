@@ -22,12 +22,14 @@ public enum ErrorCode {
     WRONG_MULTIPARTFILE(BAD_REQUEST, "Multipartfile에 문제가 있습니다"),
     WRONG_DTO(BAD_REQUEST,"DTO를 다시 확인해주세요"),
     MISMATCH_ID(BAD_REQUEST,"잘못된 요청입니다."),
+    MISMATCH_ADDRESS(BAD_REQUEST, "동네인증 좋아요는 해당 지역의 회원만 누를 수 있습니다."),
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
     INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),
     UNAUTHORIZED_MEMBER(UNAUTHORIZED, "존재하지 않는 회원입니다."),
     UNAUTHORIZED_POST(UNAUTHORIZED, "존재하지 않는 게시물입니다."),
     UNAUTHORIZED_COMMENT(UNAUTHORIZED, "존재하지 않는 댓글입니다."),
+    UNAUTHORIZED_BOOKMARK(UNAUTHORIZED, "존재하지 않는 북마크입니다."),
 
     // 403 Forbidden : 클라이언트는 콘텐츠에 접근할 권리를 가지고 있지 않다
     FORBIDDEN_MEMBER(FORBIDDEN,"본인의 게시물이 아닙니다."),
@@ -49,6 +51,7 @@ public enum ErrorCode {
     DUPLICATE_FOLDER(CONFLICT, "이미 존재하는 장바구니이름입니다."),
     DUPLICATE_LIKE_TRUE(CONFLICT, "이미 좋아요 되어있습니다."),
     DUPLICATE_LIKE_FALSE(CONFLICT, "이미 좋아요가 취소 되어있습니다."),
+    DUPLICATE_BOOKMARK(CONFLICT, "이미 등록된 북마크 입니다."),
 
 
     // 500 server error

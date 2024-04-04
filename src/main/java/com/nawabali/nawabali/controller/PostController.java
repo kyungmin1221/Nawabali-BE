@@ -38,25 +38,25 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<Slice<PostDto.ResponseDto>> getPostsByLatest(
-            @PageableDefault(size = 10, sort = "createdAt",
-                    direction = Sort.Direction.DESC) Pageable pageable
-    ) {
-        // 서비스 레이어에서 최신 게시물 조회
+            @PageableDefault(size = 10,
+                    sort = "createdAt",
+                    direction = Sort.Direction.DESC) Pageable pageable) {
         Slice<PostDto.ResponseDto> postsSlice = postService.getPostsByLatest(pageable);
         // 조회 결과 반환
         return ResponseEntity.ok(postsSlice);
     }
     
     @GetMapping("/{postId}")
-    public ResponseEntity<PostDto.ResponseDto> getPost(@PathVariable Long postId) {
-        PostDto.ResponseDto responseDto = postService.getPost(postId);
+    public ResponseEntity<PostDto.ResponseDetailDto> getPost(@PathVariable Long postId) {
+        PostDto.ResponseDetailDto responseDto = postService.getPost(postId);
         return ResponseEntity.ok(responseDto);
     }
 
     @PatchMapping("/{postId}")
-    public ResponseEntity<PostDto.ResponseDto> updatePost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails,
+    public ResponseEntity<PostDto.PatchDto> updatePost(@PathVariable Long postId,
+                                                          @AuthenticationPrincipal UserDetailsImpl userDetails,
                                                           @RequestBody PostDto.PatchDto patchDto) {
-        PostDto.ResponseDto responseDto = postService.updatePost(postId,userDetails.getUser(),patchDto);
+        PostDto.PatchDto responseDto = postService.updatePost(postId,userDetails.getUser(),patchDto);
         return ResponseEntity.ok(responseDto);
     }
 

@@ -65,8 +65,9 @@ public class WebSecurityConfig {
                         .requestMatchers("/posts").permitAll()
                         .requestMatchers(HttpMethod.GET, "/posts/**").permitAll() // 게시글 상세 조회 허가
                         .requestMatchers("/users/test").permitAll()
-                        .requestMatchers("/users/kakao/callback").permitAll()
                         .requestMatchers("/users/test1").permitAll()
+                        .requestMatchers("/api/user/kakao/callback").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/swagger/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api-test").permitAll()

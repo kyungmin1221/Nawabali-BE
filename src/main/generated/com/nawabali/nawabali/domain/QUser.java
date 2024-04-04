@@ -24,11 +24,13 @@ public class QUser extends EntityPathBase<User> {
 
     public final com.nawabali.nawabali.constant.QAddress address;
 
+    public final ListPath<BookMark, QBookMark> bookMarks = this.<BookMark, QBookMark>createList("bookMarks", BookMark.class, QBookMark.class, PathInits.DIRECT2);
+
     public final StringPath email = createString("email");
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public final NumberPath<Long> kakaoId = createNumber("kakaoId", Long.class);
+    public final StringPath kakaoId = createString("kakaoId");
 
     public final StringPath nickname = createString("nickname");
 
