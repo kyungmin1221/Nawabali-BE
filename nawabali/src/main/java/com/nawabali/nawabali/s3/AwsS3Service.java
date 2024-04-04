@@ -5,6 +5,8 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.nawabali.nawabali.exception.CustomException;
+import com.nawabali.nawabali.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -26,6 +28,9 @@ public class AwsS3Service {
     private final AmazonS3 amazonS3;
 
     public List<String> uploadFile(List<MultipartFile> multipartFiles, String dirName){
+        if(multipartFiles.size() > 5) {
+            throw new CustomException(ErrorCode.MAX_UPLOAD_PHOTO);
+        }
         List<String> fileUrlList = new ArrayList<>();
 
         multipartFiles.forEach(file -> {
@@ -55,7 +60,7 @@ public class AwsS3Service {
         return UUID.randomUUID().toString().concat(getFileExtension(fileName));
     }
 
-    // file 형식이 잘못된 경우를 확인하기 위해 만들어진 로직이며, 파일 타입과 상관없이 업로드할 수 있게 하기위해, "."의 존재 유무만 판단.
+    // file 형식이 잘못된 경우를 확인하기 위해 만들어진 로직이며, 파일 타입과 상관없이 업로드할 수 있게 하기위해, "."의 존재 유무만 판단
     private String getFileExtension(String fileName){
         try{
             return fileName.substring(fileName.lastIndexOf("."));
@@ -83,7 +88,7 @@ public class AwsS3Service {
             // S3 URL 생성 및 리스트에 추가
             return amazonS3.getUrl(bucket, filePath).toString();
         } catch (IOException e) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
+            throw new CustomException(ErrorCode.PHOTO_UPLOAD_ERROR);
         }
     }
 }

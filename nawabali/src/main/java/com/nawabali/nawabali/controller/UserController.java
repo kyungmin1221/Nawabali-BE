@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
-@Tag(name = "User", description = "회원가입, 카카오로그인")
+@Tag(name = "회원 API", description = "회원가입, 로그인관련 Api 입니다.")
 public class UserController {
     private final UserService userService;
     private final KakaoService kakaoService;
@@ -60,26 +60,4 @@ public class UserController {
         System.out.println("userDetails.getUser() = " + userDetails.getUser().getEmail());
     }
 
-    @PostMapping("/{userId}/profileImage")
-    public ResponseEntity<UserDto.ProfileImageDto> createProfileImage(@PathVariable Long userId,
-                                                                      @AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                                      @RequestParam("file") MultipartFile file) {
-        UserDto.ProfileImageDto profileImageDto = userService.createProfileImage(userId, userDetails, file);
-        return ResponseEntity.ok(profileImageDto);
-    }
-
-    @PatchMapping("/{userId}/profileImage")
-    public ResponseEntity<UserDto.ProfileImageDto> updateProfileImage(@PathVariable Long userId,
-                                                                      @AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                                      @RequestParam("file") MultipartFile file) {
-        UserDto.ProfileImageDto profileImageDto = userService.updateProfileImage(userId, userDetails, file);
-        return ResponseEntity.ok(profileImageDto);
-    }
-
-    @DeleteMapping("/{userId}/profileImage")
-    public ResponseEntity<UserDto.DeleteDto> deleteProfileImage(@PathVariable Long userId,
-                                     @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        UserDto.DeleteDto deleteDto = userService.deleteProfileImage(userId, userDetails);
-        return ResponseEntity.ok(deleteDto);
-    }
 }
