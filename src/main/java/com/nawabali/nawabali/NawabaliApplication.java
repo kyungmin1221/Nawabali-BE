@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-@OpenAPIDefinition(servers = {@Server(url = "https://hhborad.shop", description = "백엔드 서버")})
+@OpenAPIDefinition(servers = {@Server(url = "https://hhboard.shop", description = "백엔드 서버")})
 @SpringBootApplication
 @EnableJpaAuditing
 public class NawabaliApplication {
