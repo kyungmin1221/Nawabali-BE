@@ -30,8 +30,6 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AwsS3Service awsS3Service;
-    private final ProfileImageRepository profileImageRepository;
 
     @Transactional
     public ResponseEntity<SignupDto.SignupResponseDto> signup(SignupDto.SignupRequestDto requestDto) {
@@ -43,8 +41,7 @@ public class UserService {
         // 비밀번호 일치 검증
         if(!rawPassword.equals(requestDto.getConfirmPassword())){
             throw new CustomException(ErrorCode.MISMATCH_PASSWORD);
-//            CustomException customException = new CustomException(ErrorCode.MISMATCH_PASSWORD);
-//            return new ResponseEntity<>(customException, customException.getErrorCode().getHttpStatus());
+
         }
 
         String password = passwordEncoder.encode(rawPassword);
@@ -78,52 +75,6 @@ public class UserService {
         User responseUser = userRepository.findByEmail(user.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         return ResponseEntity.ok(new SignupDto.SignupResponseDto(responseUser.getId()));
-    }
-
-
-    @Transactional
-    public UserDto.ProfileImageDto createProfileImage(Long userId, UserDetailsImpl userDetails, MultipartFile multipartFile) {
-        User user = userDetails.getUser();
-        if(!userId.equals(user.getId())){
-            throw new CustomException(ErrorCode.USER_NOT_FOUND);
-        }
-        String url = awsS3Service.uploadSingleFile(multipartFile, "profileImage");
-        ProfileImage profileImage = ProfileImage.builder()
-                .fileName(multipartFile.getOriginalFilename())
-                .imgUrl(url)
-                .user(user)
-                .build();
-        profileImageRepository.save(profileImage);
-        return new UserDto.ProfileImageDto(profileImage);
-    }
-
-    @Transactional
-    public UserDto.ProfileImageDto updateProfileImage(Long userId, UserDetailsImpl userDetails, MultipartFile multipartFile) {
-        User user = userDetails.getUser();
-        if(!userId.equals(user.getId())){
-            throw new CustomException(ErrorCode.USER_NOT_FOUND);
-        }
-        String url = awsS3Service.uploadSingleFile(multipartFile, "profileImage");
-
-        ProfileImage profileImage = profileImageRepository.findById(user.getProfileImage().getId()).orElseThrow(()->
-                new CustomException(ErrorCode.PROFILEIMAGE_NOT_FOUND));
-        profileImage.updateFileName(multipartFile.getOriginalFilename());
-        profileImage.updateImgUrl(url);
-        profileImageRepository.save(profileImage);
-
-        return new UserDto.ProfileImageDto(profileImage);
-    }
-
-    @Transactional
-    public UserDto.DeleteDto deleteProfileImage(Long userId, UserDetailsImpl userDetails) {
-        User user = userDetails.getUser();
-        if(!userId.equals(user.getId())){
-            throw new CustomException(ErrorCode.USER_NOT_FOUND);
-        }
-        ProfileImage profileImage = profileImageRepository.findById(user.getProfileImage().getId()).orElseThrow(()->
-                new CustomException(ErrorCode.PROFILEIMAGE_NOT_FOUND));
-        profileImageRepository.delete(profileImage);
-        return new UserDto.DeleteDto("프로필사진이 삭제되었습니다.");
     }
 
 

@@ -23,6 +23,7 @@ public enum ErrorCode {
     WRONG_DTO(BAD_REQUEST,"DTO를 다시 확인해주세요"),
     MISMATCH_ID(BAD_REQUEST,"잘못된 요청입니다."),
     MISMATCH_ADDRESS(BAD_REQUEST, "동네인증 좋아요는 해당 지역의 회원만 누를 수 있습니다."),
+    MAX_UPLOAD_PHOTO(BAD_REQUEST, "최대 5장의 사진만 업로드할 수 있습니다."),
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
     INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),
@@ -48,14 +49,14 @@ public enum ErrorCode {
     // 409 CONFLICT: 중복된 리소스 (요청이 현재 서버 상태와 충돌될 때)
     DUPLICATE_EMAIL(CONFLICT, "이미 존재하는 이메일입니다."),
     DUPLICATE_NICKNAME(CONFLICT, "이미 존재하는 닉네임입니다."),
-    DUPLICATE_FOLDER(CONFLICT, "이미 존재하는 장바구니이름입니다."),
     DUPLICATE_LIKE_TRUE(CONFLICT, "이미 좋아요 되어있습니다."),
     DUPLICATE_LIKE_FALSE(CONFLICT, "이미 좋아요가 취소 되어있습니다."),
     DUPLICATE_BOOKMARK(CONFLICT, "이미 등록된 북마크 입니다."),
 
 
     // 500 server error
-    SERVER_ERROR(INTERNAL_SERVER_ERROR, "내부 서버 에러입니다.");
+    SERVER_ERROR(INTERNAL_SERVER_ERROR, "내부 서버 에러입니다."),
+    PHOTO_UPLOAD_ERROR(INTERNAL_SERVER_ERROR, "이미지 파일 업로드에 실패했습니다.");
 
 
 
