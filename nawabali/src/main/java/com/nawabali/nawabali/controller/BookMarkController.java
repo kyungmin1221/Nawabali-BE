@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "북마크 API", description = "북마물 관련 API 입니다.")
+@Tag(name = "북마크 API", description = "북마크 관련 API 입니다.")
 @RestController
 @RequestMapping("/bookmarks")
 @RequiredArgsConstructor
@@ -28,7 +28,7 @@ public class BookMarkController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @Operation(summary = "회원 북마크 조회", description = "로그인 되어있는 사용자의 북마크를 조회")
+    @Operation(summary = "회원 북마크 조회", description = "로그인 되어있는 사용자의 북마크를 조제")
     @GetMapping("/users")
     public ResponseEntity<List<BookMarkDto.UserBookmarkDto>> getBookmarks(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         List<BookMarkDto.UserBookmarkDto> userBookmarkDto = bookMarkService.getBookmarks(userDetails.getUser());
