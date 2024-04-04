@@ -15,7 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "댓글 API", description = "댓 관련 API 입니다.")
+@Tag(name = "댓글 API", description = "댓글 관련 API 입니다.")
 @RestController
 @AllArgsConstructor
 @RequestMapping("/comments")

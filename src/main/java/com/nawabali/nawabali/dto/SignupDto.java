@@ -34,12 +34,12 @@ public class SignupDto {
         @Schema(description = "8자~15자 이내의 비밀번호. 대소문자(둘 중 하나), 숫자, 특수문자 1개씩 이상 입력. 조건 미충족으로 폼 제출 시 exception 발생.", example = "StrongP@ss123")
         @NotBlank
         private String password;
-        @Schema(description = "비밀번호 확인. password 값과 일치하지 않으면 조건 미충족으로 폼 제출 시 exception 발생.")
+        @Schema(description = "비밀번호 확인. password 값과 일치하지 않으면 조건 미충족으로 폼 제출 시 exception 발생.", example = "StrongP@ss123")
         @NotBlank
         private String confirmPassword;
         @Schema(description = "사용자 역할.", example = "관리자라면 true")
         private boolean admin;
-        @Schema(description = "이메일 인증여부. 이메일 인증 api응답에 의해 결정. false로 폼 제출 시 exception 발생.", example = "인증됐다면 true")
+        @Schema(description = "이메일 인증여부. 이메일 인증 api응답에 의해 결정. false로 폼 제출 시 exception 발생.", example = "true")
         private boolean certificated;
 
         // 주소 정보 관련

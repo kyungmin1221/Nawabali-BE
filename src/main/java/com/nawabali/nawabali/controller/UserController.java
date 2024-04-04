@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
-@Tag(name = "회원 API", description = "회원가입, 로그인관련 Api 입니다.")
+@Tag(name = "회원 API", description = "회원가입, 로그인 관련 API 입니다.")
 public class UserController {
     private final UserService userService;
     private final KakaoService kakaoService;
