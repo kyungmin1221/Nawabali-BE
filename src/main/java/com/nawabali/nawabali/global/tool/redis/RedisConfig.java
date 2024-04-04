@@ -29,9 +29,13 @@ public class RedisConfig {
     // RedisProperties에 저장한 port를 연결
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
+
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(host, redisProperties.getPort());
         config.setPassword(password);
         return new LettuceConnectionFactory(config);
+
+//        Localhost 전용
+//        return new LettuceConnectionFactory(redisProperties.getHost(), redisProperties.getPort());
     }
 
     // serializer 설정으로 redis-cli를 통해 직접 데이터를 조회할 수 있도록 설정
