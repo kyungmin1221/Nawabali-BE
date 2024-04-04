@@ -1,15 +1,43 @@
-/.idea/dataSources/c94156e2-616b-4f92-8094-766134428738.xml
-/.idea/dataSources.local.xml
-/.idea/dataSources/c94156e2-616b-4f92-8094-766134428738/storage_v2/_src_/schema/information_schema.FNRwLQ.meta
-/.idea/modules.xml
-/.idea/dataSources/c94156e2-616b-4f92-8094-766134428738/storage_v2/_src_/schema/mysql.osA4Bg.meta
-/.idea/modules/nawabali.main.iml
-/.idea/dataSources/c94156e2-616b-4f92-8094-766134428738/storage_v2/_src_/schema/nawabali.OVuTfg.meta
-/.idea/Nawabali-BE.iml
-/.idea/dataSources/c94156e2-616b-4f92-8094-766134428738/storage_v2/_src_/schema/performance_schema.kIw0nw.meta
-/.idea/dataSources/c94156e2-616b-4f92-8094-766134428738/storage_v2/_src_/schema/sys.zb4BAA.meta
-/.idea/vcs.xml
-/.idea/workspace.xml
-/.idea/uiDesigner.xml
-/nawabali/src/main/generated/com/nawabali/nawabali/domain/QComment.java
-/nawabali/src/main/generated/com/nawabali/nawabali/domain/QLike.java
+HELP.md
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+# properties 제외 설정
+/src/main/resources/*.properties
+/src/main/resources/application.properties
+src/main/resources/application.properties
+
