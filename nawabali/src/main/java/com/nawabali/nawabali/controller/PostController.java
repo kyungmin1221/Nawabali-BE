@@ -51,7 +51,8 @@ public class PostController {
             """)
     @GetMapping
     public ResponseEntity<Slice<PostDto.ResponseDto>> getPostsByLatest(
-            @PageableDefault(size = 10,
+            @PageableDefault(
+                    size = 10,
                     sort = "createdAt",
                     direction = Sort.Direction.DESC) Pageable pageable) {
         Slice<PostDto.ResponseDto> postsSlice = postService.getPostsByLatest(pageable);
@@ -59,7 +60,7 @@ public class PostController {
         return ResponseEntity.ok(postsSlice);
     }
 
-    @Operation(summary = "게시물 상세 조회", description = "postId 를 이용한 게시물 상세 조회, 댓글 api는 따로 구현")
+    @Operation(summary = "게시물 상세 조회", description = "postId 를 이용한 게시물 상세 조회, 댓글 조회 api는 따로 구현")
     @GetMapping("/{postId}")
     public ResponseEntity<PostDto.ResponseDetailDto> getPost(@PathVariable Long postId) {
         PostDto.ResponseDetailDto responseDto = postService.getPost(postId);
@@ -76,7 +77,7 @@ public class PostController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @Operation(summary = "게시물 삭제", description = "postId 를 이용한 게시물 삭크")
+    @Operation(summary = "게시물 삭제", description = "postId 를 이용한 게시물 삭제")
     @DeleteMapping("/{postId}")
     public ResponseEntity<PostDto.DeleteDto> deletePost(@PathVariable Long postId) {
         PostDto.DeleteDto deleteDto = postService.deletePost(postId);
