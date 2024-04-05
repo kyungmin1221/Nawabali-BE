@@ -1,22 +1,20 @@
 package com.nawabali.nawabali.service;
 
-import com.nawabali.nawabali.constant.Address;
 import com.nawabali.nawabali.constant.LikeCategoryEnum;
 import com.nawabali.nawabali.constant.Town;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.User;
+import com.nawabali.nawabali.domain.elastic.PostSearch;
 import com.nawabali.nawabali.domain.image.PostImage;
-import com.nawabali.nawabali.dto.CommentDto;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.dto.dslDto.PostDslDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
-import com.nawabali.nawabali.repository.CommentRepository;
 import com.nawabali.nawabali.repository.LikeRepository;
 import com.nawabali.nawabali.repository.PostImageRepository;
 import com.nawabali.nawabali.repository.PostRepository;
+import com.nawabali.nawabali.repository.elasticRepository.PostSearchRepository;
 import com.nawabali.nawabali.s3.AwsS3Service;
-import jakarta.mail.Multipart;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -36,10 +34,11 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final PostImageRepository postImageRepository;
+    private final LikeRepository likeRepository;
     private final UserService userService;
     private final AwsS3Service awsS3Service;
-    private final CommentRepository commentRepository;
-    private final LikeRepository likeRepository;
+    private final PostSearchRepository postSearchRepository;
+
 
     // 게시물 생성
     @Transactional
@@ -69,7 +68,11 @@ public class PostService {
             post.addImage(image);
         });
 
-        postRepository.save(post);
+        Post elpost = postRepository.save(post);
+        PostSearch postSearch = new PostSearch();
+        postSearch.setContents(post.getContents());
+        postSearch.setPostId(elpost.getId());
+        postSearchRepository.save(postSearch);
 
         return new PostDto.ResponseDto(post);
 
@@ -131,7 +134,7 @@ public class PostService {
     // 게시물 삭제
     @Transactional
     public PostDto.DeleteDto deletePost(Long postId) {
-
+        getPostId(postId);
         List<PostImage> images = postImageRepository.findAllByPostId(postId);
 
         // AWS S3에서 각 이미지 삭제
@@ -141,10 +144,10 @@ public class PostService {
         });
 
         postRepository.deleteById(postId);
+        postSearchRepository.deleteByPostId(postId);
 
         return new PostDto.DeleteDto("해당 게시물이 삭제되었습니다.");
     }
-
 
     public Long getLikesCount(Long postId, LikeCategoryEnum likeCategoryEnum){
         return likeRepository.countByPostIdAndLikeCategoryEnum(postId, likeCategoryEnum);
