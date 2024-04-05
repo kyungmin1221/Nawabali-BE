@@ -2,9 +2,7 @@ name: Deploy to Amazon EC2
 
 on:
   push:
-    branches: [ "main" ,"develop","feature/38/cicd"]
-  pull_request:
-    branches: [ "main", "develop","feature/38/cicd"]
+    branches: [ "main" ,"develop"]
 
 env:
   AWS_REGION: ap-northeast-2
