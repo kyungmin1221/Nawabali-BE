@@ -49,7 +49,7 @@ public class KakaoService {
 
         // 2. 필요시에 회원가입 및 위치 정보(address 값) 저장
         User kakaoUser = registerKakaoUserIfNeeded(accessToken);
-        log.info("userinfo : " + kakaoUser.getUsername());
+        log.info("userinfo : " + kakaoUser.getNickname());
         log.info("userinfo : " + kakaoUser.getEmail());
         log.info("userinfo : " + kakaoUser.getNickname());
 
@@ -105,7 +105,6 @@ public class KakaoService {
             UserRoleEnum role = UserRoleEnum.USER; // 기본 역할을 ROLE_USER로 설정
 
             kakaoUser = User.builder()
-                    .username(kakaoId)
                     .nickname(kakaoNickname)
                     .email(kakaoEmail)
                     .password(password)

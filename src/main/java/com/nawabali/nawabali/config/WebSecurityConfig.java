@@ -4,6 +4,7 @@ import com.nawabali.nawabali.global.tool.redis.RedisTool;
 import com.nawabali.nawabali.repository.UserRepository;
 import com.nawabali.nawabali.security.Jwt.JwtAuthenticationFilter;
 import com.nawabali.nawabali.security.Jwt.JwtAuthorizationFilter;
+import com.nawabali.nawabali.security.Jwt.JwtLogoutHandler;
 import com.nawabali.nawabali.security.Jwt.JwtUtil;
 import com.nawabali.nawabali.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ public class WebSecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final RedisTool redisTool;
     private final UserRepository userRepository;
+    private final JwtLogoutHandler jwtLogoutHandler;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
@@ -104,8 +106,14 @@ public class WebSecurityConfig {
                         .requestMatchers("/swagger/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api-test").permitAll()
+                        .requestMatchers("/users/check-nickname").permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
+
+        http.logout(logoutconfigurer->logoutconfigurer
+                .logoutUrl("/users/logout")
+                .logoutSuccessUrl("/")
+                .addLogoutHandler(jwtLogoutHandler));
 
         // 필터 관리
         http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);

@@ -31,7 +31,7 @@ public class CommentDslRepositoryCustomImpl implements CommentDslRepositoryCusto
         List<CommentDslDto.ResponseDto> comments = queryFactory
                 .select(Projections.bean(CommentDslDto.ResponseDto.class,
                         comment.contents,
-                        comment.user.username))
+                        comment.user.nickname))
                 .from(comment)
                 .where(comment.post.id.eq(postId))
                 .orderBy(comment.createdAt.desc())
