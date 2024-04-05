@@ -104,6 +104,8 @@ public class WebSecurityConfig {
                         .requestMatchers("/swagger/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api-test").permitAll()
+                        .requestMatchers("/ws-stomp/**").permitAll()
+                        .requestMatchers("/chat/**").permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
 
