@@ -31,7 +31,7 @@ public class RedisConfig {
     public RedisConnectionFactory redisConnectionFactory() {
 
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(host, redisProperties.getPort());
-//        config.setPassword(password);
+        config.setPassword(password);
         return new LettuceConnectionFactory(config);
 
 //        Localhost 전용
