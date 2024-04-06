@@ -55,10 +55,4 @@ public class ChatController {
 
         messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
     }
-
-    @GetMapping("/chat/room/{roomId}/message")
-    public List<ChatDto.ChatMessageDto> loadMessage (@PathVariable Long roomId,
-                                                     @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return chatMessageService.loadMessage(roomId, userDetails.getUser());
-    }
 }

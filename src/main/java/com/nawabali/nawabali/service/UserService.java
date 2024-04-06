@@ -73,7 +73,7 @@ public class UserService {
                 .build();
         userRepository.save(user);
         User responseUser = userRepository.findByEmail(user.getEmail())
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+                .orElseThrow(()-> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         return ResponseEntity.ok(new SignupDto.SignupResponseDto(responseUser.getId()));
     }
 

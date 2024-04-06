@@ -26,9 +26,6 @@ public class ChatMessageService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
 
-
-
-
     // 대화 조회
     public List<ChatDto.ChatMessageDto> loadMessage(Long roomId, User user) {
 

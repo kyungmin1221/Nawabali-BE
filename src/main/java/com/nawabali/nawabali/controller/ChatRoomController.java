@@ -1,7 +1,9 @@
 package com.nawabali.nawabali.controller;
 
 import com.nawabali.nawabali.dto.ChatDto;
+import com.nawabali.nawabali.repository.ChatMessageRepository;
 import com.nawabali.nawabali.repository.ChatRoomRepository;
+import com.nawabali.nawabali.service.ChatMessageService;
 import com.nawabali.nawabali.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -17,6 +19,7 @@ public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
     private final ChatRoomRepository chatRoomRepository;
+    private final ChatMessageService chatMessageService;
 
     // 채팅 리스트 화면
     @GetMapping("/room")
@@ -58,4 +61,10 @@ public class ChatRoomController {
         return chatRoomService.roomInfo(name);
 //        return chatRoomRepository.findRoomById(roomId);
     }
+
+        // ChatController는 웹소켓 endpoint를 담당해서 일반적인 http요청을 처리하지 않아 이곳으로 옮겨 놓음.
+//    @GetMapping("/room/{roomId}/message")
+//    public List<ChatDto.ChatMessageDto> loadMessage (@PathVariable Long roomId) {
+//        return chatMessageService.loadMessage(roomId);
+//    }
 }
