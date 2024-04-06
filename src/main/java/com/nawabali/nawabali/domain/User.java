@@ -23,9 +23,6 @@ public class User {
     private Long id;
 
     @Column(nullable = false)
-    private String username;
-
-    @Column(nullable = false)
     private String nickname;
 
     @Column(nullable = false)
@@ -56,9 +53,8 @@ public class User {
     private List<BookMark> bookMarks = new ArrayList<>();
 
     @Builder
-    public User(String username, String nickname, String email, String password,
+    public User(String nickname, String email, String password,
                 UserRoleEnum role, Address address, UserRankEnum rank, ProfileImage profileImage) {
-        this.username = username;
         this.nickname = nickname;
         this.email = email;
         this.password = password;

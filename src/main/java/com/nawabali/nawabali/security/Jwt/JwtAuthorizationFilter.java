@@ -46,7 +46,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             String refreshToken =redisTool.getValues(accessToken);
             log.info("저장된 refreshToken :" + refreshToken);
 
+            // 로그아웃 된 accessToken이라면 Exception발생
+            if(refreshToken.equals("logout")) {
+                log.info("logout 된 access token으로 접근");
+                throw new CustomException(ErrorCode.INVALID_AUTH_TOKEN);
+            }
             if(!jwtUtil.validateToken(accessToken)){
+                // refresh 토큰 재발행
                 if(!refreshToken.equals("false")){
                     log.info("refresh 토큰 존재. accessToken 재발급 진행");
 
@@ -76,7 +82,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                         return;
                     }
                 }else{
-
+                    // 쿠키 삭제
+                    Cookie cookie = new Cookie(JwtUtil.AUTHORIZATION_HEADER, null);
+                    cookie.setMaxAge(0);
+                    cookie.setPath("/");
+                    res.addCookie(cookie);
+                    res.addHeader(JwtUtil.AUTHORIZATION_HEADER, null);
                     throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
                 }
             }

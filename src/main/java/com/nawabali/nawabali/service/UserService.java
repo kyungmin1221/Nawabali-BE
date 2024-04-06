@@ -4,25 +4,24 @@ import com.nawabali.nawabali.constant.Address;
 import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.constant.UserRoleEnum;
 import com.nawabali.nawabali.domain.User;
-import com.nawabali.nawabali.domain.image.ProfileImage;
-import com.nawabali.nawabali.dto.BookMarkDto;
 import com.nawabali.nawabali.dto.SignupDto;
 import com.nawabali.nawabali.dto.UserDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
-import com.nawabali.nawabali.repository.ProfileImageRepository;
+import com.nawabali.nawabali.global.tool.redis.RedisTool;
 import com.nawabali.nawabali.repository.UserRepository;
-import com.nawabali.nawabali.s3.AwsS3Service;
-import com.nawabali.nawabali.security.UserDetailsImpl;
+import com.nawabali.nawabali.security.Jwt.JwtUtil;
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jwts;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -30,10 +29,11 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+    private final RedisTool redisTool;
 
     @Transactional
     public ResponseEntity<SignupDto.SignupResponseDto> signup(SignupDto.SignupRequestDto requestDto) {
-        String username = requestDto.getUsername();
         String email = requestDto.getEmail();
         String nickname = requestDto.getNickname();
         String rawPassword = requestDto.getPassword();
@@ -46,15 +46,12 @@ public class UserService {
 
         String password = passwordEncoder.encode(rawPassword);
 
-        boolean certificated = requestDto.isCertificated();
-        if(!certificated){
-            throw new CustomException(ErrorCode.UNVERIFIED_EMAIL);
-        }
+
         // 관리자 권한 부여
         UserRoleEnum role = UserRoleEnum.USER;
-        if(requestDto.isAdmin()){
-            role = UserRoleEnum.ADMIN;
-        }
+//        if(requestDto.isAdmin()){
+//            role = UserRoleEnum.ADMIN;
+//        }
 
         // 프론트엔드로부터 받은 주소 정보를 사용하여 Address 객체 생성
         Address address = new Address(
@@ -63,7 +60,6 @@ public class UserService {
         );
 
         User user = User.builder()
-                .username(username)
                 .nickname(nickname)
                 .email(email)
                 .password(password)
@@ -114,6 +110,14 @@ public class UserService {
             return ResponseEntity.ok(new UserDto.deleteResponseDto());
         }
         throw new CustomException(ErrorCode.MISMATCH_ID);
+    }
+
+    public boolean checkNickname(String nickname) {
+        User duplicatedUser = userRepository.findByNickname(nickname);
+        if(duplicatedUser == null){
+            return true;
+        }
+        return false;
     }
 
 
