@@ -8,12 +8,10 @@ import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.constant.UserRoleEnum;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.KakaoDto;
-import com.nawabali.nawabali.exception.CustomException;
-import com.nawabali.nawabali.exception.ErrorCode;
+import com.nawabali.nawabali.dto.UserDto;
 import com.nawabali.nawabali.global.tool.redis.RedisTool;
 import com.nawabali.nawabali.repository.UserRepository;
 import com.nawabali.nawabali.security.Jwt.JwtUtil;
-import com.nawabali.nawabali.security.UserDetailsImpl;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +29,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 
@@ -53,7 +49,7 @@ public class KakaoService {
     private String clientId;
 
     @Transactional
-    public void kakaoLogin(String code , HttpServletResponse response) throws JsonProcessingException, IOException {
+    public ResponseEntity<UserDto.kakaoLoginResponseDto> kakaoLogin(String code , HttpServletResponse response) throws JsonProcessingException, IOException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getAccessToken(code, aws);
 
@@ -63,17 +59,9 @@ public class KakaoService {
         log.info("userinfo : " + kakaoUser.getEmail());
         log.info("userinfo : " + kakaoUser.getNickname());
 
-        // 로그인 응답 메시지 설정
-        Map<String, String> successMessage = new HashMap<>();
-        successMessage.put("message", "카카오 로그인에 성공");
-        successMessage.put("ID : ", kakaoUser.getId().toString());
-
-        String jsonResponse = new ObjectMapper().writeValueAsString(successMessage);
-        response.getWriter().write(jsonResponse);
-
         // 3. 로그인 JWT 토큰 발행 및 리프레시 토큰 저장
         jwtTokenCreate(kakaoUser,response);
-
+        return ResponseEntity.ok(new UserDto.kakaoLoginResponseDto(kakaoUser.getId()));
 
     }
 
@@ -157,21 +145,6 @@ public class KakaoService {
         redisTool.setValues(token.substring(7),
                 refreshCookie.getValue(),
                 Duration.ofMillis(jwtUtil.REFRESH_EXPIRATION_TIME));
-
-        // 로그인 성공 메시지를 JSON 형태로 응답 본문에 추가
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.setStatus(HttpServletResponse.SC_OK);
-
-        // 로그인 응답 메시지 설정
-        Map<String, String> successMessage = new HashMap<>();
-        successMessage.put("message", "회원 로그인에 성공");
-        successMessage.put("accessToken", accessCookie.getValue());     // 토큰 포함 (편의상)
-        successMessage.put("refreshToken", refreshCookie.getValue());
-        successMessage.put("ID : ", kakaoUser.getId().toString());
-
-        String jsonResponse = new ObjectMapper().writeValueAsString(successMessage);
-        response.getWriter().write(jsonResponse);
 
     }
 

@@ -2,6 +2,7 @@ package com.nawabali.nawabali.dto;
 
 import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.domain.User;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import com.nawabali.nawabali.domain.User;
@@ -93,4 +94,18 @@ public class UserDto {
     }
 
 
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class kakaoLoginResponseDto {
+        @Schema(description = "유저의 pk")
+        private Long id;
+        @Schema(description = "소셜로그인 메세지", example = "소셜 로그인이 완료되었습니다.")
+        private String msg = "로그인 성공";
+
+        public kakaoLoginResponseDto(Long id) {
+            this.id = id;
+        }
+    }
 }
