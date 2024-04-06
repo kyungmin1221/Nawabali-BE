@@ -48,7 +48,7 @@ public class KakaoService {
     @Transactional
     public void kakaoLogin(String code , HttpServletResponse response) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
-        String accessToken = getAccessToken(code, local);
+        String accessToken = getAccessToken(code, aws);
 
         // 2. 필요시에 회원가입 및 위치 정보(address 값) 저장
         User kakaoUser = registerKakaoUserIfNeeded(accessToken);
