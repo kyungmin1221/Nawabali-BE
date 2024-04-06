@@ -8,9 +8,12 @@ import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.constant.UserRoleEnum;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.KakaoDto;
+import com.nawabali.nawabali.exception.CustomException;
+import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.global.tool.redis.RedisTool;
 import com.nawabali.nawabali.repository.UserRepository;
 import com.nawabali.nawabali.security.Jwt.JwtUtil;
+import com.nawabali.nawabali.security.UserDetailsImpl;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +27,12 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 
@@ -46,7 +53,7 @@ public class KakaoService {
     private String clientId;
 
     @Transactional
-    public void kakaoLogin(String code , HttpServletResponse response) throws JsonProcessingException {
+    public void kakaoLogin(String code , HttpServletResponse response) throws JsonProcessingException, IOException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getAccessToken(code, aws);
 
@@ -55,6 +62,14 @@ public class KakaoService {
         log.info("userinfo : " + kakaoUser.getNickname());
         log.info("userinfo : " + kakaoUser.getEmail());
         log.info("userinfo : " + kakaoUser.getNickname());
+
+        // 로그인 응답 메시지 설정
+        Map<String, String> successMessage = new HashMap<>();
+        successMessage.put("message", "카카오 로그인에 성공");
+        successMessage.put("ID : ", kakaoUser.getId().toString());
+
+        String jsonResponse = new ObjectMapper().writeValueAsString(successMessage);
+        response.getWriter().write(jsonResponse);
 
         // 3. 로그인 JWT 토큰 발행 및 리프레시 토큰 저장
         jwtTokenCreate(kakaoUser,response);
@@ -121,20 +136,42 @@ public class KakaoService {
 
 
     // JWT 토큰 생성 및 리프레시 토큰 저장(레디스) 로직
-    private void jwtTokenCreate(User kakaoUser , HttpServletResponse res) {
-        String token = jwtUtil.createAccessToken(kakaoUser.getEmail(), kakaoUser.getRole());
+    private void jwtTokenCreate(User kakaoUser , HttpServletResponse response) throws IOException {
+        String email = kakaoUser.getEmail();
+        UserRoleEnum role = kakaoUser.getRole();
+
+        String token = jwtUtil.createAccessToken(email, role);
+        log.info("token : " + token);
         Cookie accessCookie = jwtUtil.createAccessCookie(token);
-        Cookie refreshCookie = jwtUtil.createRefreshCookie(kakaoUser.getEmail());
 
+        Cookie refreshCookie = jwtUtil.createRefreshCookie(email);
+
+        log.info("user email : " + email, role);
+        log.info("accessCookie value : " + accessCookie.getValue());
+        log.info("refreshCookie value : " + refreshCookie.getValue());
         // 6. 헤더 및 쿠키에 저장
-        res.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
-        res.addCookie(accessCookie);
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+        response.addCookie(accessCookie);
 
-        // 7. redis에 리프레시 토큰 저장
-        redisTool.setValues(
-                accessCookie.getValue().substring(7),
+        // 7. refresh 토큰 redis에 저장
+        redisTool.setValues(token.substring(7),
                 refreshCookie.getValue(),
                 Duration.ofMillis(jwtUtil.REFRESH_EXPIRATION_TIME));
+
+        // 로그인 성공 메시지를 JSON 형태로 응답 본문에 추가
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpServletResponse.SC_OK);
+
+        // 로그인 응답 메시지 설정
+        Map<String, String> successMessage = new HashMap<>();
+        successMessage.put("message", "회원 로그인에 성공");
+        successMessage.put("accessToken", accessCookie.getValue());     // 토큰 포함 (편의상)
+        successMessage.put("refreshToken", refreshCookie.getValue());
+        successMessage.put("ID : ", kakaoUser.getId().toString());
+
+        String jsonResponse = new ObjectMapper().writeValueAsString(successMessage);
+        response.getWriter().write(jsonResponse);
 
     }
 

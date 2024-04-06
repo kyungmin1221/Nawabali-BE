@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @Controller
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
@@ -19,7 +21,7 @@ public class KakaoController {
     @GetMapping("/kakao/callback")
     public String kakaoLogin(@RequestParam String code,
                                         HttpServletResponse response)
-            throws JsonProcessingException {
+            throws JsonProcessingException, IOException {
 
         kakaoService.kakaoLogin(code , response);
         return "redirect:/";
