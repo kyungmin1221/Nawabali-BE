@@ -41,3 +41,15 @@ out/
 /src/main/resources/application.properties
 src/main/resources/application.properties
 
+/src/main/generated/com/nawabali/nawabali/constant/QAddress.java
+/src/main/generated/com/nawabali/nawabali/domain/QBookMark.java
+/src/main/generated/com/nawabali/nawabali/domain/QChat_ChatMessage.java
+/src/main/generated/com/nawabali/nawabali/domain/QChat_ChatRoom.java
+/src/main/generated/com/nawabali/nawabali/domain/QComment.java
+/src/main/generated/com/nawabali/nawabali/domain/QLike.java
+/src/main/generated/com/nawabali/nawabali/domain/QPost.java
+/src/main/generated/com/nawabali/nawabali/domain/image/QPostImage.java
+/src/main/generated/com/nawabali/nawabali/domain/image/QProfileImage.java
+/src/main/generated/com/nawabali/nawabali/domain/QTimeStamp.java
+/src/main/generated/com/nawabali/nawabali/constant/QTown.java
+/src/main/generated/com/nawabali/nawabali/domain/QUser.java
