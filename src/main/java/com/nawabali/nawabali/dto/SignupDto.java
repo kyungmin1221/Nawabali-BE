@@ -20,9 +20,6 @@ public class SignupDto {
         @Schema(description = "이메일 형식으로 입력. 조건 미충족으로 폼 제출 시 exception 발생", example = "a@a.com")
         private String email;
 
-        @NotBlank
-        @Schema(description = "이름", example = "a")
-        private String username;
         @Schema(description = "닉네임, 중복불가, 특수문자 제외 3자이상 10자이하 입력. 조건 미충족으로 폼 제출 시 exception 발생", example = "안양시터줏대감")
         @NotBlank
         @Pattern(regexp = "^[a-zA-Z0-9가-힣]{3,10}$",
@@ -37,10 +34,8 @@ public class SignupDto {
         @Schema(description = "비밀번호 확인. password 값과 일치하지 않으면 조건 미충족으로 폼 제출 시 exception 발생.", example = "StrongP@ss123")
         @NotBlank
         private String confirmPassword;
-        @Schema(description = "사용자 역할.", example = "관리자라면 true")
-        private boolean admin;
-        @Schema(description = "이메일 인증여부. 이메일 인증 api응답에 의해 결정. false로 폼 제출 시 exception 발생.", example = "true")
-        private boolean certificated;
+//        @Schema(description = "사용자 역할.", example = "관리자라면 true")
+//        private boolean admin;
 
         // 주소 정보 관련
         @NotBlank

@@ -39,17 +39,20 @@ public class KakaoService {
     private final RedisTool redisTool;
     private final RestTemplate restTemplate;
 
+    private final String local= "http://localhost:8080/api/user/kakao/callback";
+    private final String aws = "https://hhboard.shop/api/user/kakao/callback";
+
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String clientId;
 
     @Transactional
     public void kakaoLogin(String code , HttpServletResponse response) throws JsonProcessingException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
-        String accessToken = getAccessToken(code, "https://hhboard.shop/api/user/kakao/callback");
+        String accessToken = getAccessToken(code, local);
 
         // 2. 필요시에 회원가입 및 위치 정보(address 값) 저장
         User kakaoUser = registerKakaoUserIfNeeded(accessToken);
-        log.info("userinfo : " + kakaoUser.getUsername());
+        log.info("userinfo : " + kakaoUser.getNickname());
         log.info("userinfo : " + kakaoUser.getEmail());
         log.info("userinfo : " + kakaoUser.getNickname());
 
@@ -105,7 +108,6 @@ public class KakaoService {
             UserRoleEnum role = UserRoleEnum.USER; // 기본 역할을 ROLE_USER로 설정
 
             kakaoUser = User.builder()
-                    .username(kakaoId)
                     .nickname(kakaoNickname)
                     .email(kakaoEmail)
                     .password(password)

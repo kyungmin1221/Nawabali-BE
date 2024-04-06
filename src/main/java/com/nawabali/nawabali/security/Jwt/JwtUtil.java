@@ -52,7 +52,6 @@ public class JwtUtil {
     public String createAccessToken(String email, UserRoleEnum role){
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + ACCESS_EXPIRATION_TIME);
-
         return BEARER_PREFIX + Jwts.builder()
                 .setSubject(email) // 사용자 식별자값(ID)
                 .claim(AUTHORIZATION_KEY, role) // 사용자 권한
@@ -129,7 +128,6 @@ public class JwtUtil {
             log.error("Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.");
         } catch (ExpiredJwtException e) {
             log.error("Expired JWT token, 만료된 JWT token 입니다.");
-            System.out.println("test");
             return false;
         } catch (UnsupportedJwtException e) {
             log.error("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.");
