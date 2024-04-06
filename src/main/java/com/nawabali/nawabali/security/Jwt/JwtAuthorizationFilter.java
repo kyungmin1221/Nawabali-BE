@@ -48,6 +48,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
             // 로그아웃 된 accessToken이라면 Exception발생
             if(refreshToken.equals("logout")) {
+                log.info("logout 된 access token으로 접근");
                 throw new CustomException(ErrorCode.INVALID_AUTH_TOKEN);
             }
             if(!jwtUtil.validateToken(accessToken)){
