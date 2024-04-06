@@ -44,7 +44,7 @@ public class JwtLogoutHandler implements LogoutHandler {
         Long remainedExpiration = jwtUtil.getUserInfoFromToken(accessToken).getExpiration().getTime();
         Long now = new Date().getTime();
         if(remainedExpiration > now){
-            Long newExpiration = remainedExpiration - now;
+            long newExpiration = remainedExpiration - now;
             redisTool.setValues(accessToken, "logout", Duration.ofMillis(newExpiration));
         }
     }
