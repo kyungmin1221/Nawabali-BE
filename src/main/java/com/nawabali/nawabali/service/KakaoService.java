@@ -96,12 +96,11 @@ public class KakaoService {
     private User registerKakaoUserIfNeeded(String accessToken) throws JsonProcessingException {
         KakaoDto.userInfoDto kakaoUserInfo = getKakaoUserInfo(accessToken);
 
-        // DB 에 중복된 Kakao Id 가 있는지 확인
-        String kakaoId = String.valueOf(kakaoUserInfo.getId());
-        User kakaoUser = userRepository.findByKakaoId(kakaoId).orElse(null);
+        // DB 에 중복된 Kakao Email 가 있는지 확인
+        String kakaoEmail = String.valueOf(kakaoUserInfo.getEmail());
+        User kakaoUser = userRepository.findByEmail(kakaoEmail).orElse(null);
 
         if (kakaoUser == null) {
-            String kakaoEmail = kakaoUserInfo.getEmail(); // 카카오 사용자 이메일
             String kakaoNickname = kakaoUserInfo.getNickname(); // 카카오 사용자 닉네임
             String password = passwordEncoder.encode(UUID.randomUUID().toString());
 
