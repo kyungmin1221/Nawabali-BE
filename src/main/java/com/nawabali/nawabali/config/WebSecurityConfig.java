@@ -109,6 +109,8 @@ public class WebSecurityConfig {
                         .requestMatchers("/api-test").permitAll()
                         .requestMatchers("/users/check-nickname").permitAll()
                         .requestMatchers("/email-verification").permitAll()
+                        .requestMatchers("/ws-stomp/**").permitAll()
+                        .requestMatchers("/chat/**").permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
 
