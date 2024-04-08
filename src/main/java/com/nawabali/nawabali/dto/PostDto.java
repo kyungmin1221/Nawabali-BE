@@ -23,9 +23,6 @@ public class PostDto {
     public static class RequestDto {
 
         @NotBlank
-        private String title;
-
-        @NotBlank
         private String contents;
 
         @NotNull
@@ -52,8 +49,6 @@ public class PostDto {
 
         private String nickname;
 
-        private String title;
-
         private String contents;
 
         private String category;
@@ -75,7 +70,6 @@ public class PostDto {
             this.userId = post.getUser().getId();
             this.postId = post.getId();
             this.nickname = post.getUser().getNickname();
-            this.title = post.getTitle();
             this.contents = post.getContents();
             this.category = post.getCategory().name();
             this.createdAt = post.getCreatedAt();
@@ -102,8 +96,6 @@ public class PostDto {
 
         private String nickname;
 
-        private String title;
-
         private String contents;
 
         private String category;
@@ -125,7 +117,6 @@ public class PostDto {
             this.userId = post.getUser().getId();
             this.postId = post.getId();
             this.nickname = post.getUser().getNickname();
-            this.title = post.getTitle();
             this.contents = post.getContents();
             this.category = post.getCategory().name();
             this.createdAt = post.getCreatedAt();
@@ -152,7 +143,6 @@ public class PostDto {
         private String contents;
 
         public PatchDto(Post post) {
-            this.title = post.getTitle();
             this.contents = post.getContents();
         }
     }

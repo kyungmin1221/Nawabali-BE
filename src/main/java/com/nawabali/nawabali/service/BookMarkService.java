@@ -67,7 +67,6 @@ public class BookMarkService {
                             .bookmarkId(bookmark.getId())
                             .postId(post.getId())
                             .userId(user.getId())
-                            .postTitle(post.getTitle())
                             .build();
                 })
                 .collect(Collectors.toList());
