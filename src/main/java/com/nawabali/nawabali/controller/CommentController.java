@@ -37,7 +37,7 @@ public class CommentController {
     @Operation(summary = "게시물 댓글 조회", description = "postId 를 이용한 게시물 댓글 조회")
     @GetMapping("/posts/{postId}")
     public ResponseEntity<Slice<CommentDslDto.ResponseDto>> getComments(@PathVariable Long postId,
-                                                                        @PageableDefault(size = 10) Pageable pageable) {
+                                                                        @PageableDefault(size = 5) Pageable pageable) {
         Slice<CommentDslDto.ResponseDto> comments = commentService.getComments(postId,pageable);
         return ResponseEntity.ok(comments);
     }

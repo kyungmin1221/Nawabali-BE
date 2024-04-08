@@ -2,8 +2,12 @@ package com.nawabali.nawabali.security.Jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nawabali.nawabali.constant.UserRoleEnum;
+import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.UserDto;
+import com.nawabali.nawabali.exception.CustomException;
+import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.global.tool.redis.RedisTool;
+import com.nawabali.nawabali.repository.UserRepository;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -27,8 +31,10 @@ import java.util.Map;
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final JwtUtil jwtUtil;
     private final RedisTool redisTool;
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, RedisTool redisTool){
+    private final UserRepository userRepository;
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, RedisTool redisTool, UserRepository userRepository){
         this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
         setFilterProcessesUrl("/users/login");
         super.setUsernameParameter("email");
 
@@ -85,6 +91,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         successMessage.put("message", "회원 로그인에 성공");
         successMessage.put("accessToken", accessCookie.getValue());     // 토큰 포함 (편의상)
         successMessage.put("refreshToken", refreshCookie.getValue());
+        successMessage.put("ID : ", userRepository.findByEmail(
+                ((UserDetailsImpl) authResult.getPrincipal()).getUsername())
+                .orElseThrow(()->
+                        new CustomException(ErrorCode.USER_NOT_FOUND))
+                .getId()
+                .toString()
+        );
 
         String jsonResponse = new ObjectMapper().writeValueAsString(successMessage);
         response.getWriter().write(jsonResponse);

@@ -5,6 +5,7 @@ import com.nawabali.nawabali.repository.ChatMessageRepository;
 import com.nawabali.nawabali.repository.ChatRoomRepository;
 import com.nawabali.nawabali.service.ChatMessageService;
 import com.nawabali.nawabali.service.ChatRoomService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "채팅 관련 API", description = "채팅 관련 API 입니다.")
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/chat")

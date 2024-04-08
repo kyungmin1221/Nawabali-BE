@@ -6,6 +6,7 @@ import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.domain.elastic.PostSearch;
 import com.nawabali.nawabali.domain.image.PostImage;
+import com.nawabali.nawabali.domain.image.ProfileImage;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.dto.dslDto.PostDslDto;
 import com.nawabali.nawabali.exception.CustomException;
@@ -13,6 +14,7 @@ import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.LikeRepository;
 import com.nawabali.nawabali.repository.PostImageRepository;
 import com.nawabali.nawabali.repository.PostRepository;
+import com.nawabali.nawabali.repository.ProfileImageRepository;
 import com.nawabali.nawabali.repository.elasticRepository.PostSearchRepository;
 import com.nawabali.nawabali.s3.AwsS3Service;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +40,7 @@ public class PostService {
     private final UserService userService;
     private final AwsS3Service awsS3Service;
     private final PostSearchRepository postSearchRepository;
+    private final ProfileImageRepository profileImageRepository;
 
 
     // 게시물 생성
@@ -51,7 +54,6 @@ public class PostService {
         );
 
         Post post = Post.builder()
-                .title(requestDto.getTitle())
                 .contents(requestDto.getContents())
                 .category(requestDto.getCategory())
                 .createdAt(LocalDateTime.now())
@@ -90,7 +92,6 @@ public class PostService {
                             post.getUserId(),
                             post.getPostId(),
                             post.getNickname(),
-                            post.getTitle(),
                             post.getContents(),
                             post.getCategory(),
                             post.getCreatedAt(),
@@ -112,8 +113,9 @@ public class PostService {
         Post post = getPostId(postId);
         Long likesCount = getLikesCount(postId, LikeCategoryEnum.LIKE);
         Long localLikesCount = getLikesCount(postId, LikeCategoryEnum.LOCAL_LIKE);
+        String profileImageUrl = getProfileImage(postId).getImgUrl();
 
-        return new PostDto.ResponseDetailDto(post, likesCount, localLikesCount);
+        return new PostDto.ResponseDetailDto(post, likesCount, localLikesCount, profileImageUrl);
     }
 
     // 게시물 수정 - 사용자 신원 확인
@@ -124,7 +126,7 @@ public class PostService {
             throw new CustomException(ErrorCode.FORBIDDEN_MEMBER);
         }
 
-        post.update(patchDto.getTitle(), patchDto.getContents());
+        post.update(patchDto.getContents());
         postRepository.save(post);
 
         return new PostDto.PatchDto(post);
@@ -157,6 +159,13 @@ public class PostService {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_POST));
 
+    }
+
+    public ProfileImage getProfileImage(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        return profileImageRepository.findByUserId(post.getUser().getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.PROFILEIMAGE_NOT_FOUND));
     }
 
 }

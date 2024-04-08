@@ -38,8 +38,6 @@ public class QPost extends EntityPathBase<Post> {
 
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = createDateTime("modifiedAt", java.time.LocalDateTime.class);
 
-    public final StringPath title = createString("title");
-
     public final com.nawabali.nawabali.constant.QTown town;
 
     public final QUser user;

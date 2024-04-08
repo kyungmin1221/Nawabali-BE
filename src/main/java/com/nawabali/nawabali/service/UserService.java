@@ -8,20 +8,12 @@ import com.nawabali.nawabali.dto.SignupDto;
 import com.nawabali.nawabali.dto.UserDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
-import com.nawabali.nawabali.global.tool.redis.RedisTool;
 import com.nawabali.nawabali.repository.UserRepository;
-import com.nawabali.nawabali.security.Jwt.JwtUtil;
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -29,8 +21,7 @@ import org.springframework.util.StringUtils;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
-    private final RedisTool redisTool;
+
 
     @Transactional
     public ResponseEntity<SignupDto.SignupResponseDto> signup(SignupDto.SignupRequestDto requestDto) {
@@ -39,7 +30,7 @@ public class UserService {
         String rawPassword = requestDto.getPassword();
 
         // 비밀번호 일치 검증
-        if(!rawPassword.equals(requestDto.getConfirmPassword())){
+        if (!rawPassword.equals(requestDto.getConfirmPassword())) {
             throw new CustomException(ErrorCode.MISMATCH_PASSWORD);
 
         }
@@ -69,65 +60,50 @@ public class UserService {
                 .build();
         userRepository.save(user);
         User responseUser = userRepository.findByEmail(user.getEmail())
-                .orElseThrow(()-> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         return ResponseEntity.ok(new SignupDto.SignupResponseDto(responseUser.getId()));
     }
 
 
-    public UserDto.UserInfoResponseDto getUserInfo(Long userId, User user) {
+    public UserDto.UserInfoResponseDto getUserInfo(User user) {
+        User existUser = getUserId(user.getId());
 
-        if (isMatchUserId(userId, user)) {
+        Long localCount = 1L; // 물어볼것, 수정해야할 부분
+        Long likesCount = 1L;
 
-            Long localCount = 1L; // 물어볼것, 수정해야할 부분
-            Long likesCount = 1L;
-
-            return UserDto.UserInfoResponseDto.builder()
-                    .id(user.getId())
-                    .email(user.getEmail())
-                    .nickname(user.getNickname())
-                    .rank(user.getRank())
-                    .city(user.getAddress().getCity())
-                    .district(user.getAddress().getDistrict())
-                    .localCount(localCount)
-                    .likesCount(likesCount)
-                    .build();
-        }
-        throw new CustomException(ErrorCode.MISMATCH_ID);
-    }
-    @Transactional
-    public UserDto.UserInfoResponseDto updateUserInfo(Long userId, User user, UserDto.UserInfoRequestDto requestDto) {
-        if(isMatchUserId(userId, user)){
-            user.update(requestDto);
-            return new UserDto.UserInfoResponseDto(user);
-        }
-        throw new CustomException(ErrorCode.MISMATCH_ID);
+        return UserDto.UserInfoResponseDto.builder()
+                .id(existUser.getId())
+                .email(existUser.getEmail())
+                .nickname(existUser.getNickname())
+                .rank(existUser.getRank())
+                .city(existUser.getAddress().getCity())
+                .district(existUser.getAddress().getDistrict())
+                .localCount(localCount)
+                .likesCount(likesCount)
+                .build();
     }
 
     @Transactional
-    public ResponseEntity<UserDto.deleteResponseDto> deleteUserInfo(Long userId, User user) {
-        if(isMatchUserId(userId, user)){
-            userRepository.delete(user);
-            return ResponseEntity.ok(new UserDto.deleteResponseDto());
-        }
-        throw new CustomException(ErrorCode.MISMATCH_ID);
+    public UserDto.UserInfoResponseDto updateUserInfo(User user, UserDto.UserInfoRequestDto requestDto) {
+        User existUser = getUserId(user.getId());
+
+        existUser.update(requestDto);
+        return new UserDto.UserInfoResponseDto(existUser);
+    }
+
+    @Transactional
+    public ResponseEntity<UserDto.deleteResponseDto> deleteUserInfo(User user) {
+        User existUser = getUserId(user.getId());
+
+        userRepository.delete(existUser);
+        return ResponseEntity.ok(new UserDto.deleteResponseDto());
     }
 
     public boolean checkNickname(String nickname) {
         User duplicatedUser = userRepository.findByNickname(nickname);
-        if(duplicatedUser == null){
-            return true;
-        }
-        return false;
+        return duplicatedUser == null;
     }
 
-
-    public boolean isMatchUserId(Long userId, User user){
-        User existUser = getUserId(userId);
-
-        Long existUserId = existUser.getId();
-        Long detailsUserId = user.getId();
-        return existUserId.equals(detailsUserId);
-    }
 
     public User getUserId(Long userId) {
         return userRepository.findById(userId)
