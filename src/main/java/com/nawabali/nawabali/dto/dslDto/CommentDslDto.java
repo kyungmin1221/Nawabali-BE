@@ -12,6 +12,5 @@ public class CommentDslDto {
 
         private String contents;
 
-        private String username;
     }
 }

@@ -54,7 +54,6 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
                         .userId(newPost.getUser().getId())
                         .postId(newPost.getId())
                         .nickname(newPost.getUser().getNickname())
-                        .title(newPost.getTitle())
                         .contents(newPost.getContents())
                         .category(newPost.getCategory().name())
                         .createdAt(newPost.getCreatedAt())
