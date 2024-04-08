@@ -39,8 +39,4 @@ public class NotificationController {
         return notificationService.deleteNotification(id);
     }
 
-//    @DeleteMapping ("/notification/delete/{userId}") //***** Dto 만들기? 여기서 id 뭔지 확인하고 바꾸기)
-//    public NotiDeleteResponseDto deleteNotification (@AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
-//        return notificationService.deleteNotification(userDetails.getUser());
-//    }
 }
