@@ -131,12 +131,12 @@ public class LikeService {
         }
     }
 
-    private boolean isMatchDistrict(User user, Post post){
-        String userAddress = user.getAddress().getDistrict();
-        String postAddress = post.getTitle();
-
-        return userAddress.equals(postAddress);
-    }
+//    private boolean isMatchDistrict(User user, Post post){
+//        String userAddress = user.getAddress().getDistrict();
+//        String postAddress = post.getTitle();
+//
+//        return userAddress.equals(postAddress);
+//    }
 
     // 좋아요 취소
 //    public LikeDto.responseDto deleteLike(Long postId, LikeDto.requestDto dto, String username) {

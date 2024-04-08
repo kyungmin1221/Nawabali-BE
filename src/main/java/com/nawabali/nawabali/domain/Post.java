@@ -21,9 +21,6 @@ public class Post {
     private Long id;
 
     @Column(nullable = false)
-    private String title;
-
-    @Column(nullable = false)
     private String contents;
 
     private LocalDateTime createdAt;
@@ -53,10 +50,9 @@ public class Post {
 
 
     @Builder
-    public Post(String title, String contents, LocalDateTime createdAt, LocalDateTime modifiedAt,
+    public Post(String contents, LocalDateTime createdAt, LocalDateTime modifiedAt,
                 Category category, Town town, User user) {
 
-        this.title = title;
         this.contents = contents;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
@@ -65,8 +61,7 @@ public class Post {
         this.user = user;
     }
 
-    public void update(String title, String contents) {
-        this.title = title;
+    public void update(String contents) {
         this.contents = contents;
     }
 

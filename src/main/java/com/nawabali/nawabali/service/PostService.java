@@ -54,7 +54,6 @@ public class PostService {
         );
 
         Post post = Post.builder()
-                .title(requestDto.getTitle())
                 .contents(requestDto.getContents())
                 .category(requestDto.getCategory())
                 .createdAt(LocalDateTime.now())
@@ -93,7 +92,6 @@ public class PostService {
                             post.getUserId(),
                             post.getPostId(),
                             post.getNickname(),
-                            post.getTitle(),
                             post.getContents(),
                             post.getCategory(),
                             post.getCreatedAt(),
@@ -128,7 +126,7 @@ public class PostService {
             throw new CustomException(ErrorCode.FORBIDDEN_MEMBER);
         }
 
-        post.update(patchDto.getTitle(), patchDto.getContents());
+        post.update(patchDto.getContents());
         postRepository.save(post);
 
         return new PostDto.PatchDto(post);

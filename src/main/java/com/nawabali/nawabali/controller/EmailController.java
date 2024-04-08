@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-@Tag(name = "이메일 인증 API", description = "이메일 인증 관 API 입니다.")
+@Tag(name = "이메일 인증 API", description = "이메일 인증 관련 API 입니다.")
 @RestController
 @RequestMapping("/email-verification")
 @RequiredArgsConstructor
