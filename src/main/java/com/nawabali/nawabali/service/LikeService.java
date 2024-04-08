@@ -131,11 +131,11 @@ public class LikeService {
         }
     }
 
-    private boolean isMatchDistrict(User user, Post post){
-        String userAddress = user.getAddress().getDistrict();
-        String postAddress = post.getTitle();
-
-        return userAddress.equals(postAddress);
-    }
+//    private boolean isMatchDistrict(User user, Post post){
+//        String userAddress = user.getAddress().getDistrict();
+//        String postAddress = post.getTitle();
+//
+//        return userAddress.equals(postAddress);
+//    }
 
 }

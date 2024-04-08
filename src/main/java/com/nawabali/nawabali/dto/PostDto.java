@@ -1,6 +1,5 @@
 package com.nawabali.nawabali.dto;
 
-import com.nawabali.nawabali.constant.Address;
 import com.nawabali.nawabali.constant.Category;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.image.PostImage;
@@ -9,7 +8,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,9 +19,6 @@ public class PostDto {
     @NoArgsConstructor
     @Builder
     public static class RequestDto {
-
-        @NotBlank
-        private String title;
 
         @NotBlank
         private String contents;
@@ -52,8 +47,6 @@ public class PostDto {
 
         private String nickname;
 
-        private String title;
-
         private String contents;
 
         private String category;
@@ -75,7 +68,6 @@ public class PostDto {
             this.userId = post.getUser().getId();
             this.postId = post.getId();
             this.nickname = post.getUser().getNickname();
-            this.title = post.getTitle();
             this.contents = post.getContents();
             this.category = post.getCategory().name();
             this.createdAt = post.getCreatedAt();
@@ -102,8 +94,6 @@ public class PostDto {
 
         private String nickname;
 
-        private String title;
-
         private String contents;
 
         private String category;
@@ -120,12 +110,13 @@ public class PostDto {
 
         private Long localLikesCount;
 
+        private String profileImageUrl;
 
-        public ResponseDetailDto(Post post, Long likesCount, Long localLikesCount) {
+
+        public ResponseDetailDto(Post post, Long likesCount, Long localLikesCount, String profileImageUrl) {
             this.userId = post.getUser().getId();
             this.postId = post.getId();
             this.nickname = post.getUser().getNickname();
-            this.title = post.getTitle();
             this.contents = post.getContents();
             this.category = post.getCategory().name();
             this.createdAt = post.getCreatedAt();
@@ -136,6 +127,7 @@ public class PostDto {
             this.commentCount = post.getComments().size();
             this.likesCount = likesCount;
             this.localLikesCount = localLikesCount;
+            this.profileImageUrl = profileImageUrl;
         }
 
     }
@@ -152,7 +144,6 @@ public class PostDto {
         private String contents;
 
         public PatchDto(Post post) {
-            this.title = post.getTitle();
             this.contents = post.getContents();
         }
     }

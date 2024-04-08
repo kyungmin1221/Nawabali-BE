@@ -23,8 +23,6 @@ public class PostDslDto {
 
         private String nickname;
 
-        private String title;
-
         private String contents;
 
         private String category;
@@ -45,7 +43,6 @@ public class PostDslDto {
             this.userId = post.getUser().getId();
             this.postId = post.getId();
             this.nickname = post.getUser().getNickname();
-            this.title = post.getTitle();
             this.contents = post.getContents();
             this.category = post.getCategory().name();
             this.createdAt = post.getCreatedAt();
