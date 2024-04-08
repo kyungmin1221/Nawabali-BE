@@ -9,6 +9,8 @@ import com.nawabali.nawabali.constant.UserRoleEnum;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.KakaoDto;
 import com.nawabali.nawabali.dto.UserDto;
+import com.nawabali.nawabali.exception.CustomException;
+import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.global.tool.redis.RedisTool;
 import com.nawabali.nawabali.repository.UserRepository;
 import com.nawabali.nawabali.security.Jwt.JwtUtil;
@@ -117,6 +119,9 @@ public class KakaoService {
                     .rank(UserRankEnum.RESIDENT)
                     .build();
             userRepository.save(kakaoUser);
+        }
+        else{
+            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
         }
 
         return kakaoUser;
