@@ -45,7 +45,8 @@ public enum ErrorCode {
     PROFILEIMAGE_NOT_FOUND(NOT_FOUND, "해당 프로필이미지를 찾을 수 없습니다."),
     LIKE_NOT_FOUND(NOT_FOUND, "해당 좋아요를 찾을 수 없습니다."),
     CHATROOM_NOT_FOUND(NOT_FOUND, "해당 채팅방을 찾을 수 없습니다."),
-
+    CHAT_MESSAGE_NOT_FOUND(NOT_FOUND, "해당 메세지를 찾을 수 없습니다."),
+    NOTIFICATION_NOT_FOUND(NOT_FOUND, "해당 알림을 찾을 수 없습니다."),
 
     // 409 CONFLICT: 중복된 리소스 (요청이 현재 서버 상태와 충돌될 때)
     DUPLICATE_EMAIL(CONFLICT, "이미 존재하는 이메일입니다."),

@@ -18,7 +18,6 @@ import java.util.List;
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
-    private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageService chatMessageService;
 
     // 채팅 리스트 화면
@@ -31,20 +30,14 @@ public class ChatRoomController {
     @GetMapping("/rooms")
     @ResponseBody
     public List<ChatDto.ChatRoomDto> room() {
-
         return chatRoomService.room();
-
-//        return chatRoomRepository.findAllRoom();
-
     }
+
     // 채팅방 생성
     @PostMapping("/room")
     @ResponseBody
     public ChatDto.ChatRoomDto createRoom(@RequestParam String name) {
-
         return chatRoomService.createRoom(name);
-
-//        return chatRoomRepository.createChatRoom(name);
     }
 
     // 채팅방 입장 화면
@@ -59,12 +52,13 @@ public class ChatRoomController {
     @ResponseBody
     public List<ChatDto.ChatRoomDto> roomInfo(@RequestParam String name) {
         return chatRoomService.roomInfo(name);
-//        return chatRoomRepository.findRoomById(roomId);
     }
 
-        // ChatController는 웹소켓 endpoint를 담당해서 일반적인 http요청을 처리하지 않아 이곳으로 옮겨 놓음.
+//    ChatController는 웹소켓 endpoint를 담당해서 일반적인 http요청을 처리하지 않아 이곳으로 옮겨 놓음.
+//     유저 인증하기 / 메세지 조회하기
 //    @GetMapping("/room/{roomId}/message")
 //    public List<ChatDto.ChatMessageDto> loadMessage (@PathVariable Long roomId) {
 //        return chatMessageService.loadMessage(roomId);
 //    }
+
 }

@@ -28,6 +28,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     // 댓글 작성
     public CommentDto.ResponseDto createComment(Long postId, CommentDto.RequestDto dto, String username) {
@@ -48,6 +49,8 @@ public class CommentService {
                 .createdAt(LocalDateTime.now())
                 .build();
         commentRepository.save(comment);
+
+        notificationService.notifyComment(postId);
 
         // 유저, 게시물, 댓글 관련 자료를 response로 보내기
         return CommentDto.ResponseDto.builder()

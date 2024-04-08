@@ -10,6 +10,7 @@ import com.nawabali.nawabali.repository.ChatRoomRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.ChatMessageService;
+import com.nawabali.nawabali.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -30,6 +31,7 @@ public class ChatController {
     private final ChatMessageRepository chatMessageRepository;
     private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final NotificationService notificationService;
 
     @MessageMapping("/chat/message")
     public void message(ChatDto.ChatMessageDto message) {
@@ -52,6 +54,8 @@ public class ChatController {
                 .build();
 
         chatMessageRepository.save(chatMessage);
+
+//        notificationService.notifyMessage(chatRoom.getRoomNumber(), message.getUserId(), message.getSender());
 
         messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
     }
