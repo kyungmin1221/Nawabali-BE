@@ -31,20 +31,20 @@ public class UserController {
         return userService.signup(requestDto);
     }
 
-    @Operation(summary = "회원 정보 조회", description = "회원 정보 조회에 사용하는 API, 조회하려는 유저의 PK값 필요.")
+    @Operation(summary = "회원 정보 조회", description = "회원 정보 조회에 사용하는 API")
     @GetMapping("/my-info")
     public UserDto.UserInfoResponseDto getUserInfo(@AuthenticationPrincipal UserDetailsImpl userDetails){
         return userService.getUserInfo(userDetails.getUser());
     }
 
-    @Operation(summary = "회원 정보 수정", description = "회원 정보 수정에 사용하는 API, 수정하려는 유저의 PK값 필요.")
+    @Operation(summary = "회원 정보 수정", description = "회원 정보 수정에 사용하는 API")
     @PatchMapping("/my-info")
     public UserDto.UserInfoResponseDto updateUserInfo(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody UserDto.UserInfoRequestDto userInfoRequestDto){
         return userService.updateUserInfo(userDetails.getUser(), userInfoRequestDto);
     }
 
 
-    @Operation(summary = "회원 탈퇴", description = "회원 탈퇴에 사용하는 API, 탈퇴하려는 유저의 PK값 필요.")
+    @Operation(summary = "회원 탈퇴", description = "회원 탈퇴에 사용하는 API")
     @DeleteMapping("/my-info")
     public ResponseEntity<UserDto.deleteResponseDto> deleteUserInfo(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return userService.deleteUserInfo(userDetails.getUser());
