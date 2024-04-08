@@ -51,14 +51,22 @@ public class UserDto {
     @NoArgsConstructor
     public static class UserInfoRequestDto {
         @NotBlank
+        @Schema(description = "특수문자 제외 3자이상 10자이하", example = "변경할 닉네임")
         String nickname;
         @NotBlank
+        @Schema(example = "변경할 주소1")
         String city;
         @NotBlank
+        @Schema(example = "변경할 주소2")
         String district;
         @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*\\W)[a-zA-Z0-9\\W]{8,15}$",
                 message = "대문자, 소문자, 특수문자, 숫자 포함 8~15자리.")
+        @Schema(description = "대문자 또는 소문자, 특수문자, 숫자 각각 1개이상 포함 8~15자리", example = "StrongP@ss1234")
         String password;
+        @Pattern(regexp = "^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*\\W)[a-zA-Z0-9\\W]{8,15}$",
+                message = "대문자, 소문자, 특수문자, 숫자 포함 8~15자리.")
+        @Schema(description = "password와 일치 해야함", example = "StrongP@ss1234")
+        String confirmPassword;
     }
 
     @Getter
