@@ -4,18 +4,18 @@ import com.nawabali.nawabali.constant.LikeCategoryEnum;
 import com.nawabali.nawabali.constant.Town;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.User;
-import com.nawabali.nawabali.domain.elastic.PostSearch;
+import com.nawabali.nawabali.domain.elasticsearch.PostSearch;
 import com.nawabali.nawabali.domain.image.PostImage;
 import com.nawabali.nawabali.domain.image.ProfileImage;
 import com.nawabali.nawabali.dto.PostDto;
-import com.nawabali.nawabali.dto.dslDto.PostDslDto;
+import com.nawabali.nawabali.dto.querydsl.PostDslDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.LikeRepository;
 import com.nawabali.nawabali.repository.PostImageRepository;
 import com.nawabali.nawabali.repository.PostRepository;
 import com.nawabali.nawabali.repository.ProfileImageRepository;
-import com.nawabali.nawabali.repository.elasticRepository.PostSearchRepository;
+import com.nawabali.nawabali.repository.elasticsearch.PostSearchRepository;
 import com.nawabali.nawabali.s3.AwsS3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -50,7 +50,8 @@ public class PostService {
 
         Town town = new Town(
                 requestDto.getLatitude(),
-                requestDto.getLongitude()
+                requestDto.getLongitude(),
+                requestDto.getDistrict()
         );
 
         Post post = Post.builder()
@@ -94,6 +95,7 @@ public class PostService {
                             post.getNickname(),
                             post.getContents(),
                             post.getCategory(),
+                            post.getDistrict(),
                             post.getCreatedAt(),
                             post.getModifiedAt(),
                             post.getImageUrls(),
@@ -116,6 +118,34 @@ public class PostService {
         String profileImageUrl = getProfileImage(postId).getImgUrl();
 
         return new PostDto.ResponseDetailDto(post, likesCount, localLikesCount, profileImageUrl);
+    }
+
+    // 카테고리 별 게시물 조회
+    public Slice<PostDto.ResponseDto> getPostByCategory(String category, String district, Pageable pageable) {
+        Slice<PostDslDto.ResponseDto> postCategory = postRepository.findCategoryByPost(category,district, pageable);
+        List<PostDto.ResponseDto> content = postCategory.getContent().stream()
+                .map(post -> {
+                    Long likesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LIKE);
+                    Long localLikesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
+
+                    return new PostDto.ResponseDto(
+                            post.getUserId(),
+                            post.getPostId(),
+                            post.getNickname(),
+                            post.getContents(),
+                            post.getCategory(),
+                            post.getDistrict(),
+                            post.getCreatedAt(),
+                            post.getModifiedAt(),
+                            post.getImageUrls(),
+                            likesCount,
+                            localLikesCount,
+                            post.getCommentCount()
+                    );
+                })
+                .collect(Collectors.toList());
+
+        return new SliceImpl<>(content, pageable, postCategory.hasNext());
     }
 
     // 게시물 수정 - 사용자 신원 확인
@@ -150,6 +180,13 @@ public class PostService {
 
         return new PostDto.DeleteDto("해당 게시물이 삭제되었습니다.");
     }
+
+
+    // 게시물 검색
+    public List<PostDslDto.SearchDto> searchPost(String contents) {
+        return postRepository.findSearchByPosts(contents);
+    }
+
 
     public Long getLikesCount(Long postId, LikeCategoryEnum likeCategoryEnum){
         return likeRepository.countByPostIdAndLikeCategoryEnum(postId, likeCategoryEnum);

@@ -1,7 +1,6 @@
-package com.nawabali.nawabali.repository.elasticRepository;
+package com.nawabali.nawabali.repository.elasticsearch;
 
-import com.nawabali.nawabali.domain.Post;
-import com.nawabali.nawabali.domain.elastic.PostSearch;
+import com.nawabali.nawabali.domain.elasticsearch.PostSearch;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.stereotype.Repository;
 

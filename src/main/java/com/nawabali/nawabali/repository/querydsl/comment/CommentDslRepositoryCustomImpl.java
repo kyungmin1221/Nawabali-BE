@@ -1,8 +1,7 @@
-package com.nawabali.nawabali.repository.dslrepository;
+package com.nawabali.nawabali.repository.querydsl.comment;
 
 import com.nawabali.nawabali.domain.QComment;
-import com.nawabali.nawabali.domain.QUser;
-import com.nawabali.nawabali.dto.dslDto.CommentDslDto;
+import com.nawabali.nawabali.dto.querydsl.CommentDslDto;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;

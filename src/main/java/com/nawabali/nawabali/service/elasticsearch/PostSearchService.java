@@ -1,7 +1,7 @@
-package com.nawabali.nawabali.service;
+package com.nawabali.nawabali.service.elasticsearch;
 
-import com.nawabali.nawabali.domain.elastic.PostSearch;
-import com.nawabali.nawabali.repository.elasticRepository.PostSearchRepository;
+import com.nawabali.nawabali.domain.elasticsearch.PostSearch;
+import com.nawabali.nawabali.repository.elasticsearch.PostSearchRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

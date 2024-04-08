@@ -1,4 +1,4 @@
-package com.nawabali.nawabali.dto.dslDto;
+package com.nawabali.nawabali.dto.querydsl;
 
 import lombok.*;
 

@@ -1,7 +1,7 @@
 package com.nawabali.nawabali.controller;
 
 import com.nawabali.nawabali.dto.CommentDto;
-import com.nawabali.nawabali.dto.dslDto.CommentDslDto;
+import com.nawabali.nawabali.dto.querydsl.CommentDslDto;
 import com.nawabali.nawabali.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

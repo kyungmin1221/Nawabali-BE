@@ -2,6 +2,7 @@ package com.nawabali.nawabali.controller;
 
 
 import com.nawabali.nawabali.dto.PostDto;
+import com.nawabali.nawabali.dto.querydsl.PostDslDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -67,6 +68,22 @@ public class PostController {
         return ResponseEntity.ok(responseDto);
     }
 
+    @Operation(summary = "게시물 카테고리 or 구 로 조회", description = "category 또는 district 를 이용한 게시물 조회")
+    @GetMapping("/category")
+    public ResponseEntity<Slice<PostDto.ResponseDto>> getPostByCategory(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String district,
+            @PageableDefault(
+                    size = 10,
+                    sort = "createdAt",
+                    direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Slice<PostDto.ResponseDto> posts = postService.getPostByCategory(category, district, pageable);
+        return ResponseEntity.ok(posts);
+    }
+
+
+
 
     @Operation(summary = "게시물 수정", description = "postId 를 이용한 게시물 수정")
     @PatchMapping("/{postId}")
@@ -82,6 +99,12 @@ public class PostController {
     public ResponseEntity<PostDto.DeleteDto> deletePost(@PathVariable Long postId) {
         PostDto.DeleteDto deleteDto = postService.deletePost(postId);
         return ResponseEntity.ok(deleteDto);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<PostDslDto.SearchDto>> searchPost(@RequestParam("query") String contents) {
+        List<PostDslDto.SearchDto> postDslDto = postService.searchPost(contents);
+        return ResponseEntity.ok(postDslDto);
     }
 }
 

@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AwsS3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -40,11 +42,21 @@ public class AwsS3Service {
             objectMetadata.setContentLength(file.getSize());
             objectMetadata.setContentType(file.getContentType());
 
+            log.info("Uploading file: {} | Size: {} | ContentType: {}", fileName, file.getSize(), file.getContentType());
+
+
             try (InputStream inputStream = file.getInputStream()) {
                 amazonS3.putObject(new PutObjectRequest(bucket, filePath, inputStream, objectMetadata)
                         .withCannedAcl(CannedAccessControlList.PublicRead));
+
+                // 추가
+                String fileUrl = amazonS3.getUrl(bucket, filePath).toString();
+
                 // S3 URL 생성 및 리스트에 추가
                 fileUrlList.add(amazonS3.getUrl(bucket, filePath).toString());
+
+                log.info("Uploaded file URL: {}", fileUrl);
+
             } catch (IOException e) {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
             }
