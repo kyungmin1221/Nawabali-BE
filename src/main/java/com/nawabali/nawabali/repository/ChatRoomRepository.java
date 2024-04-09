@@ -9,7 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface ChatRoomRepository extends JpaRepository<Chat.ChatRoom, Long> {
-
     Optional<List<Chat.ChatRoom>> findByNameContainingIgnoreCase(String name);
-
+    Chat.ChatRoom findByRoomNumber(String roomNumber);
 }

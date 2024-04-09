@@ -10,6 +10,7 @@ import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.LikeRepository;
 //import com.nawabali.nawabali.repository.LocalLikeRepository;
+import com.nawabali.nawabali.repository.NotificationRepository;
 import com.nawabali.nawabali.repository.PostRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -27,6 +28,7 @@ public class LikeService {
 //    private final LocalLikeRepository localLikeRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final NotificationService notificationService;
 
     // 좋아요 수정
     public LikeDto.responseDto toggleLike(Long postId, String username) {
@@ -66,6 +68,8 @@ public class LikeService {
                     .build();
 
             likeRepository.save(findLike);
+
+            notificationService.notifyLike(postId,user.getId());
 
         }
         // response 보내기
@@ -119,6 +123,8 @@ public class LikeService {
                     .build();
 
             likeRepository.save(findLocalLike);
+
+            notificationService.notifyLocalLike(postId, user.getId());
 
             return LikeDto.responseDto.builder()
                     .likeId(findLocalLike.getId())
