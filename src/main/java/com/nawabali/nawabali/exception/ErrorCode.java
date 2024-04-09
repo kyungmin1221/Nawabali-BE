@@ -31,6 +31,7 @@ public enum ErrorCode {
     UNAUTHORIZED_POST(UNAUTHORIZED, "존재하지 않는 게시물입니다."),
     UNAUTHORIZED_COMMENT(UNAUTHORIZED, "존재하지 않는 댓글입니다."),
     UNAUTHORIZED_BOOKMARK(UNAUTHORIZED, "존재하지 않는 북마크입니다."),
+    UNAUTHORIZED_CATEGORY(UNAUTHORIZED, "존재하지 않는 카테고리입니다."),
 
     // 403 Forbidden : 클라이언트는 콘텐츠에 접근할 권리를 가지고 있지 않다
     FORBIDDEN_MEMBER(FORBIDDEN,"본인의 게시물이 아닙니다."),
@@ -45,7 +46,8 @@ public enum ErrorCode {
     PROFILEIMAGE_NOT_FOUND(NOT_FOUND, "해당 프로필이미지를 찾을 수 없습니다."),
     LIKE_NOT_FOUND(NOT_FOUND, "해당 좋아요를 찾을 수 없습니다."),
     CHATROOM_NOT_FOUND(NOT_FOUND, "해당 채팅방을 찾을 수 없습니다."),
-
+    CHAT_MESSAGE_NOT_FOUND(NOT_FOUND, "해당 메세지를 찾을 수 없습니다."),
+    NOTIFICATION_NOT_FOUND(NOT_FOUND, "해당 알림을 찾을 수 없습니다."),
 
     // 409 CONFLICT: 중복된 리소스 (요청이 현재 서버 상태와 충돌될 때)
     DUPLICATE_EMAIL(CONFLICT, "이미 존재하는 이메일입니다."),

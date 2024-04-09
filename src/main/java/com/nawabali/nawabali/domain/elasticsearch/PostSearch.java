@@ -1,4 +1,4 @@
-package com.nawabali.nawabali.domain.elastic;
+package com.nawabali.nawabali.domain.elasticsearch;
 
 import jakarta.persistence.Id;
 import lombok.Getter;
