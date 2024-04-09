@@ -4,7 +4,7 @@ import com.nawabali.nawabali.domain.Comment;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.CommentDto;
-import com.nawabali.nawabali.dto.dslDto.CommentDslDto;
+import com.nawabali.nawabali.dto.querydsl.CommentDslDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.CommentRepository;

@@ -1,4 +1,4 @@
-package com.nawabali.nawabali.dto.dslDto;
+package com.nawabali.nawabali.dto.querydsl;
 
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.image.PostImage;
@@ -27,6 +27,8 @@ public class PostDslDto {
 
         private String category;
 
+        private String district;
+
         private LocalDateTime createdAt;
 
         private LocalDateTime modifiedAt;
@@ -53,6 +55,25 @@ public class PostDslDto {
             this.commentCount = post.getComments().size();
             this.likesCount = likesCount;
             this.localLikesCount = localLikesCount;
+            this.district = post.getTown().getDistrict();
+        }
+
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class SearchDto {
+
+        private Long id;
+
+        private String contents;
+
+        public SearchDto(Post post) {
+            this.id = post.getId();
+            this.contents = post.getContents();
         }
 
     }
