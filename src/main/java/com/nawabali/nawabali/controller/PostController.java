@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -36,11 +37,11 @@ public class PostController {
             - key :  requestDto , value : {"title":"title", "contents":"contents", "category":"category", "latitude": latitude, "longitude": longitude}'
             - key : files , value : 이미지 파일 최대 5장
             """)
-    @PostMapping
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<PostDto.ResponseDto> createPost(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @RequestPart("requestDto") PostDto.RequestDto requestDto,
-            @RequestParam("files") List<MultipartFile> files) {
+            @RequestPart("files") List<MultipartFile> files) {
         PostDto.ResponseDto responseDto = postService.createPost(userDetails.getUser(), requestDto, files);
         return ResponseEntity.ok(responseDto);
     }
