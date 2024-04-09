@@ -57,20 +57,12 @@ public class PostController {
                     sort = "createdAt",
                     direction = Sort.Direction.DESC) Pageable pageable) {
         Slice<PostDto.ResponseDto> postsSlice = postService.getPostsByLatest(pageable);
-        // 조회 결과 반환
         return ResponseEntity.ok(postsSlice);
     }
 
-    @Operation(summary = "게시물 상세 조회", description = "postId 를 이용한 게시물 상세 조회, 댓글 조회 api는 따로 구현")
-    @GetMapping("/{postId}")
-    public ResponseEntity<PostDto.ResponseDetailDto> getPost(@PathVariable Long postId) {
-        PostDto.ResponseDetailDto responseDto = postService.getPost(postId);
-        return ResponseEntity.ok(responseDto);
-    }
-
     @Operation(summary = "게시물 카테고리 or 구 로 조회", description = "category 또는 district 를 이용한 게시물 조회")
-    @GetMapping("/category")
-    public ResponseEntity<Slice<PostDto.ResponseDto>> getPostByCategory(
+    @GetMapping("/filtered")
+    public ResponseEntity<Slice<PostDto.ResponseDto>> getPostByFiltered(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String district,
             @PageableDefault(
@@ -82,6 +74,13 @@ public class PostController {
         return ResponseEntity.ok(posts);
     }
 
+
+    @Operation(summary = "게시물 상세 조회", description = "postId 를 이용한 게시물 상세 조회, 댓글 조회 api는 따로 구현")
+    @GetMapping("/{postId}")
+    public ResponseEntity<PostDto.ResponseDetailDto> getPost(@PathVariable Long postId) {
+        PostDto.ResponseDetailDto responseDto = postService.getPost(postId);
+        return ResponseEntity.ok(responseDto);
+    }
 
 
 
