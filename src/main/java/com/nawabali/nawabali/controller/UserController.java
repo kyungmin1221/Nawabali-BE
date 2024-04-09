@@ -56,14 +56,5 @@ public class UserController {
         return userService.checkNickname(nickname);
     }
 
-    @GetMapping("/test")
-    public String test(){
-        return "login";
-    }
-
-    @GetMapping("test1")
-    public void test1(@AuthenticationPrincipal UserDetailsImpl userDetails){
-        System.out.println("userDetails.getUser() = " + userDetails.getUser().getEmail());
-    }
 
 }
