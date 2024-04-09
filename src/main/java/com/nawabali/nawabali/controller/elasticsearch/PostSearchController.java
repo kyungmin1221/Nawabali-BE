@@ -1,10 +1,8 @@
-package com.nawabali.nawabali.controller;
+package com.nawabali.nawabali.controller.elasticsearch;
 
-import com.nawabali.nawabali.domain.elastic.PostSearch;
-import com.nawabali.nawabali.service.PostSearchService;
-import com.nawabali.nawabali.service.PostService;
+import com.nawabali.nawabali.domain.elasticsearch.PostSearch;
+import com.nawabali.nawabali.service.elasticsearch.PostSearchService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

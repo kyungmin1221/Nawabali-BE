@@ -32,6 +32,9 @@ public class PostDto {
         @NotNull
         private Double longitude;
 
+        @NotNull
+        private String district;
+
     }
 
     @Getter
@@ -50,6 +53,8 @@ public class PostDto {
         private String contents;
 
         private String category;
+
+        private String district;
 
         private LocalDateTime createdAt;
 
@@ -76,6 +81,7 @@ public class PostDto {
                     .map(PostImage::getImgUrl)
                     .collect(Collectors.toList());
             this.commentCount = post.getComments().size();
+            this.district = post.getTown().getDistrict();
 
         }
 
@@ -112,6 +118,8 @@ public class PostDto {
 
         private String profileImageUrl;
 
+        private String district;
+
 
         public ResponseDetailDto(Post post, Long likesCount, Long localLikesCount, String profileImageUrl) {
             this.userId = post.getUser().getId();
@@ -128,6 +136,7 @@ public class PostDto {
             this.likesCount = likesCount;
             this.localLikesCount = localLikesCount;
             this.profileImageUrl = profileImageUrl;
+            this.district = post.getTown().getDistrict();
         }
 
     }
@@ -138,8 +147,6 @@ public class PostDto {
     @NoArgsConstructor
     @Builder
     public static class PatchDto {
-
-        private String title;
 
         private String contents;
 

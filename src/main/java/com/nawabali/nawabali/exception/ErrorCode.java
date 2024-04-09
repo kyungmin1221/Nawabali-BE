@@ -31,6 +31,7 @@ public enum ErrorCode {
     UNAUTHORIZED_POST(UNAUTHORIZED, "존재하지 않는 게시물입니다."),
     UNAUTHORIZED_COMMENT(UNAUTHORIZED, "존재하지 않는 댓글입니다."),
     UNAUTHORIZED_BOOKMARK(UNAUTHORIZED, "존재하지 않는 북마크입니다."),
+    UNAUTHORIZED_CATEGORY(UNAUTHORIZED, "존재하지 않는 카테고리입니다."),
 
     // 403 Forbidden : 클라이언트는 콘텐츠에 접근할 권리를 가지고 있지 않다
     FORBIDDEN_MEMBER(FORBIDDEN,"본인의 게시물이 아닙니다."),

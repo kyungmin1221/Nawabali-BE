@@ -1,42 +1,54 @@
 package com.nawabali.nawabali.repository;
 
-import com.nawabali.nawabali.dto.PostDto;
-import com.nawabali.nawabali.service.PostService;
+import com.nawabali.nawabali.domain.elasticsearch.PostSearch;
+import com.nawabali.nawabali.dto.querydsl.PostDslDto;
+import com.nawabali.nawabali.repository.querydsl.post.PostDslRepositoryCustomImpl;
+import com.nawabali.nawabali.service.elasticsearch.PostSearchService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
 
 @SpringBootTest
 class PostDslRepositoryCustomImplTest {
 
     @Autowired
-    private PostService postService;
+    private PostSearchService postSearchService;
+
+    @Autowired
+    private PostDslRepositoryCustomImpl postDslRepositoryCustom;
 
 
+
+    // elastic 검색 시간 속도 - 165ms (게시물이 더 많은데도 더 빨리 검색)
     @Test
-    public void test1() {
-        // 테스트를 위한 PageRequest 생성
-        int page = 0;
-        int size = 12;
-        PageRequest pageRequest = PageRequest.of(page, size);
+    public void testElasticsearchSearchPerformance() {
+        String searchKeyword = "byby";
 
-        // 메서드 실행
-        Slice<PostDto.ResponseDto> resultSlice = postService.getPostsByLatest(pageRequest);
+        long startTime = System.currentTimeMillis();
+        List<PostSearch> results = postSearchService.searchByContents(searchKeyword);
+        for (PostSearch result : results) {
+            System.out.println("result = " + result.getContents());
+        }
+        long endTime = System.currentTimeMillis();
 
-        // 결과 검증
-        assertNotNull(resultSlice);
-        assertFalse(resultSlice.isEmpty());
+        System.out.println("Elasticsearch 검색 실행 시간: " + (endTime - startTime) + "ms");
+    }
 
-        // 결과 내용 검증 (옵션)
-        resultSlice.getContent().forEach(post -> {
-            assertNotNull(post.getTitle());
-        });
 
-        // hasNext 검증
-        assertEquals(size > resultSlice.getContent().size(), resultSlice.hasNext());
+    // query dsl 검색 속도 - 242ms
+    @Test
+    public void testQueryDslSearchPerformance() {
+        String searchKeyword = "byby";
+
+        long startTime = System.currentTimeMillis();
+        List<PostDslDto.SearchDto> results = postDslRepositoryCustom.findSearchByPosts(searchKeyword);
+        for (PostDslDto.SearchDto result : results) {
+            System.out.println("result = " + result.getContents());
+        }
+        long endTime = System.currentTimeMillis();
+
+        System.out.println("QueryDSL 검색 실행 시간: " + (endTime - startTime) + "ms");
     }
 }

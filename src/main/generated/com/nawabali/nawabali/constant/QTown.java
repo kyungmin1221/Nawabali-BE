@@ -19,6 +19,8 @@ public class QTown extends BeanPath<Town> {
 
     public static final QTown town = new QTown("town");
 
+    public final StringPath district = createString("district");
+
     public final NumberPath<Double> latitude = createNumber("latitude", Double.class);
 
     public final NumberPath<Double> longitude = createNumber("longitude", Double.class);
