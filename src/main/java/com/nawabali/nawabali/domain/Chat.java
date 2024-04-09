@@ -37,11 +37,11 @@ public class Chat {
         @Column (nullable = false)
         private LocalDateTime createdAt;
 
-        @ManyToOne
+        @ManyToOne (fetch = FetchType.LAZY)
         @JoinColumn (name = "user_id")
         private User user;
 
-        @ManyToOne
+        @ManyToOne (fetch = FetchType.LAZY)
         @JoinColumn (name = "room_id")
         private ChatRoom chatRoom;
 
@@ -70,9 +70,5 @@ public class Chat {
         @Column (nullable = false)
         private String name;
 
-
-//        public ChatRoom () {
-//            this.Id = UUID.randomUUID().toString();
-//        }
     }
 }

@@ -1,12 +1,10 @@
 package com.nawabali.nawabali.domain;
 
-import com.nawabali.nawabali.constant.LikeCategoryEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDateTime;
 
@@ -22,18 +20,14 @@ public class Notification {
     @GeneratedValue (strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column (nullable = false)
+    @Column
     private LocalDateTime createdAt;
 
     @Column (nullable = false)
     private String sender;
 
-    @Column (nullable = false)
+    @Column
     private String contents;
-
-//    @ManyToOne (fetch = FetchType.LAZY)
-//    @JoinColumn (name = "post_id")
-//    private Post post;
 
     @ManyToOne (fetch = FetchType.LAZY)
     @JoinColumn (name = "user_Id")

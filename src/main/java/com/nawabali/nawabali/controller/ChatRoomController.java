@@ -1,19 +1,20 @@
 package com.nawabali.nawabali.controller;
 
 import com.nawabali.nawabali.dto.ChatDto;
-import com.nawabali.nawabali.repository.ChatMessageRepository;
-import com.nawabali.nawabali.repository.ChatRoomRepository;
+import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.ChatMessageService;
 import com.nawabali.nawabali.service.ChatRoomService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "채팅 관련 API", description = "채팅 관련 API 입니다.")
+@Tag(name = "채팅방 관련 API", description = "채팅방 관련 API 입니다.")
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/chat")
@@ -22,45 +23,44 @@ public class ChatRoomController {
     private final ChatRoomService chatRoomService;
     private final ChatMessageService chatMessageService;
 
-    // 채팅 리스트 화면
+    @Operation(summary = "채팅 메인 화면" , description = "html 파일 구현으로 임시로 넣어놓음")
     @GetMapping("/room")
     public String rooms(Model model) {
         return "/chat/room";
     }
 
-    // 모든 채팅방 목록 반환
-    @GetMapping("/rooms")
-    @ResponseBody
-    public List<ChatDto.ChatRoomDto> room() {
-        return chatRoomService.room();
-    }
-
-    // 채팅방 생성
-    @PostMapping("/room")
-    @ResponseBody
-    public ChatDto.ChatRoomDto createRoom(@RequestParam String name) {
-        return chatRoomService.createRoom(name);
-    }
-
-    // 채팅방 입장 화면
+    @Operation(summary = "채팅방 입장 화면" , description = "html 파일 구현으로 임시로 넣어놓음")
     @GetMapping("/room/enter/{roomId}")
     public String roomDetail(Model model, @PathVariable String roomId) {
         model.addAttribute("roomId", roomId);
         return "/chat/roomdetail";
     }
 
-    // 특정 채팅방 조회
-    @GetMapping("/room/found")
+    @Operation(summary = "채팅방 생성" , description = "채팅방 name으로 채팅방 생성 API")
+    @PostMapping("/room")
     @ResponseBody
-    public List<ChatDto.ChatRoomDto> roomInfo(@RequestParam String name) {
-        return chatRoomService.roomInfo(name);
+    public ChatDto.ChatRoomDto createRoom(@RequestParam String name, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return chatRoomService.createRoom(name, userDetails.getUser());
     }
 
-//    ChatController는 웹소켓 endpoint를 담당해서 일반적인 http요청을 처리하지 않아 이곳으로 옮겨 놓음.
-//     유저 인증하기 / 메세지 조회하기
-//    @GetMapping("/room/{roomId}/message")
-//    public List<ChatDto.ChatMessageDto> loadMessage (@PathVariable Long roomId) {
-//        return chatMessageService.loadMessage(roomId);
-//    }
+    @Operation(summary = "전체 채팅방 목록 반환" , description = "전체 채팅방 조회 API")
+    @GetMapping("/rooms")
+    @ResponseBody
+    public List<ChatDto.ChatRoomDto> room(@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return chatRoomService.room(userDetails.getUser());
+    }
+
+    @Operation(summary = "특정 채팅방 조회" , description = "채팅방 검색 API")
+    @GetMapping("/room/found")
+    @ResponseBody
+    public List<ChatDto.ChatRoomDto> roomInfo(@RequestParam String name, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return chatRoomService.roomInfo(name, userDetails.getUser());
+    }
+
+    @Operation(summary = "채팅방 대화 내용 조회" , description = "채팅방 전제 대화 내용 조회 API")
+    @GetMapping("/room/{roomId}/message")
+    public List<ChatDto.ChatMessageDto> loadMessage (@PathVariable Long roomId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return chatMessageService.loadMessage(roomId, userDetails.getUser());
+    }  // ChatController는 웹소켓 endpoint를 담당해서 일반적인 http요청을 처리하지 않아 이곳으로 옮겨 놓음.
 
 }
