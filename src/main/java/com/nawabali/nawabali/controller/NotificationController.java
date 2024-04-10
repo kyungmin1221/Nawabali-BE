@@ -3,6 +3,8 @@ package com.nawabali.nawabali.controller;
 import com.nawabali.nawabali.dto.NotiDeleteResponseDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.NotificationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +17,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Tag(name = "알림 관련 API", description = "알림 관련 API 입니다.")
 @RestController
 @RequiredArgsConstructor
 public class NotificationController {
@@ -22,7 +25,7 @@ public class NotificationController {
     private final NotificationService notificationService;
     public static Map<Long, SseEmitter> sseEmitters = new ConcurrentHashMap<>();
 
-    // 메세지 알림 | SSE 연결, 구독
+    @Operation(summary = "SSE 알림 연결" , description = "연결, 구독 되어 있어야만 알림이 전송됨")
     @GetMapping ("/notification/subscribe")
     public SseEmitter subscribe (@AuthenticationPrincipal UserDetailsImpl userDetails) {
 
@@ -33,8 +36,8 @@ public class NotificationController {
         return sseEmitter;
     }
 
-    // 알림 삭제
-    @DeleteMapping ("/notification/delete/{id}") //***** Dto 만들기? 여기서 id 뭔지 확인하고 바꾸기)
+    @Operation(summary = "알림 삭제" , description = "해당 알림 삭제 API")
+    @DeleteMapping ("/notification/delete/{id}")
     public NotiDeleteResponseDto deleteNotification (@PathVariable Long id) throws IOException {
         return notificationService.deleteNotification(id);
     }

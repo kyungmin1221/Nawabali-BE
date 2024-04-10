@@ -1,5 +1,6 @@
 package com.nawabali.nawabali.service;
 
+import com.nawabali.nawabali.constant.MessageType;
 import com.nawabali.nawabali.domain.Chat;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.ChatDto;
@@ -11,8 +12,10 @@ import com.nawabali.nawabali.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,29 +28,58 @@ public class ChatMessageService {
     private final UserRepository userRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final SimpMessageSendingOperations messagingTemplate;
+    private final NotificationService notificationService;
 
-    // 대화 조회
-    public List<ChatDto.ChatMessageDto> loadMessage(Long roomId, User user) {
+    // 입장
+    public void enterMessage(ChatDto.ChatMessageDto message) {
 
-        User userOptional = userRepository.findById(user.getId())
+        User userOptional = userRepository.findById(message.getUserId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
 
-        Chat.ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+        Chat.ChatRoom chatRoom = chatRoomRepository.findById(message.getRoomId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
 
-        List<Chat.ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdAndUserId(chatRoom.getId(), user.getId())
-                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+        if (MessageType.ENTER.equals(message.getType())) {
+            message.setMessage(message.getSender() + "님이 입장하셨습니다.");
+            messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message); }
 
-        // ChatMessage를 ChatDto.ChatMessage로 변환하여 반환
-        return chatMessages.stream()
-                .map(chatMessage -> ChatDto.ChatMessageDto.builder()
-                        .id(chatMessage.getId())
-                        .type(chatMessage.getType())
-                        .sender(chatMessage.getSender())
-                        .message(chatMessage.getMessage())
-                        .createdAt(chatMessage.getCreatedAt())
-                        .build())
-                .collect(Collectors.toList());
+        if (!chatRoomRepository.findByIdAndUserId(chatRoom.getId(),userOptional.getId()).isPresent()){
+
+            Chat.ChatRoom chatRoomSave = Chat.ChatRoom.builder()
+                    .name(chatRoom.getName())
+                    .roomNumber(chatRoom.getRoomNumber())
+                    .user(userOptional)
+                    .build();
+
+            chatRoomRepository.save(chatRoomSave);
+        }
+
     }
 
+    // 메세지 보내기
+    public void message(ChatDto.ChatMessageDto message) {
+
+        User userOptional = userRepository.findById(message.getUserId())
+                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+
+        Chat.ChatRoom chatRoom = chatRoomRepository.findById(message.getRoomId())
+                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+
+        Chat.ChatMessage chatMessage = Chat.ChatMessage.builder()
+                .type(message.getType())
+                .sender(message.getSender())
+                .message(message.getMessage())
+                .createdAt(LocalDateTime.now())
+                .user(userOptional)
+                .chatRoom(chatRoom)
+                .build();
+
+        chatMessageRepository.save(chatMessage);
+
+        notificationService.notifyMessage(chatRoom.getRoomNumber(), message.getUserId(), message.getSender());
+
+        messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
+
+    }
 }

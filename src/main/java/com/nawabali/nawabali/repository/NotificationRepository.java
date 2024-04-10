@@ -7,7 +7,5 @@ import java.util.List;
 import java.util.Optional;
 
 public interface NotificationRepository extends JpaRepository <Notification, Long> {
-    // 굳이 써야 하나...?
-//    Optional <Notification> findById (Long id);
     Optional<List<Notification>> findAllByUserId(Long userId);
 }

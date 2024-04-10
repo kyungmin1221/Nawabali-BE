@@ -135,7 +135,6 @@ public class NotificationService {
                 Map <String, String> eventData = new HashMap<>();
 
                 eventData.put("message", receiveComment.getUser().getNickname() + "님이 댓글이 달았습니다.");
-//                eventData.put("sender", receiveComment.getUser().getNickname());
                 eventData.put("createdAt", receiveComment.getCreatedAt().toString());
                 eventData.put("contents", receiveComment.getContents());
 
@@ -143,14 +142,11 @@ public class NotificationService {
                 sseEmitter.send(SseEmitter.event().name("addComment").data(eventData));
 
                 // Notification 객체 생성 및 저장
-
-
                 Notification notification = Notification.builder()
                         .sender(receiveComment.getUser().getNickname())
                         .createdAt(receiveComment.getCreatedAt())
                         .contents(receiveComment.getContents())
                         .user(post.getUser())
-//                        .post(post)
                         .comment(receiveComment)
                         .build();
 
@@ -254,7 +250,6 @@ public class NotificationService {
 
                 eventData.put("message", receiveLike.getUser().getNickname() + "님이 주민 추천 좋아요를 눌렸습니다.");
                 eventData.put("createdAt", String.valueOf(LocalDateTime.now()));
-//                eventData.put("sender", receiveLike.getUser().getNickname());
 
                 // SSE 이벤트를 통해 데이터 전송
                 sseEmitter.send(SseEmitter.event().name("addComment").data(eventData));
@@ -285,7 +280,7 @@ public class NotificationService {
         }
     }
 
-    // 알림 삭제
+    // 해당 알림 삭제
     public NotiDeleteResponseDto deleteNotification (Long id) throws IOException {
 
         Notification notification = notificationRepository.findById(id)
