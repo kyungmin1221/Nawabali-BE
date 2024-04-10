@@ -164,12 +164,6 @@ public class JwtUtil {
         }
         throw new NullPointerException("Not Found Token");
     }
-//    public String substringToken(String token){
-//        if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
-//            return token.substring(7);
-//        }
-//        throw new IllegalArgumentException("Invalid or Missing Authorization Header");
-//    }
 
 
 }

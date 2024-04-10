@@ -6,6 +6,7 @@ import com.nawabali.nawabali.service.KakaoService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
-@RestController
+@Controller
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
 public class KakaoController {
@@ -22,11 +23,11 @@ public class KakaoController {
 
     // 카카오 로그인 요청 처리
     @GetMapping("/kakao/callback")
-    public ResponseEntity<UserDto.kakaoLoginResponseDto> kakaoLogin(@RequestParam String code,
+    public String kakaoLogin(@RequestParam String code,
                                                                     HttpServletResponse response)
             throws JsonProcessingException, IOException {
 
-        return kakaoService.kakaoLogin(code, response);
-
+       kakaoService.kakaoLogin(code, response);
+       return "redirect:/";
     }
 }
