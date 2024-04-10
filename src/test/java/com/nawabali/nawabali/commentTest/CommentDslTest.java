@@ -73,24 +73,24 @@ public class CommentDslTest {
 
 
     //  37 ms - jpa 사용
-    @Test
-    public void benchmarkGetBookmarks() {
-        // 테스트를 위한 사용자 조회
-        User user = userRepository.findById(1L).orElseThrow();
-
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-
-        List<BookMarkDto.UserBookmarkDto> bookmarksJpaMethod = bookMarkService.getBookmarks1(user);
-        for (BookMarkDto.UserBookmarkDto userBookmarkDto : bookmarksJpaMethod) {
-            System.out.println("userBookmarkId() = " + userBookmarkDto.getBookmarkId());
-        }
-
-        stopWatch.stop();
-        System.out.println("Jpa 실행시간 측정 :  " + stopWatch.getTotalTimeSeconds());
-        System.out.println(stopWatch.prettyPrint());
-
-    }
+//    @Test
+//    public void benchmarkGetBookmarks() {
+//        // 테스트를 위한 사용자 조회
+//        User user = userRepository.findById(1L).orElseThrow();
+//
+//        StopWatch stopWatch = new StopWatch();
+//        stopWatch.start();
+//
+//        List<BookMarkDto.UserBookmarkDto> bookmarksJpaMethod = bookMarkService.getBookmarks1(user);
+//        for (BookMarkDto.UserBookmarkDto userBookmarkDto : bookmarksJpaMethod) {
+//            System.out.println("userBookmarkId() = " + userBookmarkDto.getBookmarkId());
+//        }
+//
+//        stopWatch.stop();
+//        System.out.println("Jpa 실행시간 측정 :  " + stopWatch.getTotalTimeSeconds());
+//        System.out.println(stopWatch.prettyPrint());
+//
+//    }
 
     // 0.55 ms - query dsl 사용
     @Test
