@@ -48,13 +48,15 @@ public class ChatRoomService {
         return chatRoomDto;
     }
 
-    // 전체 채팅방 목록 반환
+    // 본인 전체 채팅방 목록 반환
     public List<ChatDto.ChatRoomDto> room(User user) {
 
         userRepository.findById(user.getId())
                 .orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
 
-        List<Chat.ChatRoom> chatRooms = chatRoomRepository.findAll();
+        List<Chat.ChatRoom> chatRooms = chatRoomRepository.findAllByUserId(user.getId())
+                .orElseThrow(()-> new CustomException(ErrorCode.INCHATROOM_NOT_FOUND));
+
         Collections.reverse(chatRooms);
         return chatRooms.stream()
                 .map(chatRoom -> ChatDto.ChatRoomDto.builder()

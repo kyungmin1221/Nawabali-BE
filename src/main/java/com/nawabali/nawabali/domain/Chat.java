@@ -1,5 +1,6 @@
 package com.nawabali.nawabali.domain;
 
+import com.nawabali.nawabali.constant.MessageType;
 import com.nawabali.nawabali.dto.ChatDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,7 +27,7 @@ public class Chat {
         private Long Id;
 
         @Column (nullable = false)
-        private ChatDto.ChatMessageDto.MessageType type; // 메세지 타입
+        private MessageType type; // 메세지 타입
 
         @Column (nullable = false)
         private String sender; // 메시지 보낸사람
@@ -69,6 +70,10 @@ public class Chat {
 
         @Column (nullable = false)
         private String name;
+
+        @ManyToOne (fetch = FetchType.LAZY)
+        @JoinColumn (name = "user_id")
+        private User user;
 
     }
 }

@@ -1,5 +1,6 @@
 package com.nawabali.nawabali.dto;
 
+import com.nawabali.nawabali.constant.MessageType;
 import lombok.*;
 import org.springframework.stereotype.Component;
 
@@ -11,9 +12,6 @@ public class ChatDto {
     @Setter
     @Builder
     public static class ChatMessageDto {
-        public enum MessageType {
-            ENTER, TALK
-        }
         private Long id;
         private MessageType type;
         private Long roomId;

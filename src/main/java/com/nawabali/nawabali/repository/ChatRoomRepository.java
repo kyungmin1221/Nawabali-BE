@@ -4,6 +4,7 @@ import com.nawabali.nawabali.domain.Chat;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,4 +12,8 @@ import java.util.Optional;
 public interface ChatRoomRepository extends JpaRepository<Chat.ChatRoom, Long> {
     Optional<List<Chat.ChatRoom>> findByNameContainingIgnoreCase(String name);
     Chat.ChatRoom findByRoomNumber(String roomNumber);
+
+    Optional<List<Chat.ChatRoom>> findAllByUserId(Long userId);
+
+    Optional<List<Chat.ChatRoom>> findByIdAndUserId(Long id, Long userId);
 }
