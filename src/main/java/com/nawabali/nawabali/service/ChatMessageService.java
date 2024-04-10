@@ -82,28 +82,4 @@ public class ChatMessageService {
         messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
 
     }
-
-    // 대화 조회
-    public List<ChatDto.ChatMessageDto> loadMessage(Long roomId, User user) {
-
-        User userOptional = userRepository.findById(user.getId())
-                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
-
-        Chat.ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
-
-        List<Chat.ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdAndUserId(chatRoom.getId(), user.getId())
-                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
-
-        // ChatMessage를 ChatDto.ChatMessage로 변환하여 반환
-        return chatMessages.stream()
-                .map(chatMessage -> ChatDto.ChatMessageDto.builder()
-                        .id(chatMessage.getId())
-                        .type(chatMessage.getType())
-                        .sender(chatMessage.getSender())
-                        .message(chatMessage.getMessage())
-                        .createdAt(chatMessage.getCreatedAt())
-                        .build())
-                .collect(Collectors.toList());
-    }
 }

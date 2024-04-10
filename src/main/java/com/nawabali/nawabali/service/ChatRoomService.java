@@ -5,6 +5,7 @@ import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.ChatDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
+import com.nawabali.nawabali.repository.ChatMessageRepository;
 import com.nawabali.nawabali.repository.ChatRoomRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -26,6 +27,7 @@ public class ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
+    private final ChatMessageRepository chatMessageRepository;
 
     // 채팅방 생성
     public ChatDto.ChatRoomDto createRoom(String name, User user) {
@@ -85,6 +87,30 @@ public class ChatRoomService {
                         .roomId(chatRoom.getId())
                         .roomNumber(chatRoom.getRoomNumber())
                         .name(chatRoom.getName())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    // 대화 조회
+    public List<ChatDto.ChatMessageDto> loadMessage(Long roomId, User user) {
+
+        User userOptional = userRepository.findById(user.getId())
+                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+
+        Chat.ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+
+        List<Chat.ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdAndUserId(chatRoom.getId(), user.getId())
+                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+
+        // ChatMessage를 ChatDto.ChatMessage로 변환하여 반환
+        return chatMessages.stream()
+                .map(chatMessage -> ChatDto.ChatMessageDto.builder()
+                        .id(chatMessage.getId())
+                        .type(chatMessage.getType())
+                        .sender(chatMessage.getSender())
+                        .message(chatMessage.getMessage())
+                        .createdAt(chatMessage.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
     }

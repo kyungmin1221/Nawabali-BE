@@ -60,7 +60,7 @@ public class ChatRoomController {
     @Operation(summary = "채팅방 대화 내용 조회" , description = "채팅방 전제 대화 내용 조회 API")
     @GetMapping("/room/{roomId}/message")
     public List<ChatDto.ChatMessageDto> loadMessage (@PathVariable Long roomId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return chatMessageService.loadMessage(roomId, userDetails.getUser());
+        return chatRoomService.loadMessage(roomId, userDetails.getUser());
     }  // ChatController는 웹소켓 endpoint를 담당해서 일반적인 http요청을 처리하지 않아 이곳으로 옮겨 놓음.
 
 }
