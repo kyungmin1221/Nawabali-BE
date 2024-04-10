@@ -41,6 +41,5 @@ public class BookMarkDto {
 
         private Long userId;
 
-        private String postTitle;
     }
 }
