@@ -32,8 +32,8 @@ public class CommentDslRepositoryCustomImpl implements CommentDslRepositoryCusto
                 .leftJoin(comment.parent)
                 .where(comment.post.id.eq(postId))
                 .orderBy(
-                        comment.parent.Id.asc().nullsFirst(),
-                        comment.createdAt.asc()
+                        comment.createdAt.asc(),
+                        comment.parent.Id.asc().nullsFirst()
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
