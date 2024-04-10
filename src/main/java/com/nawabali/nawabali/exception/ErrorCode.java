@@ -6,7 +6,6 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 import static org.springframework.http.HttpStatus.*;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @AllArgsConstructor
 @Getter
@@ -27,10 +26,10 @@ public enum ErrorCode {
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
     INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),
-    UNAUTHORIZED_MEMBER(UNAUTHORIZED, "존재하지 않는 회원입니다."),
-    UNAUTHORIZED_POST(UNAUTHORIZED, "존재하지 않는 게시물입니다."),
-    UNAUTHORIZED_COMMENT(UNAUTHORIZED, "존재하지 않는 댓글입니다."),
-    UNAUTHORIZED_BOOKMARK(UNAUTHORIZED, "존재하지 않는 북마크입니다."),
+    UNAUTHORIZED_MEMBER(UNAUTHORIZED, "권한 정보가 없는 회원입니다."),
+    UNAUTHORIZED_POST(UNAUTHORIZED, "권한 정보가 없는 게시물입니다."),
+    UNAUTHORIZED_COMMENT(UNAUTHORIZED, "권한 정보가 없는 댓글입니다."),
+    UNAUTHORIZED_BOOKMARK(UNAUTHORIZED, "권한 정보가 없는 북마크입니다."),
 
     // 403 Forbidden : 클라이언트는 콘텐츠에 접근할 권리를 가지고 있지 않다
     FORBIDDEN_MEMBER(FORBIDDEN,"본인의 게시물이 아닙니다."),
