@@ -1,9 +1,10 @@
 package com.nawabali.nawabali.repository.dslrepository;
 
-import com.nawabali.nawabali.dto.dslDto.CommentDslDto;
+import com.nawabali.nawabali.domain.Comment;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
 public interface CommentDslRepositoryCustom {
-    Slice<CommentDslDto.ResponseDto> findCommentsByPostId(Long postId, Pageable pageable);
+    //findCommentByPostIdWithParentOrderByParentIdAscNullsFirstCreatedAtAsc
+    Slice<Comment> findCommentsByPostId(Long postId, Pageable pageable);
 }

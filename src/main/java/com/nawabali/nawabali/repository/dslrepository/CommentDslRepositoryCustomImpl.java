@@ -1,9 +1,7 @@
 package com.nawabali.nawabali.repository.dslrepository;
 
+import com.nawabali.nawabali.domain.Comment;
 import com.nawabali.nawabali.domain.QComment;
-import com.nawabali.nawabali.domain.QUser;
-import com.nawabali.nawabali.dto.dslDto.CommentDslDto;
-import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,26 +23,27 @@ public class CommentDslRepositoryCustomImpl implements CommentDslRepositoryCusto
     }
 
     @Override
-    public Slice<CommentDslDto.ResponseDto> findCommentsByPostId(Long postId, Pageable pageable) {
+    public Slice<Comment> findCommentsByPostId(Long postId, Pageable pageable) {
         QComment comment = QComment.comment;
 
-        List<CommentDslDto.ResponseDto> comments = queryFactory
-                .select(Projections.bean(CommentDslDto.ResponseDto.class,
-                        comment.contents,
-                        comment.user.nickname))
+        List<Comment> comments = queryFactory
+                .select(comment)
                 .from(comment)
+                .leftJoin(comment.parent)
                 .where(comment.post.id.eq(postId))
-                .orderBy(comment.createdAt.desc())
+                .orderBy(
+                        comment.parent.Id.asc().nullsFirst(),
+                        comment.createdAt.asc()
+                )
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize()+1)
+                .limit(pageable.getPageSize() + 1)
                 .fetch();
 
         boolean hasNext = comments.size() > pageable.getPageSize();
-        if(hasNext) {
+        if (hasNext) {
             comments.remove(comments.size() - 1);
         }
 
         return new SliceImpl<>(comments, pageable, hasNext);
-
     }
 }
