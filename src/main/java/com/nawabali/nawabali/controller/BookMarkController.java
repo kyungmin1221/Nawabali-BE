@@ -20,7 +20,9 @@ public class BookMarkController {
 
     private final BookMarkService bookMarkService;
 
-    @Operation(summary = "북마크 생성", description = "postId 를 이용한 북마크 생성, 토글 형태로 생성 / 삭제 구현")
+    @Operation(summary = "북마크 생성",
+            description = "postId 를 이용한 북마크 생성," +
+                    "토글 형태로 북마크를 선택하지 않았었다면 북마크를 추가, 이미 추가되어 있었다면 북마크를 취소함")
     @PostMapping("/posts/{postId}")
     public ResponseEntity<BookMarkDto.ResponseDto> createBookMark(@PathVariable Long postId,
                                                                   @AuthenticationPrincipal UserDetailsImpl userDetails) {
@@ -28,7 +30,7 @@ public class BookMarkController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @Operation(summary = "회원 북마크 조회", description = "로그인 되어있는 사용자의 북마크를 조제")
+    @Operation(summary = "회원의 북마크 조회", description = "로그인 되어있는 사용자의 북마크를 조회")
     @GetMapping("/users")
     public ResponseEntity<List<BookMarkDto.UserBookmarkDto>> getBookmarks(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         List<BookMarkDto.UserBookmarkDto> userBookmarkDto = bookMarkService.getBookmarks(userDetails.getUser());

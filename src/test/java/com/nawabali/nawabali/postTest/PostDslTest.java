@@ -1,4 +1,4 @@
-package com.nawabali.nawabali.repository;
+package com.nawabali.nawabali.postTest;
 
 import com.nawabali.nawabali.domain.elasticsearch.PostSearch;
 import com.nawabali.nawabali.dto.querydsl.PostDslDto;
@@ -10,8 +10,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.List;
 
+
 @SpringBootTest
-class PostDslRepositoryCustomImplTest {
+class PostDslTest {
 
     @Autowired
     private PostSearchService postSearchService;

@@ -4,11 +4,13 @@ import com.nawabali.nawabali.dto.CommentDto;
 import com.nawabali.nawabali.dto.querydsl.CommentDslDto;
 import com.nawabali.nawabali.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -34,10 +36,18 @@ public class CommentController {
     }
 
     // 댓글 조회(무한 스크롤)
-    @Operation(summary = "게시물 댓글 조회", description = "postId 를 이용한 게시물 댓글 조회")
+    @Operation(summary = "게시물 댓글 조회",
+            description = "postId 를 이용한 게시물 댓글 조회",
+            parameters = {
+                    @Parameter(name = "size", description = "페이지 당 댓글의 수", example = "5"),
+                    @Parameter(name = "sort", description = "정렬 기준과 방향, 예: createdAt,desc(생성일 내림차순 정렬)", example = "createdAt,desc")
+            })
     @GetMapping("/posts/{postId}")
     public ResponseEntity<Slice<CommentDslDto.ResponseDto>> getComments(@PathVariable Long postId,
-                                                                        @PageableDefault(size = 5) Pageable pageable) {
+                                                                        @PageableDefault(
+                                                                                size = 5,
+                                                                                sort = "createdAt",
+                                                                                direction = Sort.Direction.DESC) Pageable pageable) {
         Slice<CommentDslDto.ResponseDto> comments = commentService.getComments(postId,pageable);
         return ResponseEntity.ok(comments);
     }

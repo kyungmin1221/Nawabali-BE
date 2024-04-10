@@ -2,14 +2,12 @@ package com.nawabali.nawabali.security.Jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nawabali.nawabali.constant.UserRoleEnum;
-import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.UserDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.global.tool.redis.RedisTool;
 import com.nawabali.nawabali.repository.UserRepository;
 import com.nawabali.nawabali.security.UserDetailsImpl;
-import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -23,7 +21,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
