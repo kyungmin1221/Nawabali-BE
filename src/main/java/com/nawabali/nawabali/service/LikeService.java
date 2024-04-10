@@ -10,7 +10,6 @@ import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.LikeRepository;
 //import com.nawabali.nawabali.repository.LocalLikeRepository;
-import com.nawabali.nawabali.repository.NotificationRepository;
 import com.nawabali.nawabali.repository.PostRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import lombok.AllArgsConstructor;

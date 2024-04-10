@@ -6,8 +6,6 @@ import com.nawabali.nawabali.domain.QPost;
 import com.nawabali.nawabali.domain.QUser;
 import com.nawabali.nawabali.domain.image.PostImage;
 import com.nawabali.nawabali.dto.querydsl.PostDslDto;
-import com.nawabali.nawabali.exception.ErrorCode;
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -17,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;

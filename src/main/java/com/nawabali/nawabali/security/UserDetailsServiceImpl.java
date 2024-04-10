@@ -1,8 +1,6 @@
 package com.nawabali.nawabali.security;
 
 import com.nawabali.nawabali.domain.User;
-import com.nawabali.nawabali.exception.CustomException;
-import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

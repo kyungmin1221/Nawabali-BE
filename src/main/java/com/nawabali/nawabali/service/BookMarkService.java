@@ -33,6 +33,30 @@ public class BookMarkService {
         }
     }
 
+
+    // 유저의 북마크 조회
+//    public List<BookMarkDto.UserBookmarkDto> getBookmarks1(User user) {
+//        Long userId = user.getId();
+//        List<BookMark> bookmarks = bookMarkRepository.findByUserId(userId);
+//
+//        return bookmarks.stream()
+//                .map(bookmark -> {
+//                    Post post = postService.getPostId(bookmark.getPost().getId());
+//                    return BookMarkDto.UserBookmarkDto.builder()
+//                            .bookmarkId(bookmark.getId())
+//                            .postId(post.getId())
+//                            .userId(user.getId())
+//                            .build();
+//                })
+//                .collect(Collectors.toList());
+//    }
+
+    // 유저의 북마크 조회
+    public List<BookMarkDto.UserBookmarkDto> getBookmarks(User user) {
+       return bookMarkRepository.getUserBookmarks(user);
+    }
+
+
     public BookMarkDto.ResponseDto removeBookmark(BookMark bookmark) {
         bookMarkRepository.delete(bookmark);
         return new BookMarkDto.ResponseDto(false,
@@ -55,22 +79,6 @@ public class BookMarkService {
                 user.getId());
     }
 
-    // 유저의 북마크 조회
-    public List<BookMarkDto.UserBookmarkDto> getBookmarks(User user) {
-        Long userId = user.getId();
-        List<BookMark> bookmarks = bookMarkRepository.findByUserId(userId);
-
-        return bookmarks.stream()
-                .map(bookmark -> {
-                    Post post = postService.getPostId(bookmark.getPost().getId());
-                    return BookMarkDto.UserBookmarkDto.builder()
-                            .bookmarkId(bookmark.getId())
-                            .postId(post.getId())
-                            .userId(user.getId())
-                            .build();
-                })
-                .collect(Collectors.toList());
-    }
 
 }
 

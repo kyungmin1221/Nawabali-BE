@@ -6,6 +6,10 @@ import com.nawabali.nawabali.dto.querydsl.PostDslDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,11 +35,11 @@ public class PostController {
 
     private final PostService postService;
 
-    @Operation(summary = "게시물 생성" , description =
+    @Operation(summary = "게시물 생성" ,
+            description =
             """
-            - form-data 형식의 게시물 생성
-            - key :  requestDto , value : {"title":"title", "contents":"contents", "category":"category", "latitude": latitude, "longitude": longitude}'
-            - key : files , value : 이미지 파일 최대 5장
+            - multipart/form-data 형식의 게시물 생성
+            - 이미지 파일 최대 5장
             """)
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<PostDto.ResponseDto> createPost(
@@ -47,10 +51,15 @@ public class PostController {
     }
 
 
-    @Operation(summary = "게시물 전제 조회", description =
-            """
-            - 게시물 조회시 무한 스크롤 구현 , 10장씩 보이고 그 이상 페이지가 넘어갈 경우 데이터 확인 후 페이지 이동
-            """)
+    @Operation(
+            summary = "최신 게시물 조회",
+            description = "생성일 기준으로 최신 게시물을 조회합니다. 페이징 파라미터를 사용하여 결과를 페이지별로 나눌 수 있습니다.",
+            parameters = {
+                    @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
+                    @Parameter(name = "size", description = "페이지 당 게시물 수", example = "10"),
+                    @Parameter(name = "sort", description = "정렬 기준과 방향, 예: createdAt,desc(생성일 내림차순 정렬)", example = "createdAt,desc")
+            }
+    )
     @GetMapping
     public ResponseEntity<Slice<PostDto.ResponseDto>> getPostsByLatest(
             @PageableDefault(
@@ -61,7 +70,12 @@ public class PostController {
         return ResponseEntity.ok(postsSlice);
     }
 
-    @Operation(summary = "게시물 카테고리 or 구 로 조회", description = "category 또는 district 를 이용한 게시물 조회")
+    @Operation(summary = "게시물 카테고리 or 구 로 조회",
+            description = "category 또는 district 를 이용한 게시물 조회 , 둘중 하나가 null이어도 상관없다.",
+            parameters = {
+                    @Parameter(name = "category", description = "FOOD,PHOTOZONE,CAFE 3가지의 카테고리를 입력", example = "FOOD"),
+                    @Parameter(name = "district", description = "해당하는 구를 입력", example = "gangnam")
+            })
     @GetMapping("/filtered")
     public ResponseEntity<Slice<PostDto.ResponseDto>> getPostByFiltered(
             @RequestParam(required = false) String category,
@@ -76,7 +90,11 @@ public class PostController {
     }
 
 
-    @Operation(summary = "게시물 상세 조회", description = "postId 를 이용한 게시물 상세 조회, 댓글 조회 api는 따로 구현")
+    @Operation(summary = "게시물 상세 조회",
+            description = "postId 를 이용한 게시물 상세 조회, 댓글 조회 api는 따로 구현",
+            parameters = {
+                    @Parameter(name = "postId", description = "postId 로 게시물을 검색", example = "postId : 1")
+            })
     @GetMapping("/{postId}")
     public ResponseEntity<PostDto.ResponseDetailDto> getPost(@PathVariable Long postId) {
         PostDto.ResponseDetailDto responseDto = postService.getPost(postId);
