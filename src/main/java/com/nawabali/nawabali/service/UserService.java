@@ -92,8 +92,8 @@ public class UserService {
                 .rank(existUser.getRank())
                 .city(existUser.getAddress().getCity())
                 .district(existUser.getAddress().getDistrict())
-                .localCount(totalLikeCount)
-                .likesCount(totalLocalLikeCount)
+                .totalLikesCount(totalLikeCount)
+                .totalLocalLikesCount(totalLocalLikeCount)
                 .build();
     }
 
