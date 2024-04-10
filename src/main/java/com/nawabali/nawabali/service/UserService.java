@@ -76,20 +76,14 @@ public class UserService {
 
         // 유저 아이디로 작성된 postID 모두 검색
         List<Long> postIds = postRepository.findByUserId(user.getId()).stream()
-                .map(PostDto.getMyPostsResponseDto::getUserId)
+                .map(PostDto.getMyPostsResponseDto::getId)
                 .toList();
-
-        Long totalLikeCount = 0L;
-        Long totalLocalLikeCount = 0L;
-
         System.out.println("postIds = " + postIds);
-        // 게시글 아이디들로 like 테이블에서 카운트 쿼리 전송
-        for (Long postId : postIds){
-            Long likeCount = likeRepository.countByPostIdAndLikeCategoryEnum(postId, LikeCategoryEnum.LIKE);
-            totalLikeCount += likeCount;
-        }
-//        Long localCount = 1L; // 물어볼것, 수정해야할 부분
-//        Long likesCount = 1L;
+
+        // 작성된 postID로 좋아요, 로컬좋아요 카운팅
+        Long totalLikeCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LIKE);
+        Long totalLocalLikeCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LOCAL_LIKE);
+
 
         return UserDto.UserInfoResponseDto.builder()
                 .id(existUser.getId())
@@ -122,14 +116,33 @@ public class UserService {
         return ResponseEntity.ok(new UserDto.deleteResponseDto());
     }
 
+    // 메서드 //
+
     public boolean checkNickname(String nickname) {
         User duplicatedUser = userRepository.findByNickname(nickname);
         return duplicatedUser == null;
     }
 
+    public boolean checkMyPassword(String inputPassword, User user) {
+        User existUser = getUserId(user.getId());
+        String myPassword = existUser.getPassword();
+        return passwordEncoder.matches(inputPassword, myPassword);
+
+    }
 
     public User getUserId(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     }
+
+    public Long getMyTotalLikesCount(List<Long> postIds, LikeCategoryEnum likeCategoryEnum){
+        Long total =0L;
+        for (Long postId : postIds){
+            Long numLikes = likeRepository.countByPostIdAndLikeCategoryEnum(postId, likeCategoryEnum);
+            total += numLikes;
+        }
+        return total;
+    }
+
+
 }

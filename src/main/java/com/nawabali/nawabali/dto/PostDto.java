@@ -171,6 +171,6 @@ public class PostDto {
     @AllArgsConstructor
     public static class getMyPostsResponseDto {
 
-        private Long userId;
+        private Long id;
     }
 }
