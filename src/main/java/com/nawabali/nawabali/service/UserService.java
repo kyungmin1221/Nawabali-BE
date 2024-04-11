@@ -4,10 +4,12 @@ import com.nawabali.nawabali.constant.Address;
 import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.constant.UserRoleEnum;
 import com.nawabali.nawabali.domain.User;
+import com.nawabali.nawabali.domain.image.ProfileImage;
 import com.nawabali.nawabali.dto.SignupDto;
 import com.nawabali.nawabali.dto.UserDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
+import com.nawabali.nawabali.repository.ProfileImageRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ProfileImageRepository profileImageRepository;
 
 
     @Transactional
@@ -58,7 +61,11 @@ public class UserService {
                 .address(address)
                 .rank(UserRankEnum.RESIDENT)
                 .build();
+
+        ProfileImage profileImage = new ProfileImage(user);
+
         userRepository.save(user);
+        profileImageRepository.save(profileImage);
         User responseUser = userRepository.findByEmail(user.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         return ResponseEntity.ok(new SignupDto.SignupResponseDto(responseUser.getId()));

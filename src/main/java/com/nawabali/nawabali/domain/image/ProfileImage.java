@@ -12,11 +12,11 @@ import lombok.NoArgsConstructor;
 public class ProfileImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id = 1L;
 
-    private String fileName;
+    private String fileName = "default_profile_image.png";
 
-    private String imgUrl;
+    private String imgUrl = "https://nawabalibucket.s3.ap-northeast-2.amazonaws.com/profileImage/0db7fcb9-88f4-434a-87b4-092074cb8066.png";
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -27,6 +27,11 @@ public class ProfileImage {
         this.id = id;
         this.fileName = fileName;
         this.imgUrl = imgUrl;
+        this.user = user;
+    }
+
+    @Builder
+    public ProfileImage(User user) {
         this.user = user;
     }
 
