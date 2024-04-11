@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -60,6 +61,11 @@ public class UserController {
     @GetMapping("/check-myPassword")
     public boolean checkMyPassword(@RequestParam("inputPassword") String inputPassword, @AuthenticationPrincipal UserDetailsImpl userDetails){
         return userService.checkMyPassword(inputPassword, userDetails.getUser());
+    }
+
+    @GetMapping("/my-posts")
+    public void getMyPosts(@AuthenticationPrincipal UserDetailsImpl userDetails){
+        userService.getMyPosts(userDetails.getUser());
     }
 
 

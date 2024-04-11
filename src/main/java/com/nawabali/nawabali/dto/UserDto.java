@@ -31,8 +31,8 @@ public class UserDto {
         String city;
         String district;
         UserRankEnum rank;
-        Long totalLikesCount;
-        Long totalLocalLikesCount;
+        int totalLikesCount;
+        int totalLocalLikesCount;
 
 
         public UserInfoResponseDto(User user) {

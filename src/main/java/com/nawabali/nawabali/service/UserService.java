@@ -29,6 +29,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final PostRepository postRepository;
     private final LikeRepository likeRepository;
+
     @Transactional
     public ResponseEntity<SignupDto.SignupResponseDto> signup(SignupDto.SignupRequestDto requestDto) {
         String email = requestDto.getEmail();
@@ -73,16 +74,15 @@ public class UserService {
 
     public UserDto.UserInfoResponseDto getUserInfo(User user) {
         User existUser = getUserId(user.getId());
+        Long userId = existUser.getId();
 
         // 유저 아이디로 작성된 postID 모두 검색
-        List<Long> postIds = postRepository.findByUserId(user.getId()).stream()
-                .map(PostDto.getMyPostsResponseDto::getId)
-                .toList();
+        List<Long> postIds = getMyPostIds(userId);
         System.out.println("postIds = " + postIds);
 
         // 작성된 postID로 좋아요, 로컬좋아요 카운팅
-        Long totalLikeCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LIKE);
-        Long totalLocalLikeCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LOCAL_LIKE);
+        int totalLikeCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LIKE);
+        int totalLocalLikeCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LOCAL_LIKE);
 
 
         return UserDto.UserInfoResponseDto.builder()
@@ -116,6 +116,14 @@ public class UserService {
         return ResponseEntity.ok(new UserDto.deleteResponseDto());
     }
 
+    public void getMyPosts(User user) {
+        User existUser = getUserId(user.getId());
+        Long userId = existUser.getId();
+
+        List<Long> postIds = getMyPostIds(userId);
+
+    }
+
     // 메서드 //
 
     public boolean checkNickname(String nickname) {
@@ -135,14 +143,14 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
-    public Long getMyTotalLikesCount(List<Long> postIds, LikeCategoryEnum likeCategoryEnum){
-        Long total =0L;
-        for (Long postId : postIds){
-            Long numLikes = likeRepository.countByPostIdAndLikeCategoryEnum(postId, likeCategoryEnum);
-            total += numLikes;
-        }
-        return total;
+    public int getMyTotalLikesCount(List<Long> postIds, LikeCategoryEnum likeCategoryEnum) {
+        return likeRepository.countByPostIdInAndLikeCategoryEnum(postIds, likeCategoryEnum);
     }
 
+    public List<Long> getMyPostIds(Long userId){
+        return postRepository.findByUserId(userId).stream()
+                .map(PostDto.getMyPostsResponseDto::getId)
+                .toList();
+    }
 
 }

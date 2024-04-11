@@ -2,6 +2,7 @@ package com.nawabali.nawabali.security.Jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nawabali.nawabali.constant.UserRoleEnum;
+import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.UserDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
@@ -30,7 +31,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private final JwtUtil jwtUtil;
     private final RedisTool redisTool;
     private final UserRepository userRepository;
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, RedisTool redisTool, UserRepository userRepository){
+
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, RedisTool redisTool, UserRepository userRepository) {
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
         setFilterProcessesUrl("/users/login");
@@ -42,7 +44,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         log.info("로그인 시도");
-        try{
+        try {
             UserDto.LoginRequestDto requestDto = new ObjectMapper().readValue(request.getInputStream(), UserDto.LoginRequestDto.class);
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -51,7 +53,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                             null
                     )
             );
-        }catch(IOException e){
+        } catch (IOException e) {
             log.error(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
@@ -65,7 +67,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 
         String token = jwtUtil.createAccessToken(username, role);
-        log.info("token : " +token);
+        log.info("token : " + token);
         Cookie accessCookie = jwtUtil.createAccessCookie(token);
 
         Cookie refreshCookie = jwtUtil.createRefreshCookie(username);
@@ -79,6 +81,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         // refresh 토큰 redis에 저장
         redisTool.setValues(token.substring(7), refreshCookie.getValue(), Duration.ofMillis(jwtUtil.REFRESH_EXPIRATION_TIME));
 
+        User user = userRepository.findByEmail(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        String userData = new ObjectMapper().writeValueAsString(new UserDto.UserInfoResponseDto(user));
         // 로그인 성공 메시지를 JSON 형태로 응답 본문에 추가
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
@@ -87,15 +91,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         // 로그인 응답 메시지 설정
         Map<String, String> successMessage = new HashMap<>();
         successMessage.put("message", "회원 로그인에 성공");
-        successMessage.put("accessToken", accessCookie.getValue());     // 토큰 포함 (편의상)
-        successMessage.put("refreshToken", refreshCookie.getValue());
-        successMessage.put("ID : ", userRepository.findByEmail(
-                ((UserDetailsImpl) authResult.getPrincipal()).getUsername())
-                .orElseThrow(()->
-                        new CustomException(ErrorCode.USER_NOT_FOUND))
-                .getId()
-                .toString()
-        );
+//        successMessage.put("accessToken", accessCookie.getValue());     // 토큰 포함 (편의상)
+//        successMessage.put("refreshToken", refreshCookie.getValue());
+//        successMessage.put("ID : ", user.getId().toString());
+        successMessage.put("nickname", user.getNickname());
+        successMessage.put("imgUrl", user.getProfileImage().getImgUrl());
+        successMessage.put("district", user.getAddress().getDistrict());
 
         String jsonResponse = new ObjectMapper().writeValueAsString(successMessage);
         response.getWriter().write(jsonResponse);
