@@ -29,6 +29,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.nawabali.nawabali.constant.LikeCategoryEnum.LIKE;
+import static com.nawabali.nawabali.constant.LikeCategoryEnum.LOCAL_LIKE;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -87,7 +90,7 @@ public class PostService {
         Slice<PostDslDto.ResponseDto> postSlice = postRepository.findPostsByLatest(pageable);
         List<PostDto.ResponseDto> content = postSlice.getContent().stream()
                 .map(post -> {
-                    Long likesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LIKE);
+                    Long likesCount = getLikesCount(post.getPostId(), LIKE);
                     Long localLikesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
 
                     return new PostDto.ResponseDto(
@@ -116,7 +119,7 @@ public class PostService {
     // 상세 게시물 조회
     public PostDto.ResponseDetailDto getPost(Long postId) {
         Post post = getPostId(postId);
-        Long likesCount = getLikesCount(postId, LikeCategoryEnum.LIKE);
+        Long likesCount = getLikesCount(postId, LIKE);
         Long localLikesCount = getLikesCount(postId, LikeCategoryEnum.LOCAL_LIKE);
         String profileImageUrl = getProfileImage(postId).getImgUrl();
 
@@ -128,7 +131,7 @@ public class PostService {
         Slice<PostDslDto.ResponseDto> postCategory = postRepository.findCategoryByPost(category,district, pageable);
         List<PostDto.ResponseDto> content = postCategory.getContent().stream()
                 .map(post -> {
-                    Long likesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LIKE);
+                    Long likesCount = getLikesCount(post.getPostId(), LIKE);
                     Long localLikesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
 
                     return new PostDto.ResponseDto(
@@ -210,4 +213,25 @@ public class PostService {
                 .orElseThrow(() -> new CustomException(ErrorCode.PROFILEIMAGE_NOT_FOUND));
     }
 
+    public PostDto.DistrictDto districtMap(String district, User user) {
+
+        userService.getUserId(user.getId());
+
+        Long post = postRepository.countByTownDistrict(district)
+                .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTPOST_NOT_FOUND));
+
+        Long like = likeRepository.countByPostTownDistrictAndLikeCategoryEnum(district, LIKE)
+                .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTLIKE_NOT_FOUND));
+
+        Long localLike = likeRepository.countByPostTownDistrictAndLikeCategoryEnum(district, LOCAL_LIKE)
+                .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTLOCALLIKE_NOT_FOUND));
+
+        PostDto.DistrictDto districtDto = PostDto.DistrictDto.builder()
+                .totalPost(post)
+                .totalLike(like)
+                .totalLocalLike(localLike)
+                .build();
+
+        return districtDto;
+    }
 }
