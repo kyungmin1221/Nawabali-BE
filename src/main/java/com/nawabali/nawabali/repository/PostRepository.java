@@ -1,10 +1,14 @@
 package com.nawabali.nawabali.repository;
 
 import com.nawabali.nawabali.domain.Post;
+import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.repository.querydsl.post.PostDslRepositoryCustom;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> , PostDslRepositoryCustom {
+    List<PostDto.getMyPostsResponseDto> findByUserId(Long userId);
 }

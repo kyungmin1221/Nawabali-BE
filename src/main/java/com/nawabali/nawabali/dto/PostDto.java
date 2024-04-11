@@ -165,4 +165,12 @@ public class PostDto {
         private String message;
 
     }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public static class getMyPostsResponseDto {
+
+        private Long id;
+    }
 }
