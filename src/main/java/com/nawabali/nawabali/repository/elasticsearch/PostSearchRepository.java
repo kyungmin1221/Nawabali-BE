@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+// e
 @Repository
 public interface PostSearchRepository extends ElasticsearchRepository<PostSearch,Long> , CrudRepository<PostSearch,Long> {
     List<PostSearch> findByContentsContaining(String contents);
