@@ -58,6 +58,8 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
                         .contents(newPost.getContents())
                         .category(newPost.getCategory().name())
                         .district(newPost.getTown().getDistrict())
+                        .latitude(newPost.getTown().getLatitude())
+                        .longitude(newPost.getTown().getLongitude())
                         .createdAt(newPost.getCreatedAt())
                         .modifiedAt(newPost.getModifiedAt())
                         .imageUrls(newPost.getImages().stream().map(PostImage::getImgUrl).collect(Collectors.toList()))
