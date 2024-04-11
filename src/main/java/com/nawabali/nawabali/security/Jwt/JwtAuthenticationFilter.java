@@ -2,6 +2,7 @@ package com.nawabali.nawabali.security.Jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nawabali.nawabali.constant.UserRoleEnum;
+import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.UserDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
@@ -14,6 +15,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.cluster.ClusterState;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -63,7 +65,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
         UserRoleEnum role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRole();
 
-
         String token = jwtUtil.createAccessToken(username, role);
         log.info("token : " +token);
         Cookie accessCookie = jwtUtil.createAccessCookie(token);
@@ -85,17 +86,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.setStatus(HttpServletResponse.SC_OK);
 
         // 로그인 응답 메시지 설정
-        Map<String, String> successMessage = new HashMap<>();
+        User user = userRepository.findByEmail(username).orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Map<String, String> successMessage = new LinkedHashMap<>();
         successMessage.put("message", "회원 로그인에 성공");
-        successMessage.put("accessToken", accessCookie.getValue());     // 토큰 포함 (편의상)
-        successMessage.put("refreshToken", refreshCookie.getValue());
-        successMessage.put("ID : ", userRepository.findByEmail(
-                ((UserDetailsImpl) authResult.getPrincipal()).getUsername())
-                .orElseThrow(()->
-                        new CustomException(ErrorCode.USER_NOT_FOUND))
-                .getId()
-                .toString()
-        );
+        successMessage.put("nickname", user.getNickname());
+        successMessage.put("imgUrl", user.getProfileImage().getImgUrl());
+        successMessage.put("district", user.getAddress().getDistrict());
 
         String jsonResponse = new ObjectMapper().writeValueAsString(successMessage);
         response.getWriter().write(jsonResponse);
