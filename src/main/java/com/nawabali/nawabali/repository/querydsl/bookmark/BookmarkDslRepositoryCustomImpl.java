@@ -7,20 +7,17 @@ import com.nawabali.nawabali.dto.BookMarkDto;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class BookmarkDslRepositoryCustomImpl implements BookmarkDslRepositoryCustom{
 
     private final JPAQueryFactory queryFactory;
-
-    @Autowired
-    public BookmarkDslRepositoryCustomImpl(EntityManager em) {
-        this.queryFactory = new JPAQueryFactory(em);
-    }
 
     public List<BookMarkDto.UserBookmarkDto> getUserBookmarks(User user) {
         QBookMark bookMark = QBookMark.bookMark;

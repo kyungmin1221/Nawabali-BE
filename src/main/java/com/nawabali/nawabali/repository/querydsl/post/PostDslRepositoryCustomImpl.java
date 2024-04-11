@@ -10,6 +10,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -24,15 +25,10 @@ import static com.nawabali.nawabali.domain.QUser.user;
 import static org.springframework.util.StringUtils.hasText;
 
 @Repository
+@RequiredArgsConstructor
 public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
 
     private final JPAQueryFactory queryFactory;
-
-    @Autowired
-    public PostDslRepositoryCustomImpl(EntityManager em) {
-        this.queryFactory = new JPAQueryFactory(em);
-    }
-
 
     // 게시물 전체 조회 시 무한 스크롤
     @Override
