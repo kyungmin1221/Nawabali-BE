@@ -213,6 +213,7 @@ public class PostService {
                 .orElseThrow(() -> new CustomException(ErrorCode.PROFILEIMAGE_NOT_FOUND));
     }
 
+    // 동네별 점수 조회
     public PostDto.DistrictDto districtMap(String district, User user) {
 
         userService.getUserId(user.getId());
