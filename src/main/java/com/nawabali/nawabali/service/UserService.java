@@ -103,6 +103,7 @@ public class UserService {
                 .district(existUser.getAddress().getDistrict())
                 .totalLikesCount(totalLikeCount)
                 .totalLocalLikesCount(totalLocalLikeCount)
+                .profileImageUrl(existUser.getProfileImage().getImgUrl())
                 .build();
     }
 
