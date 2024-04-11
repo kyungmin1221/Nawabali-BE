@@ -1,0 +1,13 @@
+{
+  "properties": {
+    "id": {
+      "type": "keyword"
+    },
+    "contents": {
+      "type": "keyword"
+    },
+    "postId": {
+      "type": "long"
+    }
+  }
+}

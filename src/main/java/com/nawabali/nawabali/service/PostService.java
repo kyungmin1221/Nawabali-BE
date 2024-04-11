@@ -71,10 +71,11 @@ public class PostService {
             post.addImage(image);
         });
 
-        Post elpost = postRepository.save(post);
+        Post savedPost = postRepository.save(post);
         PostSearch postSearch = new PostSearch();
-        postSearch.setContents(post.getContents());
-        postSearch.setPostId(elpost.getId());
+        postSearch.setContents(savedPost.getContents());
+        postSearch.setPostId(savedPost.getId());
+
         postSearchRepository.save(postSearch);
 
         return new PostDto.ResponseDto(post);
@@ -96,6 +97,8 @@ public class PostService {
                             post.getContents(),
                             post.getCategory(),
                             post.getDistrict(),
+                            post.getLatitude(),
+                            post.getLongitude(),
                             post.getCreatedAt(),
                             post.getModifiedAt(),
                             post.getImageUrls(),
@@ -135,6 +138,8 @@ public class PostService {
                             post.getContents(),
                             post.getCategory(),
                             post.getDistrict(),
+                            post.getLatitude(),
+                            post.getLongitude(),
                             post.getCreatedAt(),
                             post.getModifiedAt(),
                             post.getImageUrls(),
