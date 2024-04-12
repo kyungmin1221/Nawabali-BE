@@ -123,11 +123,11 @@ public class PostController {
         return ResponseEntity.ok(postDslDto);
     }
 
-    @Operation(summary = "동네별 점수 조회", description = "동네(구)를 넣으면 총 게시물 수 / 좋아요 수 / 동네인증 수 조회 가능합니다")
-    @GetMapping("/district/{district}")
-    public ResponseEntity<PostDto.DistrictDto> districtMap(@PathVariable String district) {
-        PostDto.DistrictDto districtDto = postService.districtMap(district);
-        return ResponseEntity.ok(districtDto);
+    @Operation(summary = "동네별 점수 전체 조회", description = "동네(구)를 넣으면 총 게시물 수 / 좋아요 수 / 동네인증 수 조회 가능합니다")
+    @GetMapping("/district")
+    public ResponseEntity<List<PostDto.DistrictDto>> districtMap() {
+        List<PostDto.DistrictDto> districtDtoList = postService.districtMap();
+        return ResponseEntity.ok(districtDtoList);
     }
 }
 
