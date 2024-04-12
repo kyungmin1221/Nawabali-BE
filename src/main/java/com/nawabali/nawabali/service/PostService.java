@@ -214,10 +214,7 @@ public class PostService {
     }
 
     // 동네별 점수 조회
-    public PostDto.DistrictDto districtMap(String district, User user) {
-
-        // 유저 인증
-        userService.getUserId(user.getId());
+    public PostDto.DistrictDto districtMap(String district) {
 
         Long post = postRepository.countByTownDistrict(district)
                 .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTPOST_NOT_FOUND));
