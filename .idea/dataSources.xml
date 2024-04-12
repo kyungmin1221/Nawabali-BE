@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="sparta@springboot-database.cbe6ouewo4p0.ap-northeast-2.rds.amazonaws.com" uuid="21169dc7-c0f9-4b25-81e6-66a4c103cfd0">
+    <data-source source="LOCAL" name="nawabali@localhost" uuid="8d49e8fa-996f-4662-975b-68ff6beb63fd">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <imported>true</imported>

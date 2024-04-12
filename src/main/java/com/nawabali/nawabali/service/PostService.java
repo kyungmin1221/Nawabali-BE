@@ -190,9 +190,9 @@ public class PostService {
     }
 
 
-    // 게시물 검색
-    public List<PostDslDto.SearchDto> searchPost(String contents) {
-        return postRepository.findSearchByPosts(contents);
+    // 게시물 검색 (es)
+    public List<PostSearch> searchByContents(String contents) {
+        return postSearchRepository.findByContentsContaining(contents);
     }
 
 
