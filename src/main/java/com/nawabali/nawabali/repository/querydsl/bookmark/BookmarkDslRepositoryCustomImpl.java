@@ -1,9 +1,9 @@
 package com.nawabali.nawabali.repository.querydsl.bookmark;
 
-import com.nawabali.nawabali.domain.QBookMark;
-import com.nawabali.nawabali.domain.QPost;
-import com.nawabali.nawabali.domain.User;
+import com.nawabali.nawabali.domain.*;
+import com.nawabali.nawabali.domain.image.PostImage;
 import com.nawabali.nawabali.dto.BookMarkDto;
+import com.nawabali.nawabali.dto.querydsl.BookmarkDslDto;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -15,6 +15,7 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -22,19 +23,16 @@ public class BookmarkDslRepositoryCustomImpl implements BookmarkDslRepositoryCus
 
     private final JPAQueryFactory queryFactory;
 
-    public Slice<BookMarkDto.UserBookmarkDto> getUserBookmarks(User user, Pageable pageable) {
+    public Slice<BookmarkDslDto.UserBookmarkDto> getUserBookmarks(User user, Pageable pageable) {
         QBookMark bookMark = QBookMark.bookMark;
         QPost post = QPost.post;
+        QUser quser = QUser.user;
 
-        List<BookMarkDto.UserBookmarkDto> bookmarks = queryFactory
-                .select(Projections.bean(BookMarkDto.UserBookmarkDto.class,
-                        bookMark.id.as("bookmarkId"),
-                        bookMark.post.id.as("postId"),
-                        bookMark.user.id.as("userId"),
-                        bookMark.createdAt))
-                .from(bookMark)
+        List<BookMark> bookmarks = queryFactory
+                .selectFrom(bookMark)
                 .where(bookMark.user.id.eq(user.getId()))
-                .join(bookMark.post, post)
+                .join(bookMark.post, post).fetchJoin()
+                .join(post.user ,quser).fetchJoin()
                 .orderBy(bookMark.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize()+1)
@@ -45,7 +43,23 @@ public class BookmarkDslRepositoryCustomImpl implements BookmarkDslRepositoryCus
             bookmarks.remove(bookmarks.size() - 1);
         }
 
-        return new SliceImpl<>(bookmarks, pageable, hasNext);
+        List<BookmarkDslDto.UserBookmarkDto> responseDtos = bookmarks.stream()
+                .map(newBookmark -> BookmarkDslDto.UserBookmarkDto.builder()
+                        .userId(newBookmark.getUser().getId())
+                        .postId(newBookmark.getPost().getId())
+                        .nickname(newBookmark.getUser().getNickname())
+                        .contents(newBookmark.getPost().getContents())
+                        .category(newBookmark.getPost().getCategory().name())
+                        .district(newBookmark.getPost().getTown().getDistrict())
+                        .latitude(newBookmark.getPost().getTown().getLatitude())
+                        .longitude(newBookmark.getPost().getTown().getLongitude())
+                        .createdAt(newBookmark.getCreatedAt())
+                        .imageUrls(newBookmark.getPost().getImages().stream().map(PostImage::getImgUrl).collect(Collectors.toList()))
+                        .commentCount(newBookmark.getPost().getComments().size())
+                        .build())
+                .collect(Collectors.toList());
+
+        return new SliceImpl<>(responseDtos, pageable, hasNext);
     }
 
 }

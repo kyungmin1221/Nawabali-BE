@@ -1,13 +1,16 @@
 package com.nawabali.nawabali.service;
 
+import com.nawabali.nawabali.constant.LikeCategoryEnum;
 import com.nawabali.nawabali.domain.BookMark;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.BookMarkDto;
+import com.nawabali.nawabali.dto.querydsl.BookmarkDslDto;
 import com.nawabali.nawabali.repository.BookMarkRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,8 +41,32 @@ public class BookMarkService {
 
 
     // 유저의 북마크 조회
-    public Slice<BookMarkDto.UserBookmarkDto> getBookmarks(User user, Pageable pageable) {
-       return bookMarkRepository.getUserBookmarks(user , pageable);
+    public Slice<BookmarkDslDto.UserBookmarkDto> getBookmarks(User user, Pageable pageable) {
+        Slice<BookmarkDslDto.UserBookmarkDto> bookmarkSlice = bookMarkRepository.getUserBookmarks(user, pageable);
+        List<BookmarkDslDto.UserBookmarkDto> content = bookmarkSlice.getContent().stream()
+                .map(bookmark -> {
+                    Long likesCount = postService.getLikesCount(bookmark.getPostId(), LikeCategoryEnum.LIKE);
+                    Long localLikesCount = postService.getLikesCount(bookmark.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
+
+                    return new BookmarkDslDto.UserBookmarkDto(
+                            bookmark.getUserId(),
+                            bookmark.getPostId(),
+                            bookmark.getNickname(),
+                            bookmark.getContents(),
+                            bookmark.getCategory(),
+                            bookmark.getDistrict(),
+                            bookmark.getLatitude(),
+                            bookmark.getLongitude(),
+                            bookmark.getCreatedAt(),
+                            bookmark.getImageUrls(),
+                            likesCount,
+                            localLikesCount,
+                            bookmark.getCommentCount()
+                    );
+                })
+                .collect(Collectors.toList());
+
+        return new SliceImpl<>(content,pageable,bookmarkSlice.hasNext());
     }
 
 

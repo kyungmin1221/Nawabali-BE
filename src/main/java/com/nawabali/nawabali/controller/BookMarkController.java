@@ -1,6 +1,7 @@
 package com.nawabali.nawabali.controller;
 
 import com.nawabali.nawabali.dto.BookMarkDto;
+import com.nawabali.nawabali.dto.querydsl.BookmarkDslDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.BookMarkService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -44,12 +45,12 @@ public class BookMarkController {
                     @Parameter(name = "sort", description = "정렬 기준과 방향, 예: createdAt,desc(생성일 내림차순 정렬)", example = "createdAt,desc")
             })
     @GetMapping("/users")
-    public ResponseEntity<Slice<BookMarkDto.UserBookmarkDto>> getBookmarks(@AuthenticationPrincipal UserDetailsImpl userDetails,
+    public ResponseEntity<Slice<BookmarkDslDto.UserBookmarkDto>> getBookmarks(@AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                            @PageableDefault(
                                                                                    size = 10,
                                                                                    sort = "createdAt",
                                                                                    direction = Sort.Direction.DESC) Pageable pageable ){
-        Slice<BookMarkDto.UserBookmarkDto> userBookmarkDto = bookMarkService.getBookmarks(userDetails.getUser(), pageable);
+        Slice<BookmarkDslDto.UserBookmarkDto> userBookmarkDto = bookMarkService.getBookmarks(userDetails.getUser(), pageable);
         return ResponseEntity.ok(userBookmarkDto);
     }
 
