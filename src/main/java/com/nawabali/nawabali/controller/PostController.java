@@ -35,10 +35,10 @@ public class PostController {
 
     @Operation(summary = "게시물 생성" ,
             description =
-            """
-            - multipart/form-data 형식의 게시물 생성
-            - 이미지 파일 최대 5장
-            """)
+                    """
+                    - multipart/form-data 형식의 게시물 생성
+                    - 이미지 파일 최대 5장
+                    """)
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<PostDto.ResponseDto> createPost(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -50,18 +50,20 @@ public class PostController {
 
 
     @Operation(
-            summary = "전체 게시물 조회",
+            summary = "최신 게시물 조회",
             description = "생성일 기준으로 최신 게시물을 조회합니다. 페이징 파라미터를 사용하여 결과를 페이지별로 나눌 수 있습니다.",
             parameters = {
                     @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
-                    @Parameter(name = "size", description = "페이지 당 게시물 수", example = "10")
+                    @Parameter(name = "size", description = "페이지 당 게시물 수", example = "10"),
+                    @Parameter(name = "sort", description = "정렬 기준과 방향, 예: createdAt,desc(생성일 내림차순 정렬)", example = "createdAt,desc")
             }
     )
     @GetMapping
     public ResponseEntity<Slice<PostDto.ResponseDto>> getPostsByLatest(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size){
-        Pageable pageable = PageRequest.of(page, size);
+            @PageableDefault(
+                    size = 10,
+                    sort = "createdAt",
+                    direction = Sort.Direction.DESC) Pageable pageable) {
         Slice<PostDto.ResponseDto> postsSlice = postService.getPostsByLatest(pageable);
         return ResponseEntity.ok(postsSlice);
     }
@@ -70,18 +72,17 @@ public class PostController {
             description = "category 또는 district 를 이용한 게시물 조회 , 둘중 하나가 null이어도 상관없다.",
             parameters = {
                     @Parameter(name = "category", description = "FOOD,PHOTOZONE,CAFE 3가지의 카테고리를 입력", example = "FOOD"),
-                    @Parameter(name = "district", description = "해당하는 구를 입력", example = "gangnam"),
-                    @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
-                    @Parameter(name = "size", description = "페이지 당 게시물 수", example = "10")
+                    @Parameter(name = "district", description = "해당하는 구를 입력", example = "gangnam")
             })
     @GetMapping("/filtered")
     public ResponseEntity<Slice<PostDto.ResponseDto>> getPostByFiltered(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String district,
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
+            @PageableDefault(
+                    size = 10,
+                    sort = "createdAt",
+                    direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Pageable pageable = PageRequest.of(page, size);
         Slice<PostDto.ResponseDto> posts = postService.getPostByCategory(category, district, pageable);
         return ResponseEntity.ok(posts);
     }
@@ -103,8 +104,8 @@ public class PostController {
     @Operation(summary = "게시물 수정", description = "postId 를 이용한 게시물 수정")
     @PatchMapping("/{postId}")
     public ResponseEntity<PostDto.PatchDto> updatePost(@PathVariable Long postId,
-                                                          @AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                          @RequestBody PostDto.PatchDto patchDto) {
+                                                       @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                       @RequestBody PostDto.PatchDto patchDto) {
         PostDto.PatchDto responseDto = postService.updatePost(postId,userDetails.getUser(),patchDto);
         return ResponseEntity.ok(responseDto);
     }

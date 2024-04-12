@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -38,13 +40,15 @@ public class BookMarkController {
             description = "로그인 되어있는 사용자의 북마크를 조회",
             parameters = {
                     @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
-                    @Parameter(name = "size", description = "페이지 당 게시물 수", example = "10")
+                    @Parameter(name = "size", description = "페이지 당 게시물 수", example = "10"),
+                    @Parameter(name = "sort", description = "정렬 기준과 방향, 예: createdAt,desc(생성일 내림차순 정렬)", example = "createdAt,desc")
             })
     @GetMapping("/users")
     public ResponseEntity<Slice<BookMarkDto.UserBookmarkDto>> getBookmarks(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                                           @RequestParam(value = "page", defaultValue = "0") int page,
-                                                                           @RequestParam(value = "size", defaultValue = "10") int size ){
-        Pageable pageable = PageRequest.of(page, size);
+                                                                           @PageableDefault(
+                                                                                   size = 10,
+                                                                                   sort = "createdAt",
+                                                                                   direction = Sort.Direction.DESC) Pageable pageable ){
         Slice<BookMarkDto.UserBookmarkDto> userBookmarkDto = bookMarkService.getBookmarks(userDetails.getUser(), pageable);
         return ResponseEntity.ok(userBookmarkDto);
     }
