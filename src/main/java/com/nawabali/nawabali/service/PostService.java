@@ -26,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -214,24 +216,40 @@ public class PostService {
     }
 
     // 동네별 점수 조회
-    public PostDto.DistrictDto districtMap(String district) {
+    public List<PostDto.DistrictDto> districtMap() {
 
-        Long post = postRepository.countByTownDistrict(district)
-                .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTPOST_NOT_FOUND));
+        List <String> seoulDistrictNames = Arrays.asList(
+                "강남구", "강동구", "강서구", "강북구", "관악구",
+                "광진구", "구로구", "금천구", "노원구", "동대문구",
+                "도봉구", "동작구", "마포구", "서대문구", "성동구",
+                "성북구", "서초구", "송파구", "영등포구", "용산구",
+                "양천구", "은평구", "종로구", "중구", "중랑구"
+        );
 
-        Long like = likeRepository.countByPostTownDistrictAndLikeCategoryEnum(district, LIKE)
-                .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTLIKE_NOT_FOUND));
+        List <PostDto.DistrictDto> districtDtoList = new ArrayList<>();
 
-        Long localLike = likeRepository.countByPostTownDistrictAndLikeCategoryEnum(district, LOCAL_LIKE)
-                .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTLOCALLIKE_NOT_FOUND));
+        for (String district : seoulDistrictNames) {
 
-        PostDto.DistrictDto districtDto = PostDto.DistrictDto.builder()
-                .totalPost(post)
-                .totalLike(like)
-                .totalLocalLike(localLike)
-                .build();
+            Long post = postRepository.countByTownDistrict(district)
+                    .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTPOST_NOT_FOUND));
 
-        return districtDto;
+            Long like = likeRepository.countByPostTownDistrictAndLikeCategoryEnum(district, LIKE)
+                    .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTLIKE_NOT_FOUND));
+
+            Long localLike = likeRepository.countByPostTownDistrictAndLikeCategoryEnum(district, LOCAL_LIKE)
+                    .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTLOCALLIKE_NOT_FOUND));
+
+            PostDto.DistrictDto districtDto = PostDto.DistrictDto.builder()
+                    .district(district)
+                    .totalPost(post)
+//                    .totalLike(like)
+                    .totalLocalLike(localLike)
+                    .build();
+
+            districtDtoList.add(districtDto);
+        }
+
+        return districtDtoList;
     }
 
 }

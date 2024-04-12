@@ -187,8 +187,9 @@ public class PostDto {
     @Builder
     public static class DistrictDto {
 
+        private String district;
         private Long totalPost;
-        private Long totalLike;
+//        private Long totalLike;
         private Long totalLocalLike;
 
     }
