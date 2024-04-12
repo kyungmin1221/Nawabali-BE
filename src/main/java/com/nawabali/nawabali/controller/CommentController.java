@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,14 +40,15 @@ public class CommentController {
     @Operation(summary = "게시물 댓글 조회",
             description = "postId 를 이용한 게시물 댓글 조회",
             parameters = {
-                    @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
-                    @Parameter(name = "size", description = "페이지 당 게시물 수", example = "10")
+                    @Parameter(name = "size", description = "페이지 당 댓글의 수", example = "5"),
+                    @Parameter(name = "sort", description = "정렬 기준과 방향, 예: createdAt,desc(생성일 내림차순 정렬)", example = "createdAt,desc")
             })
     @GetMapping("/posts/{postId}")
     public ResponseEntity<Slice<CommentDslDto.ResponseDto>> getComments(@PathVariable Long postId,
-                                                                        @RequestParam(value = "page", defaultValue = "0") int page,
-                                                                        @RequestParam(value = "size", defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
+                                                                        @PageableDefault(
+                                                                                size = 5,
+                                                                                sort = "createdAt",
+                                                                                direction = Sort.Direction.DESC) Pageable pageable) {
         Slice<CommentDslDto.ResponseDto> comments = commentService.getComments(postId,pageable);
         return ResponseEntity.ok(comments);
     }
@@ -63,7 +66,7 @@ public class CommentController {
     @Operation(summary = "게시물 댓글 삭제", description = "commentId 를 이용한 게시물에 댓글 삭제")
     @DeleteMapping("/{commentId}")
     public CommentDto.DeleteResponseDto deleteComment (@PathVariable("commentId") Long commentId,
-                                                 @AuthenticationPrincipal UserDetails userDetails) {
+                                                       @AuthenticationPrincipal UserDetails userDetails) {
         return commentService.deleteComment (commentId, userDetails.getUsername());
     }
 
