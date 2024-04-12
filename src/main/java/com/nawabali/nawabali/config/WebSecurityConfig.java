@@ -110,6 +110,7 @@ public class WebSecurityConfig {
 //                        .requestMatchers("/email-verification").permitAll()
 //                        .requestMatchers("/ws-stomp/**").permitAll()
 //                        .requestMatchers("/chat/**").permitAll()
+//                        .requestMatchers("/posts/district/*").permitAll()
 //                        .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
 
