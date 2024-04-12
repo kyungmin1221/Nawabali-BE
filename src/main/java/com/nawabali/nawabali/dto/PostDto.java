@@ -180,4 +180,16 @@ public class PostDto {
 
         private Long id;
     }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class DistrictDto {
+
+        private Long totalPost;
+        private Long totalLike;
+        private Long totalLocalLike;
+
+    }
 }
