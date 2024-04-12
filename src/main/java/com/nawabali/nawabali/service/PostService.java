@@ -226,7 +226,6 @@ public class PostService {
                 "양천구", "은평구", "종로구", "중구", "중랑구"
         );
 
-
         List <PostDto.DistrictDto> districtDtoList = new ArrayList<>();
 
         for (String district : seoulDistrictNames) {
