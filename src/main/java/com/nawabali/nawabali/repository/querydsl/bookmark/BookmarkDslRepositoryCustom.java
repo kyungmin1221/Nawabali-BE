@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface BookmarkDslRepositoryCustom {
 
-    public List<BookMarkDto.UserBookmarkDto> getUserBookmarks(User user);
+    List<BookMarkDto.UserBookmarkDto> getUserBookmarks(User user);
 }
