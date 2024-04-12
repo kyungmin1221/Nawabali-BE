@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -65,7 +66,7 @@ public class CommentController {
     @Operation(summary = "게시물 댓글 삭제", description = "commentId 를 이용한 게시물에 댓글 삭제")
     @DeleteMapping("/{commentId}")
     public CommentDto.DeleteResponseDto deleteComment (@PathVariable("commentId") Long commentId,
-                                                 @AuthenticationPrincipal UserDetails userDetails) {
+                                                       @AuthenticationPrincipal UserDetails userDetails) {
         return commentService.deleteComment (commentId, userDetails.getUsername());
     }
 

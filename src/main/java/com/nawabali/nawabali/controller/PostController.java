@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -34,10 +35,10 @@ public class PostController {
 
     @Operation(summary = "게시물 생성" ,
             description =
-            """
-            - multipart/form-data 형식의 게시물 생성
-            - 이미지 파일 최대 5장
-            """)
+                    """
+                    - multipart/form-data 형식의 게시물 생성
+                    - 이미지 파일 최대 5장
+                    """)
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<PostDto.ResponseDto> createPost(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -103,8 +104,8 @@ public class PostController {
     @Operation(summary = "게시물 수정", description = "postId 를 이용한 게시물 수정")
     @PatchMapping("/{postId}")
     public ResponseEntity<PostDto.PatchDto> updatePost(@PathVariable Long postId,
-                                                          @AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                          @RequestBody PostDto.PatchDto patchDto) {
+                                                       @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                       @RequestBody PostDto.PatchDto patchDto) {
         PostDto.PatchDto responseDto = postService.updatePost(postId,userDetails.getUser(),patchDto);
         return ResponseEntity.ok(responseDto);
     }
