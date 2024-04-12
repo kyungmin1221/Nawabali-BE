@@ -9,8 +9,6 @@ import org.springframework.data.elasticsearch.annotations.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Setting(settingPath = "elastic/es-setting.json")
-@Mapping(mappingPath = "elastic/es-mapping.json")
 @Document(indexName = "post")
 @Getter @Setter
 public class PostSearch {

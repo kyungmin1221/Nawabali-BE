@@ -3,15 +3,10 @@ package com.nawabali.nawabali.controller;
 
 import com.nawabali.nawabali.domain.elasticsearch.PostSearch;
 import com.nawabali.nawabali.dto.PostDto;
-import com.nawabali.nawabali.dto.querydsl.PostDslDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.PostService;
-import com.nawabali.nawabali.service.elasticsearch.PostSearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -36,8 +31,6 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
-    private final PostSearchService postSearchService;
-
 
     @Operation(summary = "게시물 생성" ,
             description =
@@ -126,7 +119,7 @@ public class PostController {
     @Operation(summary = "게시물 내용 기반 검색", description = "게시물의 내용(contents)으로 검색이 가능합니다.")
     @GetMapping("/search")
     public ResponseEntity<List<PostSearch>> searchPost(@RequestParam("query") String contents) {
-        List<PostSearch> postDslDto = postSearchService.searchByContents(contents);
+        List<PostSearch> postDslDto = postService.searchByContents(contents);
         return ResponseEntity.ok(postDslDto);
     }
 }
