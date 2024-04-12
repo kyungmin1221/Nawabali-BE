@@ -1,9 +1,7 @@
 package com.nawabali.nawabali.service;
 
-import com.nawabali.nawabali.constant.Address;
-import com.nawabali.nawabali.constant.LikeCategoryEnum;
-import com.nawabali.nawabali.constant.UserRankEnum;
-import com.nawabali.nawabali.constant.UserRoleEnum;
+import com.nawabali.nawabali.constant.*;
+import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.dto.SignupDto;
@@ -14,10 +12,14 @@ import com.nawabali.nawabali.repository.LikeRepository;
 import com.nawabali.nawabali.repository.PostRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -116,12 +118,17 @@ public class UserService {
         return ResponseEntity.ok(new UserDto.deleteResponseDto());
     }
 
-    public void getMyPosts(User user) {
+    public Slice<PostDto.ResponseDto> getMyPosts(User user, Pageable pageable, Category category) {
         User existUser = getUserId(user.getId());
         Long userId = existUser.getId();
-
-        List<Long> postIds = getMyPostIds(userId);
-
+        if(category!=null){
+            Slice<Post> posts = postRepository.findByUserIdAndCategory(userId, pageable, category);
+            return posts.map(PostDto.ResponseDto::new);
+        }
+        else{
+            Slice<Post> posts = postRepository.findByUserId(userId, pageable);
+            return posts.map(PostDto.ResponseDto::new);
+        }
     }
 
     // 메서드 //

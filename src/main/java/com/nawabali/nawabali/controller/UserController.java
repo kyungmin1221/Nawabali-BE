@@ -1,6 +1,10 @@
 package com.nawabali.nawabali.controller;
 
 
+import com.nawabali.nawabali.constant.Category;
+import com.nawabali.nawabali.constant.LikeCategoryEnum;
+import com.nawabali.nawabali.domain.Post;
+import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.dto.SignupDto;
 import com.nawabali.nawabali.dto.UserDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
@@ -12,9 +16,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -64,8 +74,12 @@ public class UserController {
     }
 
     @GetMapping("/my-posts")
-    public void getMyPosts(@AuthenticationPrincipal UserDetailsImpl userDetails){
-        userService.getMyPosts(userDetails.getUser());
+    public Slice<PostDto.ResponseDto> getMyPosts(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                       @PageableDefault(size = 10,
+                                         sort = "createdAt",
+                                         direction = Sort.Direction.DESC) Pageable pageable,
+                                                 @RequestParam(name ="category",required = false) Category category){
+        return userService.getMyPosts(userDetails.getUser(), pageable, category);
     }
 
 

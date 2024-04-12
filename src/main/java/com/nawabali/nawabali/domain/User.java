@@ -40,7 +40,7 @@ public class User {
     private Address address;
 
     @Column
-    private String kakaoId;
+    private Long kakaoId;
 
     @Column(nullable = false, name = "user_rank")
     @Enumerated(EnumType.STRING)
@@ -53,8 +53,9 @@ public class User {
     private List<BookMark> bookMarks = new ArrayList<>();
 
     @Builder
-    public User(String nickname, String email, String password,
+    public User(Long kakaoId, String nickname, String email, String password,
                 UserRoleEnum role, Address address, UserRankEnum rank, ProfileImage profileImage) {
+        this.kakaoId = kakaoId;
         this.nickname = nickname;
         this.email = email;
         this.password = password;
@@ -69,14 +70,7 @@ public class User {
         }
     }
 
-    @Builder
-    public User(String nickname, String email, String kakaoId){
-        this.nickname = nickname;
-        this.email = email;
-        this.kakaoId = kakaoId;
-    }
-
-    public void updateKakaoId(String id) {
+    public void updateKakaoId(Long id) {
         this.kakaoId = id;
     }
 

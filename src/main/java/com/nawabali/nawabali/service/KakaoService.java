@@ -98,9 +98,10 @@ public class KakaoService {
     // 수정된 회원 가입 및 위치 정보 저장 로직
     private User registerKakaoUserIfNeeded(String accessToken) throws JsonProcessingException {
         KakaoDto.userInfoDto kakaoUserInfo = getKakaoUserInfo(accessToken);
+        Long kakaoId = kakaoUserInfo.getId();
 
         // DB 에 중복된 Kakao Email 가 있는지 확인
-        String kakaoEmail = String.valueOf(kakaoUserInfo.getEmail());
+        String kakaoEmail = kakaoUserInfo.getEmail();
         User kakaoUser = userRepository.findByEmail(kakaoEmail).orElse(null);
 
         if (kakaoUser == null) {
@@ -110,17 +111,18 @@ public class KakaoService {
             UserRoleEnum role = UserRoleEnum.USER; // 기본 역할을 ROLE_USER로 설정
 
             kakaoUser = User.builder()
+                    .kakaoId(kakaoId)
                     .nickname(kakaoNickname)
                     .email(kakaoEmail)
                     .password(password)
                     .role(role)
                     .rank(UserRankEnum.RESIDENT)
                     .build();
-            userRepository.save(kakaoUser);
         }
         else{
-            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
+            kakaoUser.updateKakaoId(kakaoId);
         }
+        userRepository.save(kakaoUser);
 
         return kakaoUser;
     }
