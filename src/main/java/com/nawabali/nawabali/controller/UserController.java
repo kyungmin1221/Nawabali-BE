@@ -74,11 +74,11 @@ public class UserController {
     }
 
     @GetMapping("/my-posts")
-    public Slice<PostDto.ResponseDto> getMyPosts(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                       @PageableDefault(size = 10,
-                                         sort = "createdAt",
-                                         direction = Sort.Direction.DESC) Pageable pageable,
-                                                 @RequestParam(name ="category",required = false) Category category){
+    public Slice<PostDto.ResponseDto> getMyPosts(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(name ="category",required = false) Category category)
+    {
         return userService.getMyPosts(userDetails.getUser(), pageable, category);
     }
 

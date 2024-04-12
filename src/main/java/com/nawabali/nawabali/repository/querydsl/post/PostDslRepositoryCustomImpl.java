@@ -124,9 +124,27 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
         return new SliceImpl<>(responseDtos, pageable, hasNext);
     }
 
+    @Override
+    public Slice<Post> getMyPosts(Long userId, Category category, Pageable pageable) {
+        Slice<Post> posts= queryFactory
+                .selectFrom(post)
+                .where(post.user.id.eq(userId),
+                        categoryEq(category))
+                .fetch();
+        return null;
+    }
+
     // Category 조건
     private BooleanExpression categoryEq(String category) {
         return hasText(category) ? post.category.eq(Category.valueOf(category)) : null;
+    }
+
+    private BooleanExpression categoryEq(Category category) {
+        if(category==null){
+            return null;
+        }else{
+            return post.category.eq(category);
+        }
     }
 
     // District 조건

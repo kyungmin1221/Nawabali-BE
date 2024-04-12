@@ -121,14 +121,15 @@ public class UserService {
     public Slice<PostDto.ResponseDto> getMyPosts(User user, Pageable pageable, Category category) {
         User existUser = getUserId(user.getId());
         Long userId = existUser.getId();
-        if(category!=null){
-            Slice<Post> posts = postRepository.findByUserIdAndCategory(userId, pageable, category);
-            return posts.map(PostDto.ResponseDto::new);
-        }
-        else{
-            Slice<Post> posts = postRepository.findByUserId(userId, pageable);
-            return posts.map(PostDto.ResponseDto::new);
-        }
+        Slice<Post> posts = postRepository
+//        if(category!=null){
+//            Slice<Post> posts = postRepository.findByUserIdAndCategory(userId, pageable, category);
+//            return posts.map(PostDto.ResponseDto::new);
+//        }
+//        else{
+//            Slice<Post> posts = postRepository.findByUserId(userId, pageable);
+//            return posts.map(PostDto.ResponseDto::new);
+//        }
     }
 
     // 메서드 //
