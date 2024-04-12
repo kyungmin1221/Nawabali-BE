@@ -3,6 +3,8 @@ package com.nawabali.nawabali.dto;
 import com.nawabali.nawabali.domain.BookMark;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 public class BookMarkDto {
 
     @Getter
@@ -20,12 +22,15 @@ public class BookMarkDto {
 
         private Long userId;
 
+        private LocalDateTime createdAt;
+
         public ResponseDto(BookMark bookMark) {
             this.status = bookMark.isStatus();
             this.bookmarkId = bookMark.getId();
             this.postId = bookMark.getPost().getId();
             this.userId = bookMark.getUser().getId();
         }
+
     }
 
     @Getter
@@ -41,5 +46,6 @@ public class BookMarkDto {
 
         private Long userId;
 
+        private LocalDateTime createdAt;
     }
 }
