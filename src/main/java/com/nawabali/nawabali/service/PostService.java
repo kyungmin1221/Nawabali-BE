@@ -216,6 +216,7 @@ public class PostService {
     // 동네별 점수 조회
     public PostDto.DistrictDto districtMap(String district, User user) {
 
+        // 유저 인증
         userService.getUserId(user.getId());
 
         Long post = postRepository.countByTownDistrict(district)
@@ -235,4 +236,5 @@ public class PostService {
 
         return districtDto;
     }
+
 }
