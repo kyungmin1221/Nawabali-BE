@@ -15,6 +15,6 @@ public interface PostDslRepositoryCustom {
     Slice<PostDslDto.ResponseDto> findCategoryByPost(String category, String district, Pageable pageable);
     List<PostDslDto.SearchDto> findSearchByPosts(String contents);
 
-    Slice<Post> getMyPosts(Long userId, Category category, Pageable pageable);
+    Slice<Post> getMyPosts(Long userId, Pageable pageable, Category category);
 
 }

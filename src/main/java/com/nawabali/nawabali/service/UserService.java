@@ -121,7 +121,14 @@ public class UserService {
     public Slice<PostDto.ResponseDto> getMyPosts(User user, Pageable pageable, Category category) {
         User existUser = getUserId(user.getId());
         Long userId = existUser.getId();
-        Slice<Post> posts = postRepository
+        Slice<Post> posts = postRepository.getMyPosts(userId, pageable, category);
+//                .map(post -> {
+//                    Long likeCount = likeRepository.countByPostIdAndLikeCategoryEnum(post.getId(), LikeCategoryEnum.LIKE);
+//                    Long localLikeCount = likeRepository.countByPostIdAndLikeCategoryEnum(post.getId(), LikeCategoryEnum.LOCAL_LIKE);
+//
+//
+//                })
+        return posts.map(PostDto.ResponseDto::new);
 //        if(category!=null){
 //            Slice<Post> posts = postRepository.findByUserIdAndCategory(userId, pageable, category);
 //            return posts.map(PostDto.ResponseDto::new);

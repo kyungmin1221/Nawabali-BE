@@ -5,6 +5,7 @@ import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.QPost;
 import com.nawabali.nawabali.domain.QUser;
 import com.nawabali.nawabali.domain.image.PostImage;
+import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.dto.querydsl.PostDslDto;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -125,13 +126,22 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
     }
 
     @Override
-    public Slice<Post> getMyPosts(Long userId, Category category, Pageable pageable) {
-        Slice<Post> posts= queryFactory
+    public Slice<Post> getMyPosts(Long userId, Pageable pageable, Category category) {
+        List<Post> posts= queryFactory
                 .selectFrom(post)
                 .where(post.user.id.eq(userId),
                         categoryEq(category))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize()+1)
+                .orderBy(post.createdAt.desc())
                 .fetch();
-        return null;
+
+        boolean hasNext = posts.size() > pageable.getPageSize();
+        if(hasNext){
+            posts.remove(posts.size() -1);
+        }
+
+        return new SliceImpl<>(posts, pageable, hasNext);
     }
 
     // Category 조건
