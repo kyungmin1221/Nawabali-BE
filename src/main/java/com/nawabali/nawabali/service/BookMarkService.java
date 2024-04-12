@@ -6,9 +6,12 @@ import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.BookMarkDto;
 import com.nawabali.nawabali.repository.BookMarkRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,25 +38,8 @@ public class BookMarkService {
 
 
     // 유저의 북마크 조회
-//    public List<BookMarkDto.UserBookmarkDto> getBookmarks1(User user) {
-//        Long userId = user.getId();
-//        List<BookMark> bookmarks = bookMarkRepository.findByUserId(userId);
-//
-//        return bookmarks.stream()
-//                .map(bookmark -> {
-//                    Post post = postService.getPostId(bookmark.getPost().getId());
-//                    return BookMarkDto.UserBookmarkDto.builder()
-//                            .bookmarkId(bookmark.getId())
-//                            .postId(post.getId())
-//                            .userId(user.getId())
-//                            .build();
-//                })
-//                .collect(Collectors.toList());
-//    }
-
-    // 유저의 북마크 조회
-    public List<BookMarkDto.UserBookmarkDto> getBookmarks(User user) {
-       return bookMarkRepository.getUserBookmarks(user);
+    public Slice<BookMarkDto.UserBookmarkDto> getBookmarks(User user, Pageable pageable) {
+       return bookMarkRepository.getUserBookmarks(user , pageable);
     }
 
 
@@ -62,13 +48,15 @@ public class BookMarkService {
         return new BookMarkDto.ResponseDto(false,
                 bookmark.getId(),
                 bookmark.getPost().getId(),
-                bookmark.getUser().getId());
+                bookmark.getUser().getId(),
+                bookmark.getCreatedAt());
     }
 
     public BookMarkDto.ResponseDto addBookmark(User user, Post post) {
         BookMark bookmark = BookMark.builder()
                 .user(user)
                 .post(post)
+                .createdAt(LocalDateTime.now())
                 .build();
 
         bookMarkRepository.save(bookmark);
@@ -76,7 +64,8 @@ public class BookMarkService {
         return new BookMarkDto.ResponseDto(true,
                 bookmark.getId(),
                 bookmark.getPost().getId(),
-                user.getId());
+                bookmark.getUser().getId(),
+                bookmark.getCreatedAt());
     }
 
 
