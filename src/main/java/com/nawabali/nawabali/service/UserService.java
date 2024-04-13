@@ -175,14 +175,6 @@ public class UserService {
                 .toList();
 
         return new SliceImpl<>(posts, pageable, rawPosts.hasNext());
-//        if(category!=null){
-//            Slice<Post> posts = postRepository.findByUserIdAndCategory(userId, pageable, category);
-//            return posts.map(PostDto.ResponseDto::new);
-//        }
-//        else{
-//            Slice<Post> posts = postRepository.findByUserId(userId, pageable);
-//            return posts.map(PostDto.ResponseDto::new);
-//        }
     }
 
     // 메서드 //
