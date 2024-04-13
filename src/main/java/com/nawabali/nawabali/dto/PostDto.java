@@ -72,6 +72,8 @@ public class PostDto {
 
         private int commentCount;
 
+        private String profileImageUrl;
+
 
         public ResponseDto(Post post) {
             this.userId = post.getUser().getId();
@@ -88,7 +90,6 @@ public class PostDto {
                     .map(PostImage::getImgUrl)
                     .collect(Collectors.toList());
             this.commentCount = post.getComments().size();
-
 
         }
 
