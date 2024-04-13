@@ -121,17 +121,20 @@ public class UserService {
     public Slice<PostDto.ResponseDto> getMyPosts(User user, Pageable pageable, Category category) {
         User existUser = getUserId(user.getId());
         Long userId = existUser.getId();
-        Slice<PostDto.ResponseDto> posts = postRepository.getMyPosts(userId, pageable, category).getContent().stream()
+        Slice<PostDto.ResponseDto> rawPosts = postRepository.getMyPosts(userId, pageable, category);
+        List<PostDto.ResponseDto> posts = rawPosts.getContent().stream()
                 .map(responseDto -> {
-                    Long likeCount = likeRepository.countByPostIdAndLikeCategoryEnum(responseDto.getPostId(), LikeCategoryEnum.LIKE);
-                    Long localLikeCount = likeRepository.countByPostIdAndLikeCategoryEnum(responseDto.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
+                    Long likeCount = getLikesCount(responseDto.getPostId(), LikeCategoryEnum.LIKE);
+                    Long localLikeCount = getLikesCount(responseDto.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
+
                     responseDto.setLikesCount(likeCount);
                     responseDto.setLocalLikesCount(localLikeCount);
 
                     return responseDto;
                 })
+                .toList();
 
-        return posts.map(PostDto.ResponseDto::new);
+        return new SliceImpl<>(posts, pageable, rawPosts.hasNext());
 //        if(category!=null){
 //            Slice<Post> posts = postRepository.findByUserIdAndCategory(userId, pageable, category);
 //            return posts.map(PostDto.ResponseDto::new);
@@ -163,6 +166,10 @@ public class UserService {
 
     public int getMyTotalLikesCount(List<Long> postIds, LikeCategoryEnum likeCategoryEnum) {
         return likeRepository.countByPostIdInAndLikeCategoryEnum(postIds, likeCategoryEnum);
+    }
+
+    public Long getLikesCount(Long postId, LikeCategoryEnum likeCategoryEnum){
+        return likeRepository.countByPostIdAndLikeCategoryEnum(postId, likeCategoryEnum);
     }
 
     public List<Long> getMyPostIds(Long userId){
