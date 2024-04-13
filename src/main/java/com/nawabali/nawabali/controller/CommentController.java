@@ -38,8 +38,7 @@ public class CommentController {
     @Operation(summary = "게시물 댓글 조회",
             description = "postId 를 이용한 게시물 댓글 조회",
             parameters = {
-                    @Parameter(name = "size", description = "페이지 당 댓글의 수", example = "5"),
-                    @Parameter(name = "sort", description = "정렬 기준과 방향, 예: createdAt,desc(생성일 내림차순 정렬)", example = "createdAt,desc")
+                    @Parameter(name = "size", description = "페이지 당 댓글의 수", example = "5")
             })
     @GetMapping("/posts/{postId}")
     public ResponseEntity<Slice<CommentDslDto.ResponseDto>> getComments(@PathVariable Long postId,
