@@ -2,14 +2,12 @@ package com.nawabali.nawabali.service;
 
 import com.nawabali.nawabali.constant.LikeCategoryEnum;
 import com.nawabali.nawabali.domain.Like;
-//import com.nawabali.nawabali.domain.LocalLike;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.LikeDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.LikeRepository;
-//import com.nawabali.nawabali.repository.LocalLikeRepository;
 import com.nawabali.nawabali.repository.PostRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import lombok.AllArgsConstructor;
