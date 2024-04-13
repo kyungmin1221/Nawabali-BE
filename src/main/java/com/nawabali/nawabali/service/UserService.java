@@ -11,21 +11,29 @@ import com.nawabali.nawabali.dto.SignupDto;
 import com.nawabali.nawabali.dto.UserDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
-import com.nawabali.nawabali.repository.ProfileImageRepository;
+import com.nawabali.nawabali.global.tool.redis.RedisTool;
 import com.nawabali.nawabali.repository.LikeRepository;
 import com.nawabali.nawabali.repository.PostRepository;
+import com.nawabali.nawabali.repository.ProfileImageRepository;
 import com.nawabali.nawabali.repository.UserRepository;
+import com.nawabali.nawabali.security.Jwt.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
+import java.time.Duration;
+import java.util.Date;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j(topic = "UserService")
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -34,6 +42,30 @@ public class UserService {
 
     private final PostRepository postRepository;
     private final LikeRepository likeRepository;
+    private final JwtUtil jwtUtil;
+    private final RedisTool redisTool;
+
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        String accessToken = jwtUtil.getJwtFromHeader(request);
+        log.info("refreshToken 삭제.  key = " + accessToken);
+        if (StringUtils.hasText(accessToken)) {
+            String refreshToken = redisTool.getValues(accessToken);
+            if (!refreshToken.equals("false")) {
+
+                redisTool.deleteValues(accessToken);
+
+                //access의 남은 유효시간만큼  redis에 블랙리스트로 저장
+                log.info("redis에 블랙리스트 저장");
+                Long remainedExpiration = jwtUtil.getUserInfoFromToken(accessToken).getExpiration().getTime();
+                Long now = new Date().getTime();
+                if (remainedExpiration > now) {
+                    long newExpiration = remainedExpiration - now;
+                    redisTool.setValues(accessToken, "logout", Duration.ofMillis(newExpiration));
+                }
+            }
+        }
+        return ResponseEntity.ok(accessToken);
+    }
     @Transactional
     public ResponseEntity<SignupDto.SignupResponseDto> signup(SignupDto.SignupRequestDto requestDto) {
         String email = requestDto.getEmail();
@@ -153,6 +185,7 @@ public class UserService {
         }
         return total;
     }
+
 
 
 }

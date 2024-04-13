@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,11 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "회원 API", description = "회원가입, 로그인 관련 API 입니다.")
 public class UserController {
     private final UserService userService;
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request){
+        return userService.logout(request);
+    }
 
     @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "회원가입에 사용하는 API")
