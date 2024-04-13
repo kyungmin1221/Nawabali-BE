@@ -2,6 +2,7 @@ package com.nawabali.nawabali.repository.querydsl.post;
 
 import com.nawabali.nawabali.constant.Category;
 import com.nawabali.nawabali.domain.Post;
+import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.dto.querydsl.PostDslDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -15,6 +16,6 @@ public interface PostDslRepositoryCustom {
     Slice<PostDslDto.ResponseDto> findCategoryByPost(String category, String district, Pageable pageable);
     List<PostDslDto.SearchDto> findSearchByPosts(String contents);
 
-    Slice<Post> getMyPosts(Long userId, Pageable pageable, Category category);
+    Slice<PostDto.ResponseDto> getMyPosts(Long userId, Pageable pageable, Category category);
 
 }

@@ -7,6 +7,7 @@ import com.nawabali.nawabali.domain.QUser;
 import com.nawabali.nawabali.domain.image.PostImage;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.dto.querydsl.PostDslDto;
+import com.nawabali.nawabali.repository.LikeRepository;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -126,7 +127,7 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
     }
 
     @Override
-    public Slice<Post> getMyPosts(Long userId, Pageable pageable, Category category) {
+    public Slice<PostDto.ResponseDto> getMyPosts(Long userId, Pageable pageable, Category category) {
         List<Post> posts= queryFactory
                 .selectFrom(post)
                 .where(post.user.id.eq(userId),
@@ -141,7 +142,7 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
             posts.remove(posts.size() -1);
         }
 
-        return new SliceImpl<>(posts, pageable, hasNext);
+        return new SliceImpl<>(posts, pageable, hasNext).map(PostDto.ResponseDto::new);
     }
 
     // Category 조건
