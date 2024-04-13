@@ -10,14 +10,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> , PostDslRepositoryCustom {
     List<PostDto.getMyPostsResponseDto> findByUserId(Long userId);
 
-    Slice<Post> findByUserId(Long userId, Pageable pageable);
-
-    Slice<Post> findByUserIdAndCategory(Long userId, Pageable pageable, Category category);
+    Optional<Long> countByTownDistrict(String district);
 
 
 }

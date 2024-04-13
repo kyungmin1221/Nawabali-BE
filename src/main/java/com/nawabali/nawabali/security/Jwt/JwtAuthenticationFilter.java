@@ -22,7 +22,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -65,7 +64,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
         UserRoleEnum role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRole();
 
-
         String token = jwtUtil.createAccessToken(username, role);
         log.info("token : " + token);
         Cookie accessCookie = jwtUtil.createAccessCookie(token);
@@ -81,19 +79,16 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         // refresh 토큰 redis에 저장
         redisTool.setValues(token.substring(7), refreshCookie.getValue(), Duration.ofMillis(jwtUtil.REFRESH_EXPIRATION_TIME));
 
-        User user = userRepository.findByEmail(username).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        String userData = new ObjectMapper().writeValueAsString(new UserDto.UserInfoResponseDto(user));
         // 로그인 성공 메시지를 JSON 형태로 응답 본문에 추가
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpServletResponse.SC_OK);
 
         // 로그인 응답 메시지 설정
-        Map<String, String> successMessage = new HashMap<>();
+        User user = userRepository.findByEmail(username).orElseThrow(()->new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Map<String, String> successMessage = new LinkedHashMap<>();
         successMessage.put("message", "회원 로그인에 성공");
-//        successMessage.put("accessToken", accessCookie.getValue());     // 토큰 포함 (편의상)
-//        successMessage.put("refreshToken", refreshCookie.getValue());
-//        successMessage.put("ID : ", user.getId().toString());
         successMessage.put("nickname", user.getNickname());
         successMessage.put("imgUrl", user.getProfileImage().getImgUrl());
         successMessage.put("district", user.getAddress().getDistrict());

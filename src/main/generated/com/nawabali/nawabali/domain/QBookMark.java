@@ -22,6 +22,8 @@ public class QBookMark extends EntityPathBase<BookMark> {
 
     public static final QBookMark bookMark = new QBookMark("bookMark");
 
+    public final DateTimePath<java.time.LocalDateTime> createdAt = createDateTime("createdAt", java.time.LocalDateTime.class);
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final QPost post;

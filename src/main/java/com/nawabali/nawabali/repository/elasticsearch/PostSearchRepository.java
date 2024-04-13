@@ -10,5 +10,4 @@ import java.util.List;
 public interface PostSearchRepository extends ElasticsearchRepository<PostSearch,Long> {
     List<PostSearch> findByContentsContaining(String contents);
     void deleteByPostId(Long postId);
-
 }

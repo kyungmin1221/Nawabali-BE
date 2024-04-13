@@ -1,5 +1,6 @@
 package com.nawabali.nawabali.service;
 
+import com.nawabali.nawabali.constant.DefaultProfileImage;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.domain.image.ProfileImage;
 import com.nawabali.nawabali.dto.UserDto;
@@ -24,27 +25,12 @@ public class ImageService {
     private final ProfileImageRepository profileImageRepository;
 
     @Transactional
-    public UserDto.ProfileImageDto createProfileImage(Long userId, UserDetailsImpl userDetails, MultipartFile multipartFile) {
-        User user = userDetails.getUser();
-        if(!userId.equals(user.getId())){
+    public UserDto.ProfileImageDto updateProfileImage(UserDetailsImpl userDetails, MultipartFile multipartFile) {
+        if(userDetails==null){
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
-        String url = awsS3Service.uploadSingleFile(multipartFile, "profileImage");
-        ProfileImage profileImage = ProfileImage.builder()
-                .fileName(multipartFile.getOriginalFilename())
-                .imgUrl(url)
-                .user(user)
-                .build();
-        profileImageRepository.save(profileImage);
-        return new UserDto.ProfileImageDto(profileImage);
-    }
+        User user = userDetails.getUser();
 
-    @Transactional
-    public UserDto.ProfileImageDto updateProfileImage(Long userId, UserDetailsImpl userDetails, MultipartFile multipartFile) {
-        User user = userDetails.getUser();
-        if(!userId.equals(user.getId())){
-            throw new CustomException(ErrorCode.USER_NOT_FOUND);
-        }
         String url = awsS3Service.uploadSingleFile(multipartFile, "profileImage");
 
         ProfileImage profileImage = profileImageRepository.findById(user.getProfileImage().getId()).orElseThrow(()->
@@ -57,14 +43,18 @@ public class ImageService {
     }
 
     @Transactional
-    public UserDto.DeleteDto deleteProfileImage(Long userId, UserDetailsImpl userDetails) {
-        User user = userDetails.getUser();
-        if(!userId.equals(user.getId())){
+    public UserDto.DeleteDto deleteProfileImage(UserDetailsImpl userDetails) {
+        if(userDetails==null){
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
+        User user = userDetails.getUser();
+
         ProfileImage profileImage = profileImageRepository.findById(user.getProfileImage().getId()).orElseThrow(()->
                 new CustomException(ErrorCode.PROFILEIMAGE_NOT_FOUND));
-        profileImageRepository.delete(profileImage);
+        // Default 프로필이미지로 변경
+        profileImage.updateFileName(DefaultProfileImage.fileName);
+        profileImage.updateImgUrl(DefaultProfileImage.imgUrl);
+        profileImageRepository.save(profileImage);
         return new UserDto.DeleteDto("프로필사진이 삭제되었습니다.");
     }
 

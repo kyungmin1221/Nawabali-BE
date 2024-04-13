@@ -1,5 +1,6 @@
 package com.nawabali.nawabali.domain.image;
 
+import com.nawabali.nawabali.constant.DefaultProfileImage;
 import com.nawabali.nawabali.domain.User;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -14,19 +15,15 @@ public class ProfileImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String fileName;
+    private String fileName = DefaultProfileImage.fileName;
 
-    private String imgUrl;
+    private String imgUrl = DefaultProfileImage.imgUrl;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Builder
-    public ProfileImage(Long id, String fileName, String imgUrl, User user) {
-        this.id = id;
-        this.fileName = fileName;
-        this.imgUrl = imgUrl;
+    public ProfileImage(User user) {
         this.user = user;
     }
 

@@ -12,6 +12,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -26,15 +27,10 @@ import static com.nawabali.nawabali.domain.QUser.user;
 import static org.springframework.util.StringUtils.hasText;
 
 @Repository
+@RequiredArgsConstructor
 public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
 
     private final JPAQueryFactory queryFactory;
-
-    @Autowired
-    public PostDslRepositoryCustomImpl(EntityManager em) {
-        this.queryFactory = new JPAQueryFactory(em);
-    }
-
 
     // 게시물 전체 조회 시 무한 스크롤
     @Override
@@ -64,6 +60,8 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
                         .contents(newPost.getContents())
                         .category(newPost.getCategory().name())
                         .district(newPost.getTown().getDistrict())
+                        .latitude(newPost.getTown().getLatitude())
+                        .longitude(newPost.getTown().getLongitude())
                         .createdAt(newPost.getCreatedAt())
                         .modifiedAt(newPost.getModifiedAt())
                         .imageUrls(newPost.getImages().stream().map(PostImage::getImgUrl).collect(Collectors.toList()))

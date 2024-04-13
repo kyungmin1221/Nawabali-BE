@@ -1,11 +1,18 @@
 package com.nawabali.nawabali.controller;
 
 import com.nawabali.nawabali.dto.BookMarkDto;
+import com.nawabali.nawabali.dto.querydsl.BookmarkDslDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.BookMarkService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -30,10 +37,20 @@ public class BookMarkController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @Operation(summary = "회원의 북마크 조회", description = "로그인 되어있는 사용자의 북마크를 조회")
+    @Operation(summary = "회원의 북마크 조회(무한 스크롤)",
+            description = "로그인 되어있는 사용자의 북마크를 조회",
+            parameters = {
+                    @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
+                    @Parameter(name = "size", description = "페이지 당 게시물 수", example = "10"),
+                    @Parameter(name = "sort", description = "정렬 기준과 방향, 예: createdAt,desc(생성일 내림차순 정렬)", example = "createdAt,desc")
+            })
     @GetMapping("/users")
-    public ResponseEntity<List<BookMarkDto.UserBookmarkDto>> getBookmarks(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        List<BookMarkDto.UserBookmarkDto> userBookmarkDto = bookMarkService.getBookmarks(userDetails.getUser());
+    public ResponseEntity<Slice<BookmarkDslDto.UserBookmarkDto>> getBookmarks(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                                           @PageableDefault(
+                                                                                   size = 10,
+                                                                                   sort = "createdAt",
+                                                                                   direction = Sort.Direction.DESC) Pageable pageable ){
+        Slice<BookmarkDslDto.UserBookmarkDto> userBookmarkDto = bookMarkService.getBookmarks(userDetails.getUser(), pageable);
         return ResponseEntity.ok(userBookmarkDto);
     }
 

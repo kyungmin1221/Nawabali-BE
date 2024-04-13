@@ -70,7 +70,7 @@ public class User {
         }
     }
 
-    public void updateKakaoId(Long id) {
+    public void updateKakaoId(Long kakoId) {
         this.kakaoId = id;
     }
 

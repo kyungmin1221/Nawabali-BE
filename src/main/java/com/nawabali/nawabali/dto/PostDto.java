@@ -56,6 +56,10 @@ public class PostDto {
 
         private String district;
 
+        private Double latitude;
+
+        private Double longitude;
+
         private LocalDateTime createdAt;
 
         private LocalDateTime modifiedAt;
@@ -75,13 +79,16 @@ public class PostDto {
             this.nickname = post.getUser().getNickname();
             this.contents = post.getContents();
             this.category = post.getCategory().name();
+            this.district = post.getTown().getDistrict();
+            this.latitude = post.getTown().getLatitude();
+            this.longitude = post.getTown().getLongitude();
             this.createdAt = post.getCreatedAt();
             this.modifiedAt = post.getModifiedAt();
             this.imageUrls = post.getImages().stream()
                     .map(PostImage::getImgUrl)
                     .collect(Collectors.toList());
             this.commentCount = post.getComments().size();
-            this.district = post.getTown().getDistrict();
+
 
         }
 
@@ -172,5 +179,18 @@ public class PostDto {
     public static class getMyPostsResponseDto {
 
         private Long id;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class DistrictDto {
+
+        private String district;
+        private Long totalPost;
+//        private Long totalLike;
+        private Long totalLocalLike;
+
     }
 }

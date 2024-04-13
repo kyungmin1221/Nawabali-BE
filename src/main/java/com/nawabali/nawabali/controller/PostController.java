@@ -1,19 +1,17 @@
 package com.nawabali.nawabali.controller;
 
 
+import com.nawabali.nawabali.domain.elasticsearch.PostSearch;
 import com.nawabali.nawabali.dto.PostDto;
-import com.nawabali.nawabali.dto.querydsl.PostDslDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -37,10 +35,10 @@ public class PostController {
 
     @Operation(summary = "게시물 생성" ,
             description =
-            """
-            - multipart/form-data 형식의 게시물 생성
-            - 이미지 파일 최대 5장
-            """)
+                    """
+                    - multipart/form-data 형식의 게시물 생성
+                    - 이미지 파일 최대 5장
+                    """)
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<PostDto.ResponseDto> createPost(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -106,8 +104,8 @@ public class PostController {
     @Operation(summary = "게시물 수정", description = "postId 를 이용한 게시물 수정")
     @PatchMapping("/{postId}")
     public ResponseEntity<PostDto.PatchDto> updatePost(@PathVariable Long postId,
-                                                          @AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                          @RequestBody PostDto.PatchDto patchDto) {
+                                                       @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                                       @RequestBody PostDto.PatchDto patchDto) {
         PostDto.PatchDto responseDto = postService.updatePost(postId,userDetails.getUser(),patchDto);
         return ResponseEntity.ok(responseDto);
     }
@@ -119,10 +117,18 @@ public class PostController {
         return ResponseEntity.ok(deleteDto);
     }
 
+    @Operation(summary = "게시물 내용 기반 검색", description = "게시물의 내용(contents)으로 검색이 가능합니다.")
     @GetMapping("/search")
-    public ResponseEntity<List<PostDslDto.SearchDto>> searchPost(@RequestParam("query") String contents) {
-        List<PostDslDto.SearchDto> postDslDto = postService.searchPost(contents);
+    public ResponseEntity<List<PostSearch>> searchPost(@RequestParam("query") String contents) {
+        List<PostSearch> postDslDto = postService.searchByContents(contents);
         return ResponseEntity.ok(postDslDto);
+    }
+
+    @Operation(summary = "동네별 점수 전체 조회", description = "동네(구)를 넣으면 총 게시물 수 / 좋아요 수 / 동네인증 수 조회 가능합니다")
+    @GetMapping("/district")
+    public ResponseEntity<List<PostDto.DistrictDto>> districtMap() {
+        List<PostDto.DistrictDto> districtDtoList = postService.districtMap();
+        return ResponseEntity.ok(districtDtoList);
     }
 }
 

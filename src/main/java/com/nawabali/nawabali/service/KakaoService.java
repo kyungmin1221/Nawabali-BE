@@ -8,9 +8,6 @@ import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.constant.UserRoleEnum;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.KakaoDto;
-import com.nawabali.nawabali.dto.UserDto;
-import com.nawabali.nawabali.exception.CustomException;
-import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.global.tool.redis.RedisTool;
 import com.nawabali.nawabali.repository.UserRepository;
 import com.nawabali.nawabali.security.Jwt.JwtUtil;
@@ -45,6 +42,7 @@ public class KakaoService {
     private final RestTemplate restTemplate;
 
     private final String local= "http://localhost:8080/api/user/kakao/callback";
+    private final String frontLocal = "http://localhost:3000/api/user/kakao/callback";
     private final String aws = "https://hhboard.shop/api/user/kakao/callback";
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
@@ -53,7 +51,7 @@ public class KakaoService {
     @Transactional
     public void kakaoLogin(String code , HttpServletResponse response) throws JsonProcessingException, IOException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
-        String accessToken = getAccessToken(code, aws);
+        String accessToken = getAccessToken(code, frontLocal);
 
         // 2. 필요시에 회원가입 및 위치 정보(address 값) 저장
         User kakaoUser = registerKakaoUserIfNeeded(accessToken);
@@ -123,7 +121,6 @@ public class KakaoService {
             kakaoUser.updateKakaoId(kakaoId);
         }
         userRepository.save(kakaoUser);
-
         return kakaoUser;
     }
 

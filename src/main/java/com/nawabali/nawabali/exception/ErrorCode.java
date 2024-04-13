@@ -49,6 +49,9 @@ public enum ErrorCode {
     INCHATROOM_NOT_FOUND(NOT_FOUND, "속해있는 채팅방이 없습니다."),
     CHAT_MESSAGE_NOT_FOUND(NOT_FOUND, "해당 메세지를 찾을 수 없습니다."),
     NOTIFICATION_NOT_FOUND(NOT_FOUND, "해당 알림을 찾을 수 없습니다."),
+    DISTRICTPOST_NOT_FOUND(NOT_FOUND, "해당 구의 총 게시물 수를 찾을 수 없습니다."),
+    DISTRICTLIKE_NOT_FOUND(NOT_FOUND, "해당 구의 총 좋아요 수를 찾을 수 없습니다."),
+    DISTRICTLOCALLIKE_NOT_FOUND(NOT_FOUND, "해당 구의 총 동네인증 수를 찾을 수 없습니다."),
 
     // 409 CONFLICT: 중복된 리소스 (요청이 현재 서버 상태와 충돌될 때)
     DUPLICATE_EMAIL(CONFLICT, "이미 존재하는 이메일입니다."),

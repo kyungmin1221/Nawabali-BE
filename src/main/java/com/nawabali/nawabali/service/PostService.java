@@ -26,8 +26,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.nawabali.nawabali.constant.LikeCategoryEnum.LIKE;
+import static com.nawabali.nawabali.constant.LikeCategoryEnum.LOCAL_LIKE;
 
 @Service
 @RequiredArgsConstructor
@@ -71,10 +76,11 @@ public class PostService {
             post.addImage(image);
         });
 
-        Post elpost = postRepository.save(post);
+        Post savedPost = postRepository.save(post);
         PostSearch postSearch = new PostSearch();
-        postSearch.setContents(post.getContents());
-        postSearch.setPostId(elpost.getId());
+        postSearch.setContents(savedPost.getContents());
+        postSearch.setPostId(savedPost.getId());
+
         postSearchRepository.save(postSearch);
 
         return new PostDto.ResponseDto(post);
@@ -86,7 +92,7 @@ public class PostService {
         Slice<PostDslDto.ResponseDto> postSlice = postRepository.findPostsByLatest(pageable);
         List<PostDto.ResponseDto> content = postSlice.getContent().stream()
                 .map(post -> {
-                    Long likesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LIKE);
+                    Long likesCount = getLikesCount(post.getPostId(), LIKE);
                     Long localLikesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
 
                     return new PostDto.ResponseDto(
@@ -96,6 +102,8 @@ public class PostService {
                             post.getContents(),
                             post.getCategory(),
                             post.getDistrict(),
+                            post.getLatitude(),
+                            post.getLongitude(),
                             post.getCreatedAt(),
                             post.getModifiedAt(),
                             post.getImageUrls(),
@@ -113,7 +121,7 @@ public class PostService {
     // 상세 게시물 조회
     public PostDto.ResponseDetailDto getPost(Long postId) {
         Post post = getPostId(postId);
-        Long likesCount = getLikesCount(postId, LikeCategoryEnum.LIKE);
+        Long likesCount = getLikesCount(postId, LIKE);
         Long localLikesCount = getLikesCount(postId, LikeCategoryEnum.LOCAL_LIKE);
         String profileImageUrl = getProfileImage(postId).getImgUrl();
 
@@ -125,7 +133,7 @@ public class PostService {
         Slice<PostDslDto.ResponseDto> postCategory = postRepository.findCategoryByPost(category,district, pageable);
         List<PostDto.ResponseDto> content = postCategory.getContent().stream()
                 .map(post -> {
-                    Long likesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LIKE);
+                    Long likesCount = getLikesCount(post.getPostId(), LIKE);
                     Long localLikesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
 
                     return new PostDto.ResponseDto(
@@ -135,6 +143,8 @@ public class PostService {
                             post.getContents(),
                             post.getCategory(),
                             post.getDistrict(),
+                            post.getLatitude(),
+                            post.getLongitude(),
                             post.getCreatedAt(),
                             post.getModifiedAt(),
                             post.getImageUrls(),
@@ -182,9 +192,9 @@ public class PostService {
     }
 
 
-    // 게시물 검색
-    public List<PostDslDto.SearchDto> searchPost(String contents) {
-        return postRepository.findSearchByPosts(contents);
+    // 게시물 검색 (es)
+    public List<PostSearch> searchByContents(String contents) {
+        return postSearchRepository.findByContentsContaining(contents);
     }
 
 
@@ -203,6 +213,43 @@ public class PostService {
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
         return profileImageRepository.findByUserId(post.getUser().getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.PROFILEIMAGE_NOT_FOUND));
+    }
+
+    // 동네별 점수 조회
+    public List<PostDto.DistrictDto> districtMap() {
+
+        List <String> seoulDistrictNames = Arrays.asList(
+                "강남구", "강동구", "강서구", "강북구", "관악구",
+                "광진구", "구로구", "금천구", "노원구", "동대문구",
+                "도봉구", "동작구", "마포구", "서대문구", "성동구",
+                "성북구", "서초구", "송파구", "영등포구", "용산구",
+                "양천구", "은평구", "종로구", "중구", "중랑구"
+        );
+
+        List <PostDto.DistrictDto> districtDtoList = new ArrayList<>();
+
+        for (String district : seoulDistrictNames) {
+
+            Long post = postRepository.countByTownDistrict(district)
+                    .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTPOST_NOT_FOUND));
+
+            Long like = likeRepository.countByPostTownDistrictAndLikeCategoryEnum(district, LIKE)
+                    .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTLIKE_NOT_FOUND));
+
+            Long localLike = likeRepository.countByPostTownDistrictAndLikeCategoryEnum(district, LOCAL_LIKE)
+                    .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTLOCALLIKE_NOT_FOUND));
+
+            PostDto.DistrictDto districtDto = PostDto.DistrictDto.builder()
+                    .district(district)
+                    .totalPost(post)
+//                    .totalLike(like)
+                    .totalLocalLike(localLike)
+                    .build();
+
+            districtDtoList.add(districtDto);
+        }
+
+        return districtDtoList;
     }
 
 }

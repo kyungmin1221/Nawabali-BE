@@ -33,6 +33,7 @@ public class UserDto {
         UserRankEnum rank;
         int totalLikesCount;
         int totalLocalLikesCount;
+        String profileImageUrl;
 
 
         public UserInfoResponseDto(User user) {
@@ -42,7 +43,7 @@ public class UserDto {
             this.city = user.getAddress().getCity();
             this.district = user.getAddress().getDistrict();
             this.rank = user.getRank();
-
+            this.profileImageUrl = user.getProfileImage().getImgUrl();
         }
     }
 

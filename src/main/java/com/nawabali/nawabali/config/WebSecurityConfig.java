@@ -110,13 +110,14 @@ public class WebSecurityConfig {
 //                        .requestMatchers("/email-verification").permitAll()
 //                        .requestMatchers("/ws-stomp/**").permitAll()
 //                        .requestMatchers("/chat/**").permitAll()
+//                        .requestMatchers("/posts/district/*").permitAll()
 //                        .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
 
-        http.logout(logoutconfigurer->logoutconfigurer
-                .logoutUrl("/users/logout")
-                .logoutSuccessUrl("/")
-                .addLogoutHandler(jwtLogoutHandler));
+//        http.logout(logoutconfigurer->logoutconfigurer
+//                .logoutUrl("/users/logout")
+//                .logoutSuccessUrl("/")
+//                .addLogoutHandler(jwtLogoutHandler));
 
         // 필터 관리
         http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
