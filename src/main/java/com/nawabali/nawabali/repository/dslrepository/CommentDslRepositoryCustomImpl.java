@@ -2,6 +2,7 @@ package com.nawabali.nawabali.repository.dslrepository;
 
 import com.nawabali.nawabali.domain.Comment;
 import com.nawabali.nawabali.domain.QComment;
+import com.nawabali.nawabali.dto.dslDto.CommentDslDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class CommentDslRepositoryCustomImpl implements CommentDslRepositoryCustom{
@@ -23,7 +25,7 @@ public class CommentDslRepositoryCustomImpl implements CommentDslRepositoryCusto
     }
 
     @Override
-    public Slice<Comment> findCommentsByPostId(Long postId, Pageable pageable) {
+    public Slice<CommentDslDto.ResponseDto> findCommentsByPostId(Long postId, Pageable pageable) {
         QComment comment = QComment.comment;
 
         List<Comment> comments = queryFactory
@@ -44,6 +46,10 @@ public class CommentDslRepositoryCustomImpl implements CommentDslRepositoryCusto
             comments.remove(comments.size() - 1);
         }
 
-        return new SliceImpl<>(comments, pageable, hasNext);
+        List<CommentDslDto.ResponseDto> responseDtos = comments.stream()
+                .map(CommentDslDto.ResponseDto::convertCommentToDto)
+                .collect(Collectors.toList());
+
+        return new SliceImpl<>(responseDtos, pageable, hasNext);
     }
 }

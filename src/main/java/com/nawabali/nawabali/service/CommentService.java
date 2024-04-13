@@ -5,6 +5,7 @@ import com.nawabali.nawabali.domain.Comment;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.CommentDto;
+import com.nawabali.nawabali.dto.dslDto.CommentDslDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.CommentRepository;
@@ -134,19 +135,23 @@ public class CommentService {
 
     // 댓글 조회(무한 스크롤)
     @Transactional(readOnly = true)
-    public Slice<CommentDto.ResponseDto> getComments(Long postId, Pageable pageable) {
+    public Slice<CommentDslDto.ResponseDto> getComments(Long postId, Pageable pageable) {
         postRepository.findById(postId).orElseThrow(()-> new CustomException(ErrorCode.POST_NOT_FOUND));
         return convertNestedStructure(commentRepository.findCommentsByPostId(postId, pageable));
     }
 
-    private Slice<CommentDto.ResponseDto> convertNestedStructure(Slice<Comment> comments) {
-        List<CommentDto.ResponseDto> result = new ArrayList<>();
-        Map<Long, CommentDto.ResponseDto> map = new HashMap<>();
-        comments.stream().forEach(c -> {
-            CommentDto.ResponseDto dto = CommentDto.ResponseDto.convertCommentToDto(c);
-            map.put(dto.getCommentId(), dto);
-            if(c.getParent() != null) map.get(c.getParent().getId()).getChildren().add(dto);
-            else result.add(dto);
+    private Slice<CommentDslDto.ResponseDto> convertNestedStructure(Slice<CommentDslDto.ResponseDto> comments) {
+        List<CommentDslDto.ResponseDto> result = new ArrayList<>();
+        Map<Long, CommentDslDto.ResponseDto> map = new HashMap<>();
+        comments.stream().forEach(dto -> {
+            if (!map.containsKey(dto.getParentId())) {
+                map.put(dto.getCommentId(), dto);
+                if (dto.getParentId() != null) {
+                    map.get(dto.getParentId()).getChildren().add(dto);
+                } else {
+                    result.add(dto);
+                }
+            }
         });
         return new SliceImpl<>(result, comments.getPageable(), comments.hasNext());
     }

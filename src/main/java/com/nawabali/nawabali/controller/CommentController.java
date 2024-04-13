@@ -1,6 +1,7 @@
 package com.nawabali.nawabali.controller;
 
 import com.nawabali.nawabali.dto.CommentDto;
+import com.nawabali.nawabali.dto.dslDto.CommentDslDto;
 import com.nawabali.nawabali.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,9 +36,9 @@ public class CommentController {
     // 댓글 조회(무한 스크롤)
     @Operation(summary = "게시물 댓글 조회", description = "postId 를 이용한 게시물 댓글 조회")
     @GetMapping("/posts/{postId}")
-    public ResponseEntity<Slice<CommentDto.ResponseDto>> getComments(@PathVariable Long postId,
+    public ResponseEntity<Slice<CommentDslDto.ResponseDto>> getComments(@PathVariable Long postId,
                                                                         @PageableDefault(size = 5) Pageable pageable) {
-        Slice<CommentDto.ResponseDto> comments = commentService.getComments(postId, pageable);
+        Slice<CommentDslDto.ResponseDto> comments = commentService.getComments(postId, pageable);
         return ResponseEntity.ok(comments);
     }
 
