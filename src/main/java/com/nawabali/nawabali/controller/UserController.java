@@ -52,18 +52,15 @@ public class UserController {
 
     @Operation(summary = "닉네임 중복검사", description = "닉네임 중복여부를 boolean 값으로 반환.")
     @GetMapping("/check-nickname")
-    public boolean checkNickname(@RequestBody String nickname){
+    public boolean checkNickname(@RequestParam("nickname") String nickname){
         return userService.checkNickname(nickname);
     }
 
-    @GetMapping("/test")
-    public String test(){
-        return "login";
+    @Operation(summary = "정보 수정을 위한 비밀 번호 확인", description = "입력한 비밀번호와 현재 비밀번호를 비교하여 boolean 값으로 반환")
+    @GetMapping("/check-myPassword")
+    public boolean checkMyPassword(@RequestParam("inputPassword") String inputPassword, @AuthenticationPrincipal UserDetailsImpl userDetails){
+        return userService.checkMyPassword(inputPassword, userDetails.getUser());
     }
 
-    @GetMapping("test1")
-    public void test1(@AuthenticationPrincipal UserDetailsImpl userDetails){
-        System.out.println("userDetails.getUser() = " + userDetails.getUser().getEmail());
-    }
 
 }

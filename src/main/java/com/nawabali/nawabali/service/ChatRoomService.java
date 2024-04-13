@@ -1,9 +1,11 @@
 package com.nawabali.nawabali.service;
 
 import com.nawabali.nawabali.domain.Chat;
+import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.ChatDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
+import com.nawabali.nawabali.repository.ChatMessageRepository;
 import com.nawabali.nawabali.repository.ChatRoomRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -25,27 +27,13 @@ public class ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
-
-    // 모든 채팅방 목록 반환
-    public List<ChatDto.ChatRoomDto> room() {
-
-//        userRepository.findById(user.getId()).orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
-
-        List<Chat.ChatRoom> chatRooms = chatRoomRepository.findAll();
-        Collections.reverse(chatRooms);
-        return chatRooms.stream()
-                .map(chatRoom -> ChatDto.ChatRoomDto.builder()
-                        .roomId(chatRoom.getId())
-                        .roomNumber(chatRoom.getRoomNumber())
-                        .name(chatRoom.getName())
-                        .build())
-                .collect(Collectors.toList());
-    }
+    private final ChatMessageRepository chatMessageRepository;
 
     // 채팅방 생성
-    public ChatDto.ChatRoomDto createRoom(String name) {
+    public ChatDto.ChatRoomDto createRoom(String name, User user) {
 
-//        userRepository.findById(user.getId()).orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
+        userRepository.findById(user.getId())
+                .orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
 
         Chat.ChatRoom chatRoom = Chat.ChatRoom.builder()
                 .roomNumber(UUID.randomUUID().toString())
@@ -62,10 +50,31 @@ public class ChatRoomService {
         return chatRoomDto;
     }
 
-    // 특정 채팅방 조회
-    public List<ChatDto.ChatRoomDto> roomInfo(String name) {
+    // 본인 전체 채팅방 목록 반환
+    public List<ChatDto.ChatRoomDto> room(User user) {
 
-//        userRepository.findById(user.getId()).orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
+        userRepository.findById(user.getId())
+                .orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
+
+        List<Chat.ChatRoom> chatRooms = chatRoomRepository.findAllByUserId(user.getId())
+                .orElseThrow(()-> new CustomException(ErrorCode.INCHATROOM_NOT_FOUND));
+
+        Collections.reverse(chatRooms);
+        return chatRooms.stream()
+                .map(chatRoom -> ChatDto.ChatRoomDto.builder()
+                        .roomId(chatRoom.getId())
+                        .roomNumber(chatRoom.getRoomNumber())
+                        .name(chatRoom.getName())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+
+    // 특정 채팅방 조회
+    public List<ChatDto.ChatRoomDto> roomInfo(String name, User user) {
+
+        userRepository.findById(user.getId())
+                .orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
 
         List<Chat.ChatRoom> chatRooms = chatRoomRepository.findByNameContainingIgnoreCase(name)
                 .orElseThrow(()-> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
@@ -78,6 +87,30 @@ public class ChatRoomService {
                         .roomId(chatRoom.getId())
                         .roomNumber(chatRoom.getRoomNumber())
                         .name(chatRoom.getName())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    // 대화 조회
+    public List<ChatDto.ChatMessageDto> loadMessage(Long roomId, User user) {
+
+        User userOptional = userRepository.findById(user.getId())
+                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+
+        Chat.ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+
+        List<Chat.ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdAndUserId(chatRoom.getId(), user.getId())
+                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+
+        // ChatMessage를 ChatDto.ChatMessage로 변환하여 반환
+        return chatMessages.stream()
+                .map(chatMessage -> ChatDto.ChatMessageDto.builder()
+                        .id(chatMessage.getId())
+                        .type(chatMessage.getType())
+                        .sender(chatMessage.getSender())
+                        .message(chatMessage.getMessage())
+                        .createdAt(chatMessage.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
     }

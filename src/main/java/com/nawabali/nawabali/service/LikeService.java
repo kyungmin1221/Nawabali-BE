@@ -24,9 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class LikeService {
 
     private final LikeRepository likeRepository;
-//    private final LocalLikeRepository localLikeRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final NotificationService notificationService;
 
     // 좋아요 수정
     public LikeDto.responseDto toggleLike(Long postId, String username) {
@@ -67,6 +67,8 @@ public class LikeService {
 
             likeRepository.save(findLike);
 
+            notificationService.notifyLike(postId,user.getId());
+
         }
         // response 보내기
         return LikeDto.responseDto.builder()
@@ -88,10 +90,10 @@ public class LikeService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        // 해당 지역의 회원인지 확인
-//        if(!isMatchDistrict(user, post)){
-//            throw new CustomException(ErrorCode.MISMATCH_ADDRESS);
-//        }
+//         해당 지역의 회원인지 확인
+        if(!isMatchDistrict(user, post)){
+            throw new CustomException(ErrorCode.MISMATCH_ADDRESS);
+        }
 
         // 해당 게시물에 로컬좋아요를 눌렀는지 확인
         Like findLocalLike = likeRepository.findByUserIdAndPostIdAndLikeCategoryEnum(user.getId(), postId, LikeCategoryEnum.LOCAL_LIKE);
@@ -120,6 +122,8 @@ public class LikeService {
 
             likeRepository.save(findLocalLike);
 
+            notificationService.notifyLocalLike(postId, user.getId());
+
             return LikeDto.responseDto.builder()
                     .likeId(findLocalLike.getId())
                     .userId(user.getId())
@@ -131,11 +135,11 @@ public class LikeService {
         }
     }
 
-//    private boolean isMatchDistrict(User user, Post post){
-//        String userAddress = user.getAddress().getDistrict();
-//        String postAddress = post.getTitle();
-//
-//        return userAddress.equals(postAddress);
-//    }
+    private boolean isMatchDistrict(User user, Post post){
+        String userAddress = user.getAddress().getDistrict();
+        String postAddress = post.getTown().getDistrict();
+
+        return userAddress.equals(postAddress);
+    }
 
 }

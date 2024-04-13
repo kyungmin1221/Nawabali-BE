@@ -32,6 +32,9 @@ public class PostDto {
         @NotNull
         private Double longitude;
 
+        @NotNull
+        private String district;
+
     }
 
     @Getter
@@ -50,6 +53,12 @@ public class PostDto {
         private String contents;
 
         private String category;
+
+        private String district;
+
+        private Double latitude;
+
+        private Double longitude;
 
         private LocalDateTime createdAt;
 
@@ -70,12 +79,16 @@ public class PostDto {
             this.nickname = post.getUser().getNickname();
             this.contents = post.getContents();
             this.category = post.getCategory().name();
+            this.district = post.getTown().getDistrict();
+            this.latitude = post.getTown().getLatitude();
+            this.longitude = post.getTown().getLongitude();
             this.createdAt = post.getCreatedAt();
             this.modifiedAt = post.getModifiedAt();
             this.imageUrls = post.getImages().stream()
                     .map(PostImage::getImgUrl)
                     .collect(Collectors.toList());
             this.commentCount = post.getComments().size();
+
 
         }
 
@@ -112,6 +125,8 @@ public class PostDto {
 
         private String profileImageUrl;
 
+        private String district;
+
 
         public ResponseDetailDto(Post post, Long likesCount, Long localLikesCount, String profileImageUrl) {
             this.userId = post.getUser().getId();
@@ -128,6 +143,7 @@ public class PostDto {
             this.likesCount = likesCount;
             this.localLikesCount = localLikesCount;
             this.profileImageUrl = profileImageUrl;
+            this.district = post.getTown().getDistrict();
         }
 
     }
@@ -138,8 +154,6 @@ public class PostDto {
     @NoArgsConstructor
     @Builder
     public static class PatchDto {
-
-        private String title;
 
         private String contents;
 
@@ -156,6 +170,27 @@ public class PostDto {
     public static class DeleteDto {
 
         private String message;
+
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    public static class getMyPostsResponseDto {
+
+        private Long id;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class DistrictDto {
+
+        private String district;
+        private Long totalPost;
+//        private Long totalLike;
+        private Long totalLocalLike;
 
     }
 }

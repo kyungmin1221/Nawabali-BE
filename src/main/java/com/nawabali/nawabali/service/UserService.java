@@ -1,13 +1,19 @@
 package com.nawabali.nawabali.service;
 
 import com.nawabali.nawabali.constant.Address;
+import com.nawabali.nawabali.constant.LikeCategoryEnum;
 import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.constant.UserRoleEnum;
 import com.nawabali.nawabali.domain.User;
+import com.nawabali.nawabali.domain.image.ProfileImage;
+import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.dto.SignupDto;
 import com.nawabali.nawabali.dto.UserDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
+import com.nawabali.nawabali.repository.ProfileImageRepository;
+import com.nawabali.nawabali.repository.LikeRepository;
+import com.nawabali.nawabali.repository.PostRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,14 +21,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ProfileImageRepository profileImageRepository;
 
 
+    private final PostRepository postRepository;
+    private final LikeRepository likeRepository;
     @Transactional
     public ResponseEntity<SignupDto.SignupResponseDto> signup(SignupDto.SignupRequestDto requestDto) {
         String email = requestDto.getEmail();
@@ -58,7 +69,11 @@ public class UserService {
                 .address(address)
                 .rank(UserRankEnum.RESIDENT)
                 .build();
+
+        ProfileImage profileImage = new ProfileImage(user);
+
         userRepository.save(user);
+        profileImageRepository.save(profileImage);
         User responseUser = userRepository.findByEmail(user.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         return ResponseEntity.ok(new SignupDto.SignupResponseDto(responseUser.getId()));
@@ -68,8 +83,16 @@ public class UserService {
     public UserDto.UserInfoResponseDto getUserInfo(User user) {
         User existUser = getUserId(user.getId());
 
-        Long localCount = 1L; // 물어볼것, 수정해야할 부분
-        Long likesCount = 1L;
+        // 유저 아이디로 작성된 postID 모두 검색
+        List<Long> postIds = postRepository.findByUserId(user.getId()).stream()
+                .map(PostDto.getMyPostsResponseDto::getId)
+                .toList();
+        System.out.println("postIds = " + postIds);
+
+        // 작성된 postID로 좋아요, 로컬좋아요 카운팅
+        Long totalLikeCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LIKE);
+        Long totalLocalLikeCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LOCAL_LIKE);
+
 
         return UserDto.UserInfoResponseDto.builder()
                 .id(existUser.getId())
@@ -78,14 +101,18 @@ public class UserService {
                 .rank(existUser.getRank())
                 .city(existUser.getAddress().getCity())
                 .district(existUser.getAddress().getDistrict())
-                .localCount(localCount)
-                .likesCount(likesCount)
+                .totalLikesCount(totalLikeCount)
+                .totalLocalLikesCount(totalLocalLikeCount)
+                .profileImageUrl(existUser.getProfileImage().getImgUrl())
                 .build();
     }
 
     @Transactional
     public UserDto.UserInfoResponseDto updateUserInfo(User user, UserDto.UserInfoRequestDto requestDto) {
         User existUser = getUserId(user.getId());
+
+        String password = passwordEncoder.encode(requestDto.getPassword());
+        requestDto.setPassword(password);
 
         existUser.update(requestDto);
         return new UserDto.UserInfoResponseDto(existUser);
@@ -99,14 +126,33 @@ public class UserService {
         return ResponseEntity.ok(new UserDto.deleteResponseDto());
     }
 
+    // 메서드 //
+
     public boolean checkNickname(String nickname) {
         User duplicatedUser = userRepository.findByNickname(nickname);
         return duplicatedUser == null;
     }
 
+    public boolean checkMyPassword(String inputPassword, User user) {
+        User existUser = getUserId(user.getId());
+        String myPassword = existUser.getPassword();
+        return passwordEncoder.matches(inputPassword, myPassword);
+
+    }
 
     public User getUserId(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     }
+
+    public Long getMyTotalLikesCount(List<Long> postIds, LikeCategoryEnum likeCategoryEnum){
+        Long total =0L;
+        for (Long postId : postIds){
+            Long numLikes = likeRepository.countByPostIdAndLikeCategoryEnum(postId, likeCategoryEnum);
+            total += numLikes;
+        }
+        return total;
+    }
+
+
 }

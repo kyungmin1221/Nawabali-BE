@@ -1,11 +1,10 @@
-package com.nawabali.nawabali.repository.dslrepository;
+package com.nawabali.nawabali.repository.querydsl.comment;
 
 import com.nawabali.nawabali.domain.Comment;
 import com.nawabali.nawabali.domain.QComment;
-import com.nawabali.nawabali.dto.dslDto.CommentDslDto;
+import com.nawabali.nawabali.dto.querydsl.CommentDslDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -15,14 +14,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
+@RequiredArgsConstructor
 public class CommentDslRepositoryCustomImpl implements CommentDslRepositoryCustom{
 
     private final JPAQueryFactory queryFactory;
-
-    @Autowired
-    public CommentDslRepositoryCustomImpl(EntityManager em) {
-        this.queryFactory = new JPAQueryFactory(em);
-    }
 
     @Override
     public Slice<CommentDslDto.ResponseDto> findCommentsByPostId(Long postId, Pageable pageable) {

@@ -6,6 +6,7 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @AllArgsConstructor
 @Getter
@@ -30,8 +31,9 @@ public enum ErrorCode {
     UNAUTHORIZED_POST(UNAUTHORIZED, "권한 정보가 없는 게시물입니다."),
     UNAUTHORIZED_COMMENT(UNAUTHORIZED, "권한 정보가 없는 댓글입니다."),
     UNAUTHORIZED_BOOKMARK(UNAUTHORIZED, "권한 정보가 없는 북마크입니다."),
+    UNAUTHORIZED_CATEGORY(UNAUTHORIZED, "권한 정보가 없는 카테고리입니다."),
 
-    // 403 Forbidden : 클라이언트는 콘텐츠에 접근할 권리를 가지고 있지 않다
+    // 403 FORBIDDEN : 클라이언트는 콘텐츠에 접근할 권리를 가지고 있지 않다
     FORBIDDEN_MEMBER(FORBIDDEN,"본인의 게시물이 아닙니다."),
     FORBIDDEN_CHATMESSAGE(FORBIDDEN, "본인의 채팅이 아닙니다."),
 
@@ -44,7 +46,12 @@ public enum ErrorCode {
     PROFILEIMAGE_NOT_FOUND(NOT_FOUND, "해당 프로필이미지를 찾을 수 없습니다."),
     LIKE_NOT_FOUND(NOT_FOUND, "해당 좋아요를 찾을 수 없습니다."),
     CHATROOM_NOT_FOUND(NOT_FOUND, "해당 채팅방을 찾을 수 없습니다."),
-
+    INCHATROOM_NOT_FOUND(NOT_FOUND, "속해있는 채팅방이 없습니다."),
+    CHAT_MESSAGE_NOT_FOUND(NOT_FOUND, "해당 메세지를 찾을 수 없습니다."),
+    NOTIFICATION_NOT_FOUND(NOT_FOUND, "해당 알림을 찾을 수 없습니다."),
+    DISTRICTPOST_NOT_FOUND(NOT_FOUND, "해당 구의 총 게시물 수를 찾을 수 없습니다."),
+    DISTRICTLIKE_NOT_FOUND(NOT_FOUND, "해당 구의 총 좋아요 수를 찾을 수 없습니다."),
+    DISTRICTLOCALLIKE_NOT_FOUND(NOT_FOUND, "해당 구의 총 동네인증 수를 찾을 수 없습니다."),
 
     // 409 CONFLICT: 중복된 리소스 (요청이 현재 서버 상태와 충돌될 때)
     DUPLICATE_EMAIL(CONFLICT, "이미 존재하는 이메일입니다."),
@@ -54,7 +61,7 @@ public enum ErrorCode {
     DUPLICATE_BOOKMARK(CONFLICT, "이미 등록된 북마크 입니다."),
 
 
-    // 500 server error
+    // 500 SERVER ERROR
     SERVER_ERROR(INTERNAL_SERVER_ERROR, "내부 서버 에러입니다."),
     PHOTO_UPLOAD_ERROR(INTERNAL_SERVER_ERROR, "이미지 파일 업로드에 실패했습니다.");
 

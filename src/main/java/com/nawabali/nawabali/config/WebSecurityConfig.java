@@ -8,10 +8,8 @@ import com.nawabali.nawabali.security.Jwt.JwtLogoutHandler;
 import com.nawabali.nawabali.security.Jwt.JwtUtil;
 import com.nawabali.nawabali.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -66,7 +64,7 @@ public class WebSecurityConfig {
                     List.of(
                             "http://localhost:3000", "http://localhost:5500", "http://localhost:5000",
                             "http://127.0.0.1:3000", "http://127.0.0.1:5500", "http://127.0.0.1:5000",
-                            "http://hhboard.shop", "https://hhboard.shop" // 프론트엔드 주소 추가 필요
+                            "http://hhboard.shop", "https://hhboard.shop", "https://vercel-nu-lyart.vercel.app" // 프론트엔드 주소 추가 필요
                     )
             );
             configuration.setAllowedMethods(Collections.singletonList("*"));
@@ -92,26 +90,28 @@ public class WebSecurityConfig {
 
         http.authorizeHttpRequests((authorizeHttpRequests) ->
                 authorizeHttpRequests
-                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll() // resources 접근 허용 설정
-                        .requestMatchers("/").permitAll() // 메인 페이지 요청 허가
-                        .requestMatchers("/main.html").permitAll() // 메인 html페이지 요청 허가
-                        .requestMatchers("/ping").permitAll() // 항상 200 OK 반환하는 health check 전용 API
-                        .requestMatchers("/users/signup").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
-                        .requestMatchers("/posts").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/posts/**").permitAll() // 게시글 상세 조회 허가
-                        .requestMatchers("/users/test").permitAll()
-                        .requestMatchers("/users/test1").permitAll()
-                        .requestMatchers("/api/user/kakao/callback").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/swagger/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api-test").permitAll()
-                        .requestMatchers("/users/check-nickname").permitAll()
-                        .requestMatchers("/email-verification").permitAll()
-                        .requestMatchers("/ws-stomp/**").permitAll()
-                        .requestMatchers("/chat/**").permitAll()
-                        .anyRequest().authenticated() // 그 외 모든 요청 인증처리
+                        .anyRequest().permitAll()
+//                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll() // resources 접근 허용 설정
+//                        .requestMatchers("/").permitAll() // 메인 페이지 요청 허가
+//                        .requestMatchers("/main.html").permitAll() // 메인 html페이지 요청 허가
+//                        .requestMatchers("/ping").permitAll() // 항상 200 OK 반환하는 health check 전용 API
+//                        .requestMatchers("/users/signup").permitAll()
+//                        .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
+//                        .requestMatchers("/posts").permitAll()
+//                        .requestMatchers(HttpMethod.GET, "/posts/**").permitAll() // 게시글 상세 조회 허가
+//                        .requestMatchers("/users/test").permitAll()
+//                        .requestMatchers("/users/test1").permitAll()
+//                        .requestMatchers("/api/user/kakao/callback").permitAll()
+//                        .requestMatchers("/api/auth/**").permitAll()
+//                        .requestMatchers("/swagger/**").permitAll()
+//                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+//                        .requestMatchers("/api-test").permitAll()
+//                        .requestMatchers("/users/check-nickname").permitAll()
+//                        .requestMatchers("/email-verification").permitAll()
+//                        .requestMatchers("/ws-stomp/**").permitAll()
+//                        .requestMatchers("/chat/**").permitAll()
+//                        .requestMatchers("/posts/district/*").permitAll()
+//                        .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
 
         http.logout(logoutconfigurer->logoutconfigurer

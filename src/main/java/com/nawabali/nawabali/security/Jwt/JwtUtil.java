@@ -40,7 +40,7 @@ public class JwtUtil {
     // 로그 설정
     public static final Logger logger = LoggerFactory.getLogger("JWT 관련 로그");
     // 토큰 만료 시간
-    private final int ACCESS_EXPIRATION_TIME = 10 * 60 * 1000; // 10분
+    private final int ACCESS_EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 10분
     public final int REFRESH_EXPIRATION_TIME = 30 * 60 * 1000; // 30분
     @PostConstruct
     public void init() {
@@ -164,12 +164,6 @@ public class JwtUtil {
         }
         throw new NullPointerException("Not Found Token");
     }
-//    public String substringToken(String token){
-//        if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
-//            return token.substring(7);
-//        }
-//        throw new IllegalArgumentException("Invalid or Missing Authorization Header");
-//    }
 
 
 }

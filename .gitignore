@@ -53,3 +53,4 @@ src/main/resources/application.properties
 /src/main/generated/com/nawabali/nawabali/domain/QTimeStamp.java
 /src/main/generated/com/nawabali/nawabali/constant/QTown.java
 /src/main/generated/com/nawabali/nawabali/domain/QUser.java
+/src/main/generated/com/nawabali/nawabali/domain/QNotification.java

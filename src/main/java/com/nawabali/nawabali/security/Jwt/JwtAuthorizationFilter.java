@@ -8,8 +8,6 @@ import com.nawabali.nawabali.global.tool.redis.RedisTool;
 import com.nawabali.nawabali.repository.UserRepository;
 import com.nawabali.nawabali.security.UserDetailsServiceImpl;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwt;
-import io.netty.util.internal.StringUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -38,11 +36,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
-        String accessToken = jwtUtil.getTokenFromCookieAndName(req, JwtUtil.AUTHORIZATION_HEADER);
+//        String accessToken = jwtUtil.getTokenFromCookieAndName(req, JwtUtil.AUTHORIZATION_HEADER);
+        String accessToken = jwtUtil.getJwtFromHeader(req);
 //        log.info("accessToken : "+ accessToken);
         if(StringUtils.hasText(accessToken)){
             // 토큰 유무 확인
-            accessToken = jwtUtil.substringToken(accessToken);
+//            accessToken = jwtUtil.substringToken(accessToken);
             String refreshToken =redisTool.getValues(accessToken);
             log.info("저장된 refreshToken :" + refreshToken);
 
