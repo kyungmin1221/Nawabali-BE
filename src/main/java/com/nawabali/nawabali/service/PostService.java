@@ -94,6 +94,7 @@ public class PostService {
                 .map(post -> {
                     Long likesCount = getLikesCount(post.getPostId(), LIKE);
                     Long localLikesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
+                    String profileImageUrl = getProfileImage(post.getPostId()).getImgUrl();
 
                     return new PostDto.ResponseDto(
                             post.getUserId(),
@@ -109,7 +110,8 @@ public class PostService {
                             post.getImageUrls(),
                             likesCount,
                             localLikesCount,
-                            post.getCommentCount()
+                            post.getCommentCount(),
+                            profileImageUrl
                     );
                 })
                 .collect(Collectors.toList());
@@ -135,6 +137,7 @@ public class PostService {
                 .map(post -> {
                     Long likesCount = getLikesCount(post.getPostId(), LIKE);
                     Long localLikesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
+                    String profileImageUrl = getProfileImage(post.getPostId()).getImgUrl();
 
                     return new PostDto.ResponseDto(
                             post.getUserId(),
@@ -150,7 +153,8 @@ public class PostService {
                             post.getImageUrls(),
                             likesCount,
                             localLikesCount,
-                            post.getCommentCount()
+                            post.getCommentCount(),
+                            profileImageUrl
                     );
                 })
                 .collect(Collectors.toList());
