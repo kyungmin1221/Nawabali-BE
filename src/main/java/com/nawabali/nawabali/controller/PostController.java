@@ -1,6 +1,5 @@
 package com.nawabali.nawabali.controller;
 
-
 import com.nawabali.nawabali.domain.elasticsearch.PostSearch;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
@@ -22,8 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-
-;
 
 @Tag(name = "게시물 API", description = "게시물 관련 API 입니다.")
 @RestController

@@ -1,6 +1,5 @@
 package com.nawabali.nawabali.domain;
 
-
 import com.nawabali.nawabali.constant.Category;
 import com.nawabali.nawabali.constant.Town;
 import com.nawabali.nawabali.domain.image.PostImage;
@@ -8,7 +7,6 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

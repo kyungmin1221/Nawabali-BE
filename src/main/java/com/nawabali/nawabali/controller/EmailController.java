@@ -1,6 +1,5 @@
 package com.nawabali.nawabali.controller;
 
-
 import com.nawabali.nawabali.service.EmailService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -8,7 +7,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 
 @Tag(name = "이메일 인증 API", description = "이메일 인증 관련 API 입니다.")
 @RestController
