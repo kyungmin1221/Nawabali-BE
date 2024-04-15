@@ -65,7 +65,8 @@ public class WebSecurityConfig {
                             "http://localhost:3000", "http://localhost:5500", "http://localhost:5000",
                             "http://127.0.0.1:3000", "http://127.0.0.1:5500", "http://127.0.0.1:5000",
                             "http://hhboard.shop", "https://hhboard.shop", "https://vercel-nu-lyart.vercel.app", // 프론트엔드 주소 추가 필요
-                            "https://hh-99-nawabali-fe.vercel.app"
+                            "https://hh-99-nawabali-fe.vercel.app", "https://nawabali-fe.vercel.app", "https://www.dongnaebangnae.com"
+
                     )
             );
             configuration.setAllowedMethods(Collections.singletonList("*"));
