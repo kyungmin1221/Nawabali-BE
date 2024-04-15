@@ -1,7 +1,6 @@
 package com.nawabali.nawabali.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.nawabali.nawabali.constant.DeleteStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -56,13 +55,6 @@ public class Comment extends TimeStamp {
 
     @OneToMany(mappedBy = "parent", orphanRemoval = true)
     private List<Comment> children = new ArrayList<>();
-
-    @Enumerated(value = EnumType.STRING)
-    private DeleteStatus isDeleted = DeleteStatus.N;
-
-    public void changeDeletedStatus(DeleteStatus deleteStatus) {
-        this.isDeleted = deleteStatus;
-    }
 
     public void changeContents(String contents) {
         this.contents = contents;

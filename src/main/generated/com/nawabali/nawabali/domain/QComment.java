@@ -32,8 +32,6 @@ public class QComment extends EntityPathBase<Comment> {
 
     public final NumberPath<Long> Id = createNumber("Id", Long.class);
 
-    public final EnumPath<com.nawabali.nawabali.constant.DeleteStatus> isDeleted = createEnum("isDeleted", com.nawabali.nawabali.constant.DeleteStatus.class);
-
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = createDateTime("modifiedAt", java.time.LocalDateTime.class);
 
     public final QComment parent;

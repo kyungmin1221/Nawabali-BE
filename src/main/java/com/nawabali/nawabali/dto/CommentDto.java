@@ -1,7 +1,6 @@
 package com.nawabali.nawabali.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.nawabali.nawabali.constant.DeleteStatus;
 import com.nawabali.nawabali.domain.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,8 +23,6 @@ public class CommentDto implements Serializable {
     public static class RequestDto {
 
         private String contents;
-        private Long postId;
-        private Long userId;
         private Long parentId;
     }
 
@@ -46,20 +43,14 @@ public class CommentDto implements Serializable {
         private LocalDateTime modifiedAt;
         private List<ResponseDto> children = new ArrayList<>();
 
-        public ResponseDto(Comment comment, String contents, Long postId, Long userId, String nickname) {
+        public ResponseDto(Comment comment) {
             this.commentId = comment.getId();
-            this.contents = contents;
-            this.postId = postId;
-            this.userId = userId;
-            this.nickname = nickname;
+            this.contents = comment.getContents();
+            this.postId = comment.getPost().getId();
+            this.userId = comment.getUser().getId();
+            this.nickname = comment.getUser().getNickname();
             this.createdAt = comment.getCreatedAt();
             this.modifiedAt = comment.getModifiedAt();
-        }
-
-        public static ResponseDto convertCommentToDto(Comment comment) {
-            return comment.getIsDeleted() == DeleteStatus.Y ?
-                    new ResponseDto(comment, "삭제된 댓글입니다.", null, null, null) :
-                    new ResponseDto(comment, comment.getContents(), comment.getPost().getId(), comment.getUser().getId(), comment.getUser().getNickname());
         }
     }
 

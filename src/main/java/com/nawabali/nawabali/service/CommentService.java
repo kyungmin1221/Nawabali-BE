@@ -1,6 +1,5 @@
 package com.nawabali.nawabali.service;
 
-import com.nawabali.nawabali.constant.DeleteStatus;
 import com.nawabali.nawabali.domain.Comment;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.User;
@@ -10,7 +9,6 @@ import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.CommentRepository;
 import com.nawabali.nawabali.repository.PostRepository;
-import com.nawabali.nawabali.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -32,16 +30,15 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
     private final NotificationService notificationService;
     private final UserService userService;
 
     @Transactional
     // 댓글 작성
-    public CommentDto.ResponseDto createComment(Long postId, CommentDto.RequestDto dto, String username) {
+    public CommentDto.ResponseDto createComment(Long postId, CommentDto.RequestDto dto, Long userId) {
 
         // 사용자 확인 (로그아웃 됐을 수도 있으니까)
-        User user = userService.getUserId(dto.getUserId());
+        User user = userService.getUserId(userId);
 
 
         // 포스트 아이디를 확인해서 게시물 가져오기
@@ -69,21 +66,19 @@ public class CommentService {
         notificationService.notifyComment(postId);
 
         // 유저, 게시물, 댓글 관련 자료를 response로 보내기
-        return CommentDto.ResponseDto.convertCommentToDto(comment);
+        return new CommentDto.ResponseDto(comment);
     }
 
     @Transactional
     // 댓글 수정
-    public CommentDto.ResponseDto updateComment(Long commentId, CommentDto.RequestDto dto, String username) {
+    public CommentDto.ResponseDto updateComment(Long commentId, CommentDto.RequestDto dto, Long userId) {
 
         // 본인 확인
-        User user = userService.getUserId(dto.getUserId());
-        log.info("본인확인" + username);
+        User user = userService.getUserId(userId);
 
         // 댓글 가져오기
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(()-> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-        log.info("댓글 가져오기" + commentId);
 
         // 본인이 쓴 댓글인지 확인
         if (!comment.getUser().getId().equals(user.getId())){
@@ -94,15 +89,14 @@ public class CommentService {
         commentRepository.save(comment);
 
         // 값 리턴하기
-        return CommentDto.ResponseDto.convertCommentToDto(comment);
+        return new CommentDto.ResponseDto(comment);
     }
 
     @Transactional
     // 댓글 삭제하기
-    public CommentDto.DeleteResponseDto deleteComment(Long commentId, String username) {
+    public CommentDto.DeleteResponseDto deleteComment(Long commentId, Long userId) {
         // 본인 확인
-        User user = userRepository.findByEmail(username)
-                .orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
+        User user = userService.getUserId(userId);
 
         // 댓글 확인
         Comment comment = commentRepository.findById(commentId)
@@ -114,26 +108,14 @@ public class CommentService {
         }
 
         // 댓글 삭제
-        // 자식 댓글이 존재한다면 soft delete
-        if (comment.getChildren().size() != 0) {
-            comment.changeDeletedStatus(DeleteStatus.Y);
-        } else {
-            // 자식 댓글이 없다면 hard delete
-            commentRepository.delete(getDeletableAncestorComment(comment));
-        }
+        commentRepository.delete(comment);
 
-        // id랑 메세지 response로 보내기
+
+        // commentId랑 메세지 response로 보내기
         return CommentDto.DeleteResponseDto.builder()
                 .commentId(commentId)
                 .message("댓글이 삭제되었습니다.")
                 .build();
-    }
-
-    private Comment getDeletableAncestorComment(Comment comment) {
-        Comment parent = comment.getParent();
-        if (parent != null && parent.getChildren().size() == 1 && parent.getIsDeleted() == DeleteStatus.Y)
-                return getDeletableAncestorComment(parent);
-        return comment;
     }
 
     // 댓글 조회(무한 스크롤)
@@ -144,18 +126,26 @@ public class CommentService {
     }
 
     private Slice<CommentDslDto.ResponseDto> convertNestedStructure(Slice<CommentDslDto.ResponseDto> comments) {
+        // 중첩 구조로 변환된 댓글 목록을 저장할 리스트입니다.
         List<CommentDslDto.ResponseDto> result = new ArrayList<>();
+        // 댓글을 부모-자식 구조로 변환하는 데 사용할 맵 : 키는 댓글의 식별자(commentId)이고, 값은 실제 댓글 객체입니다.
         Map<Long, CommentDslDto.ResponseDto> map = new HashMap<>();
-        comments.stream().forEach(dto -> {
+        // 댓글을 parent comment를 기준으로 순회하여 부모-자식 관계를 형성합니다.
+        comments.forEach(dto -> {
+            // 현재 댓글을 맵에 추가합니다.
             if (!map.containsKey(dto.getParentId())) {
                 map.put(dto.getCommentId(), dto);
+                // 부모 댓글인 경우, 결과 목록에 추가합니다.
                 if (dto.getParentId() != null) {
-                    map.get(dto.getParentId()).getChildren().add(dto);
+                    // 부모 댓글을 찾아 해당 자식 댓글을 추가합니다.
+                    map.computeIfAbsent(dto.getParentId(), k -> new CommentDslDto.ResponseDto()).getChildren().add(dto);
                 } else {
+                    // 부모 댓글이 없는 경우: 결과 목록에 바로 추가합니다.
                     result.add(dto);
                 }
             }
         });
+        // 결과 목록과 페이지 정보를 이용하여 Slice를 생성하여 반환합니다.
         return new SliceImpl<>(result, comments.getPageable(), comments.hasNext());
     }
 }

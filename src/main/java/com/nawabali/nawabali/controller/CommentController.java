@@ -2,6 +2,7 @@ package com.nawabali.nawabali.controller;
 
 import com.nawabali.nawabali.dto.CommentDto;
 import com.nawabali.nawabali.dto.querydsl.CommentDslDto;
+import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,8 +31,8 @@ public class CommentController {
     @PostMapping("/posts/{postId}")
     public CommentDto.ResponseDto createComment (@PathVariable("postId") Long postId,
                                                  @RequestBody CommentDto.RequestDto dto,
-                                                 @AuthenticationPrincipal UserDetails userDetails) {
-        return commentService.createComment(postId, dto, userDetails.getUsername());
+                                                 @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return commentService.createComment(postId, dto, userDetails.getUser().getId());
     }
 
     // 댓글 조회(무한 스크롤)
@@ -52,16 +53,16 @@ public class CommentController {
     @PatchMapping("/{commentId}")
     public CommentDto.ResponseDto updateComment (@PathVariable("commentId") Long commentId,
                                                  @RequestBody CommentDto.RequestDto dto,
-                                                 @AuthenticationPrincipal UserDetails userDetails) {
-        return commentService.updateComment(commentId, dto, userDetails.getUsername());
+                                                 @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return commentService.updateComment(commentId, dto, userDetails.getUser().getId());
     }
 
     // 댓글 삭제
     @Operation(summary = "게시물 댓글 삭제", description = "commentId 를 이용한 게시물에 댓글 삭제")
     @DeleteMapping("/{commentId}")
     public CommentDto.DeleteResponseDto deleteComment (@PathVariable("commentId") Long commentId,
-                                                       @AuthenticationPrincipal UserDetails userDetails) {
-        return commentService.deleteComment (commentId, userDetails.getUsername());
+                                                       @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return commentService.deleteComment (commentId, userDetails.getUser().getId());
     }
 
 }

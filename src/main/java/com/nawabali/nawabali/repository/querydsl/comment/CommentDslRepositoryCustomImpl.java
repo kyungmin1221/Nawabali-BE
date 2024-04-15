@@ -42,7 +42,7 @@ public class CommentDslRepositoryCustomImpl implements CommentDslRepositoryCusto
         }
 
         List<CommentDslDto.ResponseDto> responseDtos = comments.stream()
-                .map(CommentDslDto.ResponseDto::convertCommentToDto)
+                .map(CommentDslDto.ResponseDto::new)
                 .collect(Collectors.toList());
 
         return new SliceImpl<>(responseDtos, pageable, hasNext);
