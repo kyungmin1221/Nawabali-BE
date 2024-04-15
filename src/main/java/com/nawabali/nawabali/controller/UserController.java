@@ -2,8 +2,6 @@ package com.nawabali.nawabali.controller;
 
 
 import com.nawabali.nawabali.constant.Category;
-import com.nawabali.nawabali.constant.LikeCategoryEnum;
-import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.dto.SignupDto;
 import com.nawabali.nawabali.dto.UserDto;
@@ -15,7 +13,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -24,8 +21,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/users")

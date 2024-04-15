@@ -1,5 +1,6 @@
 package com.nawabali.nawabali.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.nawabali.nawabali.domain.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j(topic = "CommentDto 로그")
 public class CommentDto {
@@ -19,7 +22,7 @@ public class CommentDto {
     public static class RequestDto {
 
         private String contents;
-
+        private Long parentId;
     }
 
     @Getter
@@ -28,15 +31,26 @@ public class CommentDto {
     @AllArgsConstructor
     public static class ResponseDto{
 
+        private Long commentId;
         private Long postId;
         private Long userId;
-        private Long commentId;
         private String nickname;
         private String contents;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         private LocalDateTime createdAt;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         private LocalDateTime modifiedAt;
-        private String message;
+        private List<ResponseDto> children = new ArrayList<>();
 
+        public ResponseDto(Comment comment) {
+            this.commentId = comment.getId();
+            this.contents = comment.getContents();
+            this.postId = comment.getPost().getId();
+            this.userId = comment.getUser().getId();
+            this.nickname = comment.getUser().getNickname();
+            this.createdAt = comment.getCreatedAt();
+            this.modifiedAt = comment.getModifiedAt();
+        }
     }
 
     @Getter
@@ -50,9 +64,10 @@ public class CommentDto {
         private Long commentId;
         private String nickname;
         private String contents;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         private LocalDateTime createdAt;
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         private LocalDateTime modifiedAt;
-
     }
 
     @Getter
@@ -63,7 +78,6 @@ public class CommentDto {
 
         private Long commentId;
         private String message;
-
     }
 }
 
