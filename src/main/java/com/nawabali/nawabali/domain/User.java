@@ -70,8 +70,8 @@ public class User {
         }
     }
 
-    public void updateKakaoId(Long kakoId) {
-        this.kakaoId = id;
+    public void updateKakaoId(Long kakaoId) {
+        this.kakaoId = kakaoId;
     }
 
     public void update(UserDto.UserInfoRequestDto requestDto) {
