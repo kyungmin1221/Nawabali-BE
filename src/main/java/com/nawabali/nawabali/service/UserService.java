@@ -122,8 +122,8 @@ public class UserService {
         System.out.println("postIds = " + postIds);
 
         // 작성된 postID로 좋아요, 로컬좋아요 카운팅
-        int totalLikeCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LIKE);
-        int totalLocalLikeCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LOCAL_LIKE);
+        Long totalLikeCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LIKE);
+        Long totalLocalLikeCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LOCAL_LIKE);
 
 
         return UserDto.UserInfoResponseDto.builder()
@@ -196,7 +196,7 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
-    public int getMyTotalLikesCount(List<Long> postIds, LikeCategoryEnum likeCategoryEnum) {
+    public Long getMyTotalLikesCount(List<Long> postIds, LikeCategoryEnum likeCategoryEnum) {
         return likeRepository.countByPostIdInAndLikeCategoryEnum(postIds, likeCategoryEnum);
     }
 

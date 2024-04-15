@@ -31,8 +31,8 @@ public class UserDto {
         String city;
         String district;
         UserRankEnum rank;
-        int totalLikesCount;
-        int totalLocalLikesCount;
+        Long totalLikesCount;
+        Long totalLocalLikesCount;
         String profileImageUrl;
 
 

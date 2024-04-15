@@ -15,7 +15,7 @@ public interface LikeRepository extends JpaRepository <Like, Long> {
 
     Optional<Like> findByUserAndPost (User user, Post post);
     Long countByPostIdAndLikeCategoryEnum(Long postId, LikeCategoryEnum likeCategory);
-    int countByPostIdInAndLikeCategoryEnum(List<Long> postIds, LikeCategoryEnum likeCategoryEnum);
+    Long countByPostIdInAndLikeCategoryEnum(List<Long> postIds, LikeCategoryEnum likeCategoryEnum);
     Like findByUserIdAndPostIdAndLikeCategoryEnum(Long userId, Long postId, LikeCategoryEnum likeCategoryEnum);
     Optional<Object> findFirstByPostIdAndUserIdAndLikeCategoryEnum(Long postId, Long userId, LikeCategoryEnum likeCategoryEnum);
 
