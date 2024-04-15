@@ -28,6 +28,6 @@ public class KakaoController {
             throws JsonProcessingException, IOException {
 
        kakaoService.kakaoLogin(code, response);
-       return "redirect: /";
+       return "redirect:/";
     }
 }
