@@ -73,7 +73,7 @@ public class UserController {
     public boolean checkMyPassword(@RequestParam("inputPassword") String inputPassword, @AuthenticationPrincipal UserDetailsImpl userDetails){
         return userService.checkMyPassword(inputPassword, userDetails.getUser());
     }
-
+    @Operation(summary = "내가 쓴 게시글 조회", description = "10장씩 조회, 작성일 순으로 정렬, 카테고리로 필터링. 선택 안할시 전체 조회.")
     @GetMapping("/my-posts")
     public Slice<PostDto.ResponseDto> getMyPosts(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
