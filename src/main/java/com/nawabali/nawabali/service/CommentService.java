@@ -9,15 +9,18 @@ import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.CommentRepository;
 import com.nawabali.nawabali.repository.PostRepository;
-import com.nawabali.nawabali.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @AllArgsConstructor
@@ -27,107 +30,88 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final UserService userService;
 
+    @Transactional
     // 댓글 작성
-    public CommentDto.ResponseDto createComment(Long postId, CommentDto.RequestDto dto, String username) {
+    public CommentDto.ResponseDto createComment(Long postId, CommentDto.RequestDto dto, Long userId) {
 
-        // 사용자 확인 (로그아웃 됐을수도 있으니까)
-        User user = userRepository.findByEmail(username)
-                .orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
+        // 사용자 확인 (로그아웃 됐을 수도 있으니까)
+        User user = userService.getUserId(userId);
+
 
         // 포스트 아이디를 확인해서 게시물 가져오기
         Post post = postRepository.findById(postId)
                 .orElseThrow(()-> new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        // parent를 null로 초기화
+        Comment parent = null;
+        Long parentId = dto.getParentId();
+        // parentId가 존재할 경우 parentId에 해당하는 Comment 찾아오기
+        if (parentId != null) {
+            parent = commentRepository.findById(parentId).orElseThrow(()->
+                    new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+        }
 
         // 게시물에 댓글을 댓글 repository에 저장하기
         Comment comment = Comment.builder()
                 .contents(dto.getContents())
                 .user(user)
                 .post(post)
-                .createdAt(LocalDateTime.now())
+                .parent(parent)
                 .build();
         commentRepository.save(comment);
 
         notificationService.notifyComment(postId);
 
         // 유저, 게시물, 댓글 관련 자료를 response로 보내기
-        return CommentDto.ResponseDto.builder()
-                .userId(user.getId())
-                .postId(postId)
-                .commentId(comment.getId())
-                .nickname(user.getNickname())
-                .contents(comment.getContents())
-                .createdAt(LocalDateTime.now())
-                .modifiedAt(LocalDateTime.now())
-                .message("댓글이 작성되었습니다.")
-                .build();
+        return new CommentDto.ResponseDto(comment);
     }
 
+    @Transactional
     // 댓글 수정
-    public CommentDto.ResponseDto updateComment(Long commentId, CommentDto.RequestDto dto, String username) {
+    public CommentDto.ResponseDto updateComment(Long commentId, CommentDto.RequestDto dto, Long userId) {
 
         // 본인 확인
-        if (username ==  null){
-            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
-        } log.info("본인확인" + username);
-        User user = userRepository.findByEmail(username)
-                .orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
-
+        User user = userService.getUserId(userId);
 
         // 댓글 가져오기
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(()-> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
-        log.info("댓글 가져오기" + commentId);
 
         // 본인이 쓴 댓글인지 확인
-        if (comment.getUser() == null || !comment.getUser().getId().equals(user.getId())){
+        if (!comment.getUser().getId().equals(user.getId())){
             throw new CustomException(ErrorCode.UNAUTHORIZED_COMMENT);
         }
-        // 댓글 entity에 넣고 저장
-
-        comment = comment.toBuilder()
-                .contents(dto.getContents())
-                .build();
+        // 댓글 내용 수정
+        comment.changeContents(dto.getContents());
         commentRepository.save(comment);
 
         // 값 리턴하기
-        return CommentDto.ResponseDto.builder()
-                .userId(user.getId())
-                .postId(comment.getPost().getId())
-                .commentId(comment.getId())
-                .nickname(user.getNickname())
-                .contents(comment.getContents())
-                .createdAt(comment.getCreatedAt())
-                .modifiedAt(LocalDateTime.now())
-                .message("댓글이 수정되었습니다.")
-                .build();
+        return new CommentDto.ResponseDto(comment);
     }
 
+    @Transactional
     // 댓글 삭제하기
-    public CommentDto.DeleteResponseDto deleteComment(Long commentId, String username) {
+    public CommentDto.DeleteResponseDto deleteComment(Long commentId, Long userId) {
         // 본인 확인
-        if (username ==  null){
-            throw new CustomException(ErrorCode.UNAUTHORIZED_MEMBER);
-        }
-
-        User user = userRepository.findByEmail(username)
-                .orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
+        User user = userService.getUserId(userId);
 
         // 댓글 확인
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(()-> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
         // 본인이 쓴 댓글인지 확인
-        if (comment.getUser() == null || !comment.getUser().getId().equals(user.getId())){
+        if (!comment.getUser().getId().equals(user.getId())){
             throw new CustomException(ErrorCode.UNAUTHORIZED_COMMENT);
         }
 
-        // 삭제하기
+        // 댓글 삭제
         commentRepository.delete(comment);
 
-        // id랑 메세지 response로 보내기
+
+        // commentId랑 메세지 response로 보내기
         return CommentDto.DeleteResponseDto.builder()
                 .commentId(commentId)
                 .message("댓글이 삭제되었습니다.")
@@ -135,7 +119,33 @@ public class CommentService {
     }
 
     // 댓글 조회(무한 스크롤)
+    @Transactional(readOnly = true)
     public Slice<CommentDslDto.ResponseDto> getComments(Long postId, Pageable pageable) {
-        return commentRepository.findCommentsByPostId(postId , pageable);
+        postRepository.findById(postId).orElseThrow(()-> new CustomException(ErrorCode.POST_NOT_FOUND));
+        return convertNestedStructure(commentRepository.findCommentsByPostId(postId, pageable));
+    }
+
+    private Slice<CommentDslDto.ResponseDto> convertNestedStructure(Slice<CommentDslDto.ResponseDto> comments) {
+        // 중첩 구조로 변환된 댓글 목록을 저장할 리스트입니다.
+        List<CommentDslDto.ResponseDto> result = new ArrayList<>();
+        // 댓글을 부모-자식 구조로 변환하는 데 사용할 맵 : 키는 댓글의 식별자(commentId)이고, 값은 실제 댓글 객체입니다.
+        Map<Long, CommentDslDto.ResponseDto> map = new HashMap<>();
+        // 댓글을 parent comment를 기준으로 순회하여 부모-자식 관계를 형성합니다.
+        comments.forEach(dto -> {
+            // 현재 댓글을 맵에 추가합니다.
+            if (!map.containsKey(dto.getParentId())) {
+                map.put(dto.getCommentId(), dto);
+                // 부모 댓글인 경우, 결과 목록에 추가합니다.
+                if (dto.getParentId() != null) {
+                    // 부모 댓글을 찾아 해당 자식 댓글을 추가합니다.
+                    map.computeIfAbsent(dto.getParentId(), k -> new CommentDslDto.ResponseDto()).getChildren().add(dto);
+                } else {
+                    // 부모 댓글이 없는 경우: 결과 목록에 바로 추가합니다.
+                    result.add(dto);
+                }
+            }
+        });
+        // 결과 목록과 페이지 정보를 이용하여 Slice를 생성하여 반환합니다.
+        return new SliceImpl<>(result, comments.getPageable(), comments.hasNext());
     }
 }

@@ -2,13 +2,9 @@ package com.nawabali.nawabali.repository.querydsl.bookmark;
 
 import com.nawabali.nawabali.domain.*;
 import com.nawabali.nawabali.domain.image.PostImage;
-import com.nawabali.nawabali.dto.BookMarkDto;
 import com.nawabali.nawabali.dto.querydsl.BookmarkDslDto;
-import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;

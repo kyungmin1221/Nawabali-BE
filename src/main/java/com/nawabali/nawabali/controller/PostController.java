@@ -1,17 +1,15 @@
 package com.nawabali.nawabali.controller;
 
-
 import com.nawabali.nawabali.domain.elasticsearch.PostSearch;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;

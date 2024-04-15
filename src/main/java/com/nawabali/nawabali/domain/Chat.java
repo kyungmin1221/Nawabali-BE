@@ -1,7 +1,6 @@
 package com.nawabali.nawabali.domain;
 
 import com.nawabali.nawabali.constant.MessageType;
-import com.nawabali.nawabali.dto.ChatDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

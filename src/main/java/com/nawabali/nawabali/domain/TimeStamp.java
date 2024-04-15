@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class) // 해당 클래스에 Auditing 기능을 포함
 public abstract class TimeStamp {
     @CreatedDate    // Entity가 생성되어 저장될 때 시간이 자동 저장
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     @LastModifiedDate // 조회한 Entity의 값을 변경할 때 시간이 자동 저장
     private LocalDateTime modifiedAt;

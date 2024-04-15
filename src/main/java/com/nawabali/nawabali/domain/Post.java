@@ -1,6 +1,5 @@
 package com.nawabali.nawabali.domain;
 
-
 import com.nawabali.nawabali.constant.Category;
 import com.nawabali.nawabali.constant.Town;
 import com.nawabali.nawabali.domain.image.PostImage;

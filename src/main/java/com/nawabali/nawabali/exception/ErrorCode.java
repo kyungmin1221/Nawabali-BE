@@ -27,13 +27,13 @@ public enum ErrorCode {
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
     INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),
-    UNAUTHORIZED_MEMBER(UNAUTHORIZED, "존재하지 않는 회원입니다."),
-    UNAUTHORIZED_POST(UNAUTHORIZED, "존재하지 않는 게시물입니다."),
-    UNAUTHORIZED_COMMENT(UNAUTHORIZED, "존재하지 않는 댓글입니다."),
-    UNAUTHORIZED_BOOKMARK(UNAUTHORIZED, "존재하지 않는 북마크입니다."),
-    UNAUTHORIZED_CATEGORY(UNAUTHORIZED, "존재하지 않는 카테고리입니다."),
+    UNAUTHORIZED_MEMBER(UNAUTHORIZED, "권한 정보가 없는 회원입니다."),
+    UNAUTHORIZED_POST(UNAUTHORIZED, "권한 정보가 없는 게시물입니다."),
+    UNAUTHORIZED_COMMENT(UNAUTHORIZED, "권한 정보가 없는 댓글입니다."),
+    UNAUTHORIZED_BOOKMARK(UNAUTHORIZED, "권한 정보가 없는 북마크입니다."),
+    UNAUTHORIZED_CATEGORY(UNAUTHORIZED, "권한 정보가 없는 카테고리입니다."),
 
-    // 403 Forbidden : 클라이언트는 콘텐츠에 접근할 권리를 가지고 있지 않다
+    // 403 FORBIDDEN : 클라이언트는 콘텐츠에 접근할 권리를 가지고 있지 않다
     FORBIDDEN_MEMBER(FORBIDDEN,"본인의 게시물이 아닙니다."),
     FORBIDDEN_CHATMESSAGE(FORBIDDEN, "본인의 채팅이 아닙니다."),
 
@@ -61,7 +61,7 @@ public enum ErrorCode {
     DUPLICATE_BOOKMARK(CONFLICT, "이미 등록된 북마크 입니다."),
 
 
-    // 500 server error
+    // 500 SERVER ERROR
     SERVER_ERROR(INTERNAL_SERVER_ERROR, "내부 서버 에러입니다."),
     PHOTO_UPLOAD_ERROR(INTERNAL_SERVER_ERROR, "이미지 파일 업로드에 실패했습니다.");
 

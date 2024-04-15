@@ -19,7 +19,7 @@ public class QTimeStamp extends EntityPathBase<TimeStamp> {
 
     public static final QTimeStamp timeStamp = new QTimeStamp("timeStamp");
 
-    public final DateTimePath<java.time.LocalDateTime> createAt = createDateTime("createAt", java.time.LocalDateTime.class);
+    public final DateTimePath<java.time.LocalDateTime> createdAt = createDateTime("createdAt", java.time.LocalDateTime.class);
 
     public final DateTimePath<java.time.LocalDateTime> modifiedAt = createDateTime("modifiedAt", java.time.LocalDateTime.class);
 
