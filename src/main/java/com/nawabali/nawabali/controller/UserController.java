@@ -1,5 +1,8 @@
 package com.nawabali.nawabali.controller;
 
+
+import com.nawabali.nawabali.constant.Category;
+import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.dto.SignupDto;
 import com.nawabali.nawabali.dto.UserDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
@@ -11,6 +14,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -65,6 +72,15 @@ public class UserController {
     @GetMapping("/check-myPassword")
     public boolean checkMyPassword(@RequestParam("inputPassword") String inputPassword, @AuthenticationPrincipal UserDetailsImpl userDetails){
         return userService.checkMyPassword(inputPassword, userDetails.getUser());
+    }
+
+    @GetMapping("/my-posts")
+    public Slice<PostDto.ResponseDto> getMyPosts(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(name ="category",required = false) Category category)
+    {
+        return userService.getMyPosts(userDetails.getUser(), pageable, category);
     }
 
 

@@ -30,7 +30,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private final JwtUtil jwtUtil;
     private final RedisTool redisTool;
     private final UserRepository userRepository;
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, RedisTool redisTool, UserRepository userRepository){
+
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, RedisTool redisTool, UserRepository userRepository) {
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
         setFilterProcessesUrl("/users/login");
@@ -42,7 +43,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         log.info("로그인 시도");
-        try{
+        try {
             UserDto.LoginRequestDto requestDto = new ObjectMapper().readValue(request.getInputStream(), UserDto.LoginRequestDto.class);
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -51,7 +52,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                             null
                     )
             );
-        }catch(IOException e){
+        } catch (IOException e) {
             log.error(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
@@ -64,7 +65,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         UserRoleEnum role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRole();
 
         String token = jwtUtil.createAccessToken(username, role);
-        log.info("token : " +token);
+        log.info("token : " + token);
         Cookie accessCookie = jwtUtil.createAccessCookie(token);
 
         Cookie refreshCookie = jwtUtil.createRefreshCookie(username);

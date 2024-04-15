@@ -5,7 +5,9 @@ import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.QPost;
 import com.nawabali.nawabali.domain.QUser;
 import com.nawabali.nawabali.domain.image.PostImage;
+import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.dto.querydsl.PostDslDto;
+import com.nawabali.nawabali.repository.LikeRepository;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -114,15 +116,53 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
                         .modifiedAt(newPost.getModifiedAt())
                         .imageUrls(newPost.getImages().stream().map(PostImage::getImgUrl).collect(Collectors.toList()))
                         .commentCount(newPost.getComments().size())
+                        .latitude(newPost.getTown().getLatitude())
+                        .longitude(newPost.getTown().getLongitude())
                         .build())
                 .collect(Collectors.toList());
 
         return new SliceImpl<>(responseDtos, pageable, hasNext);
     }
 
+    @Override
+    public Slice<PostDto.ResponseDto> getMyPosts(Long userId, Pageable pageable, Category category) {
+        List<Post> posts= queryFactory
+                .selectFrom(post)
+                .leftJoin(post.user, user).fetchJoin()
+                .where(userEq(userId),
+                        categoryEq(category))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize()+1)
+                .orderBy(post.createdAt.desc())
+                .fetch();
+
+        boolean hasNext = posts.size() > pageable.getPageSize();
+        if(hasNext){
+            posts.remove(posts.size() -1);
+        }
+
+        return new SliceImpl<>(posts, pageable, hasNext).map(PostDto.ResponseDto::new);
+    }
+
     // Category 조건
     private BooleanExpression categoryEq(String category) {
         return hasText(category) ? post.category.eq(Category.valueOf(category)) : null;
+    }
+
+    private BooleanExpression categoryEq(Category category) {
+        if(category==null){
+            return null;
+        }else{
+            return post.category.eq(category);
+        }
+    }
+
+    private BooleanExpression userEq(Long userId){
+        if(userId ==null){
+            return null;
+        }else{
+            return post.user.id.eq(userId);
+        }
     }
 
     // District 조건

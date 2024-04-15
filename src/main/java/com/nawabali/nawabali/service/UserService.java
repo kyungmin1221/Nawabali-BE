@@ -1,9 +1,6 @@
 package com.nawabali.nawabali.service;
 
-import com.nawabali.nawabali.constant.Address;
-import com.nawabali.nawabali.constant.LikeCategoryEnum;
-import com.nawabali.nawabali.constant.UserRankEnum;
-import com.nawabali.nawabali.constant.UserRoleEnum;
+import com.nawabali.nawabali.constant.*;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.domain.image.ProfileImage;
 import com.nawabali.nawabali.dto.PostDto;
@@ -20,6 +17,9 @@ import com.nawabali.nawabali.security.Jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -66,6 +66,7 @@ public class UserService {
         }
         return ResponseEntity.ok(accessToken);
     }
+
     @Transactional
     public ResponseEntity<SignupDto.SignupResponseDto> signup(SignupDto.SignupRequestDto requestDto) {
         String email = requestDto.getEmail();
@@ -114,11 +115,10 @@ public class UserService {
 
     public UserDto.UserInfoResponseDto getUserInfo(User user) {
         User existUser = getUserId(user.getId());
+        Long userId = existUser.getId();
 
         // 유저 아이디로 작성된 postID 모두 검색
-        List<Long> postIds = postRepository.findByUserId(user.getId()).stream()
-                .map(PostDto.getMyPostsResponseDto::getId)
-                .toList();
+        List<Long> postIds = getMyPostIds(userId);
         System.out.println("postIds = " + postIds);
 
         // 작성된 postID로 좋아요, 로컬좋아요 카운팅
@@ -158,6 +158,25 @@ public class UserService {
         return ResponseEntity.ok(new UserDto.deleteResponseDto());
     }
 
+    public Slice<PostDto.ResponseDto> getMyPosts(User user, Pageable pageable, Category category) {
+        User existUser = getUserId(user.getId());
+        Long userId = existUser.getId();
+        Slice<PostDto.ResponseDto> rawPosts = postRepository.getMyPosts(userId, pageable, category);
+        List<PostDto.ResponseDto> posts = rawPosts.getContent().stream()
+                .map(responseDto -> {
+                    Long likeCount = getLikesCount(responseDto.getPostId(), LikeCategoryEnum.LIKE);
+                    Long localLikeCount = getLikesCount(responseDto.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
+
+                    responseDto.setLikesCount(likeCount);
+                    responseDto.setLocalLikesCount(localLikeCount);
+
+                    return responseDto;
+                })
+                .toList();
+
+        return new SliceImpl<>(posts, pageable, rawPosts.hasNext());
+    }
+
     // 메서드 //
 
     public boolean checkNickname(String nickname) {
@@ -177,15 +196,18 @@ public class UserService {
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
-    public Long getMyTotalLikesCount(List<Long> postIds, LikeCategoryEnum likeCategoryEnum){
-        Long total =0L;
-        for (Long postId : postIds){
-            Long numLikes = likeRepository.countByPostIdAndLikeCategoryEnum(postId, likeCategoryEnum);
-            total += numLikes;
-        }
-        return total;
+    public Long getMyTotalLikesCount(List<Long> postIds, LikeCategoryEnum likeCategoryEnum) {
+        return likeRepository.countByPostIdInAndLikeCategoryEnum(postIds, likeCategoryEnum);
     }
 
+    public Long getLikesCount(Long postId, LikeCategoryEnum likeCategoryEnum){
+        return likeRepository.countByPostIdAndLikeCategoryEnum(postId, likeCategoryEnum);
+    }
 
+    public List<Long> getMyPostIds(Long userId){
+        return postRepository.findByUserId(userId).stream()
+                .map(PostDto.getMyPostsResponseDto::getId)
+                .toList();
+    }
 
 }
