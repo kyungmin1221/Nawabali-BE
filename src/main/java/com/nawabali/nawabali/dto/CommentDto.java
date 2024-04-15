@@ -8,13 +8,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j(topic = "CommentDto 로그")
-public class CommentDto implements Serializable {
+public class CommentDto {
 
     @Getter
     @Builder

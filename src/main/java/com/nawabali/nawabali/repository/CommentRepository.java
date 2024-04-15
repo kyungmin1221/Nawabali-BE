@@ -14,8 +14,6 @@ import java.util.Optional;
 @Repository
 public interface CommentRepository extends JpaRepository <Comment, Long> , CommentDslRepositoryCustom {
 
-    @Query("select c from Comment c left join fetch c.parent where c.id = :id")
-    Optional<Comment> findCommentByIdWithParent(@Param("id") Long id);
     Optional<Comment> findByPostIdAndId(Long postId, Long commentId);
     List<CommentDto.ResponseDto> findByPostId(Long postId);
     Optional<Object> findFirstByPostIdOrderByCreatedAtDesc(Long postId);
