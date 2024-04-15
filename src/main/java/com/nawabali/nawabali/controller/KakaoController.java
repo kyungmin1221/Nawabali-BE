@@ -29,7 +29,7 @@ public class KakaoController {
 
        kakaoService.kakaoLogin(code, response);
 //       return "redirect:/";
-       return "redirect:http://localhost:3000/";
+       return "redirect:https://www.dongnaebangnae.com/";
 
     }
 }

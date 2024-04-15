@@ -44,6 +44,7 @@ public class KakaoService {
     private final String local= "http://localhost:8080/api/user/kakao/callback";
     private final String frontLocal = "http://localhost:3000/api/user/kakao/callback";
     private final String aws = "https://hhboard.shop/api/user/kakao/callback";
+    private final String domain = "https://www.dongnaebangnae.com/api/user/kakao/callback";
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String clientId;
@@ -51,7 +52,7 @@ public class KakaoService {
     @Transactional
     public void kakaoLogin(String code , HttpServletResponse response) throws JsonProcessingException, IOException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
-        String accessToken = getAccessToken(code, aws);
+        String accessToken = getAccessToken(code, domain);
 
         // 2. 필요시에 회원가입 및 위치 정보(address 값) 저장
         User kakaoUser = registerKakaoUserIfNeeded(accessToken);
