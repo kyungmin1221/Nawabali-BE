@@ -118,6 +118,8 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
                         .modifiedAt(newPost.getModifiedAt())
                         .imageUrls(newPost.getImages().stream().map(PostImage::getImgUrl).collect(Collectors.toList()))
                         .commentCount(newPost.getComments().size())
+                        .latitude(newPost.getTown().getLatitude())
+                        .longitude(newPost.getTown().getLongitude())
                         .build())
                 .collect(Collectors.toList());
 
@@ -128,7 +130,8 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
     public Slice<PostDto.ResponseDto> getMyPosts(Long userId, Pageable pageable, Category category) {
         List<Post> posts= queryFactory
                 .selectFrom(post)
-                .where(post.user.id.eq(userId),
+                .leftJoin(post.user, user).fetchJoin()
+                .where(userEq(userId),
                         categoryEq(category))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize()+1)
@@ -153,6 +156,14 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
             return null;
         }else{
             return post.category.eq(category);
+        }
+    }
+
+    private BooleanExpression userEq(Long userId){
+        if(userId ==null){
+            return null;
+        }else{
+            return post.user.id.eq(userId);
         }
     }
 
