@@ -40,24 +40,9 @@ public class BookmarkDslRepositoryCustomImpl implements BookmarkDslRepositoryCus
         }
 
         List<BookmarkDslDto.UserBookmarkDto> responseDtos = convertBookmarkDto(bookmarks);
-//        bookmarks.stream()
-//                .map(newBookmark -> BookmarkDslDto.UserBookmarkDto.builder()
-//                        .userId(newBookmark.getUser().getId())
-//                        .postId(newBookmark.getPost().getId())
-//                        .nickname(newBookmark.getUser().getNickname())
-//                        .contents(newBookmark.getPost().getContents())
-//                        .category(newBookmark.getPost().getCategory().name())
-//                        .district(newBookmark.getPost().getTown().getDistrict())
-//                        .latitude(newBookmark.getPost().getTown().getLatitude())
-//                        .longitude(newBookmark.getPost().getTown().getLongitude())
-//                        .createdAt(newBookmark.getCreatedAt())
-//                        .imageUrls(newBookmark.getPost().getImages().stream().map(PostImage::getImgUrl).collect(Collectors.toList()))
-//                        .commentCount(newBookmark.getPost().getComments().size())
-//                        .build())
-//                .collect(Collectors.toList());
-
         return new SliceImpl<>(responseDtos, pageable, hasNext);
     }
+
 
     private  List<BookmarkDslDto.UserBookmarkDto> convertBookmarkDto(List<BookMark> bookMarks) {
         return bookMarks.stream()
