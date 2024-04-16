@@ -69,12 +69,16 @@ public class PostService {
                 .build();
 
         List<String> imageUrls = awsS3Service.uploadFile(files, "postImages");
+
         imageUrls.forEach(url -> {
-            PostImage image = new PostImage();
-            image.setFileName(url);
-            image.setImgUrl(url);
-            post.addImage(image);
+            PostImage image = PostImage.builder()
+                    .fileName(url)
+                    .imgUrl(url)
+                    .post(post)
+                    .build();
+            post.getImages().add(image);
         });
+
 
         Post savedPost = postRepository.save(post);
         PostSearch postSearch = new PostSearch();
@@ -91,29 +95,7 @@ public class PostService {
     public Slice<PostDto.ResponseDto> getPostsByLatest(Pageable pageable) {
         Slice<PostDslDto.ResponseDto> postSlice = postRepository.findPostsByLatest(pageable);
         List<PostDto.ResponseDto> content = postSlice.getContent().stream()
-                .map(post -> {
-                    Long likesCount = getLikesCount(post.getPostId(), LIKE);
-                    Long localLikesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
-                    String profileImageUrl = getProfileImage(post.getPostId()).getImgUrl();
-
-                    return new PostDto.ResponseDto(
-                            post.getUserId(),
-                            post.getPostId(),
-                            post.getNickname(),
-                            post.getContents(),
-                            post.getCategory(),
-                            post.getDistrict(),
-                            post.getLatitude(),
-                            post.getLongitude(),
-                            post.getCreatedAt(),
-                            post.getModifiedAt(),
-                            post.getImageUrls(),
-                            likesCount,
-                            localLikesCount,
-                            post.getCommentCount(),
-                            profileImageUrl
-                    );
-                })
+                .map(this::createPostDto)
                 .collect(Collectors.toList());
 
         return new SliceImpl<>(content, pageable, postSlice.hasNext());
@@ -134,33 +116,12 @@ public class PostService {
     public Slice<PostDto.ResponseDto> getPostByCategory(String category, String district, Pageable pageable) {
         Slice<PostDslDto.ResponseDto> postCategory = postRepository.findCategoryByPost(category,district, pageable);
         List<PostDto.ResponseDto> content = postCategory.getContent().stream()
-                .map(post -> {
-                    Long likesCount = getLikesCount(post.getPostId(), LIKE);
-                    Long localLikesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
-                    String profileImageUrl = getProfileImage(post.getPostId()).getImgUrl();
-
-                    return new PostDto.ResponseDto(
-                            post.getUserId(),
-                            post.getPostId(),
-                            post.getNickname(),
-                            post.getContents(),
-                            post.getCategory(),
-                            post.getDistrict(),
-                            post.getLatitude(),
-                            post.getLongitude(),
-                            post.getCreatedAt(),
-                            post.getModifiedAt(),
-                            post.getImageUrls(),
-                            likesCount,
-                            localLikesCount,
-                            post.getCommentCount(),
-                            profileImageUrl
-                    );
-                })
+                .map(this::createPostDto)
                 .collect(Collectors.toList());
 
         return new SliceImpl<>(content, pageable, postCategory.hasNext());
     }
+
 
     // 게시물 수정 - 사용자 신원 확인
     @Transactional
@@ -171,6 +132,8 @@ public class PostService {
         }
 
         post.update(patchDto.getContents());
+        postRepository.save(post);
+
         postRepository.save(post);
 
         return new PostDto.PatchDto(post);
@@ -199,24 +162,6 @@ public class PostService {
     // 게시물 검색 (es)
     public List<PostSearch> searchByContents(String contents) {
         return postSearchRepository.findByContentsContaining(contents);
-    }
-
-
-    public Long getLikesCount(Long postId, LikeCategoryEnum likeCategoryEnum){
-        return likeRepository.countByPostIdAndLikeCategoryEnum(postId, likeCategoryEnum);
-    }
-
-    public Post getPostId(Long postId) {
-        return postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_POST));
-
-    }
-
-    public ProfileImage getProfileImage(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-        return profileImageRepository.findByUserId(post.getUser().getId())
-                .orElseThrow(() -> new CustomException(ErrorCode.PROFILEIMAGE_NOT_FOUND));
     }
 
     // 동네별 점수 조회
@@ -254,6 +199,50 @@ public class PostService {
         }
 
         return districtDtoList;
+    }
+
+
+    public Long getLikesCount(Long postId, LikeCategoryEnum likeCategoryEnum){
+        return likeRepository.countByPostIdAndLikeCategoryEnum(postId, likeCategoryEnum);
+    }
+
+    public Post getPostId(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_POST));
+
+    }
+
+    public ProfileImage getProfileImage(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        return profileImageRepository.findByUserId(post.getUser().getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.PROFILEIMAGE_NOT_FOUND));
+    }
+
+
+    //  조회시 dto 생성 메서드
+    public PostDto.ResponseDto createPostDto(PostDslDto.ResponseDto post) {
+        Long likesCount = getLikesCount(post.getPostId(), LIKE);
+        Long localLikesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
+        String profileImageUrl = getProfileImage(post.getPostId()).getImgUrl();
+
+        return new PostDto.ResponseDto(
+                post.getUserId(),
+                post.getPostId(),
+                post.getNickname(),
+                post.getContents(),
+                post.getCategory(),
+                post.getDistrict(),
+                post.getLatitude(),
+                post.getLongitude(),
+                post.getCreatedAt(),
+                post.getModifiedAt(),
+                post.getImageUrls(),
+                likesCount,
+                localLikesCount,
+                post.getCommentCount(),
+                profileImageUrl
+        );
     }
 
 }
