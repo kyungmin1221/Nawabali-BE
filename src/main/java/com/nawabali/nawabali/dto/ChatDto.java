@@ -1,5 +1,6 @@
 package com.nawabali.nawabali.dto;
 
+import com.nawabali.nawabali.constant.ChatRoomEnum;
 import com.nawabali.nawabali.constant.MessageType;
 import lombok.*;
 import org.springframework.stereotype.Component;
@@ -28,7 +29,22 @@ public class ChatDto {
     @AllArgsConstructor
     public static class ChatRoomDto {
         private Long roomId;
-        private String name;
+        private String roomName;
         private String roomNumber;
+        private ChatRoomEnum chatRoomEnum;
+        private Long userId;
+        private Long otherUserId;
     } // pub/sub 방식으로 구독자 관리 / 발송의 구현이 되므로 간소화 됐다.
+
+    @Getter
+    @Builder
+    @Component
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ChatRoomListDto {
+        private Long roomId;
+        private String roomName;
+        private String roomNumber;
+        private ChatRoomEnum chatRoomEnum;
+    }
 }

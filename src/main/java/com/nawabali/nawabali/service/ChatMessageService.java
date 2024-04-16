@@ -1,5 +1,6 @@
 package com.nawabali.nawabali.service;
 
+import com.amazonaws.services.ec2.model.GetReservedInstancesExchangeQuoteRequest;
 import com.nawabali.nawabali.constant.MessageType;
 import com.nawabali.nawabali.domain.Chat;
 import com.nawabali.nawabali.domain.User;
@@ -16,6 +17,8 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+
+import static com.nawabali.nawabali.constant.ChatRoomEnum.GROUP;
 
 @Service
 @AllArgsConstructor
@@ -45,9 +48,10 @@ public class ChatMessageService {
         if (!chatRoomRepository.findByIdAndUserId(chatRoom.getId(),userOptional.getId()).isPresent()){
 
             Chat.ChatRoom chatRoomSave = Chat.ChatRoom.builder()
-                    .name(chatRoom.getName())
+                    .roomName(chatRoom.getRoomName())
                     .roomNumber(chatRoom.getRoomNumber())
                     .user(userOptional)
+                    .chatRoomEnum(GROUP)
                     .build();
 
             chatRoomRepository.save(chatRoomSave);

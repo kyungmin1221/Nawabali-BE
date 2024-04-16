@@ -1,5 +1,6 @@
 package com.nawabali.nawabali.controller;
 
+import com.nawabali.nawabali.constant.ChatRoomEnum;
 import com.nawabali.nawabali.dto.ChatDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.ChatMessageService;
@@ -7,6 +8,10 @@ import com.nawabali.nawabali.service.ChatRoomService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,22 +44,29 @@ public class ChatRoomController {
     @Operation(summary = "채팅방 생성" , description = "채팅방 name으로 채팅방 생성 API")
     @PostMapping("/room")
     @ResponseBody
-    public ChatDto.ChatRoomDto createRoom(@RequestParam String name, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return chatRoomService.createRoom(name, userDetails.getUser());
+    public ChatDto.ChatRoomDto createRoom(@RequestParam("type") ChatRoomEnum chatRoomEnum,
+                                          @RequestParam String roomName,
+                                          @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return chatRoomService.createRoom(chatRoomEnum, roomName, userDetails.getUser());
     }
 
-    @Operation(summary = "전체 채팅방 목록 반환" , description = "전체 채팅방 조회 API")
+    @Operation(summary = "본인 전체 채팅방 목록 반환" , description = "본인 전체 채팅방 조회 API")
     @GetMapping("/rooms")
     @ResponseBody
-    public List<ChatDto.ChatRoomDto> room(@AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return chatRoomService.room(userDetails.getUser());
+    public Slice<ChatDto.ChatRoomListDto> room(@AuthenticationPrincipal UserDetailsImpl userDetails,
+                                          @PageableDefault(
+                                                  size = 10,
+                                                  sort = "Id",
+                                                  direction = Sort.Direction.DESC)Pageable pageable) {
+        Slice<ChatDto.ChatRoomListDto> chatRoomDtoSlice = chatRoomService.room(userDetails.getUser().getId(), pageable);
+        return chatRoomDtoSlice;
     }
 
     @Operation(summary = "특정 채팅방 조회" , description = "채팅방 검색 API")
     @GetMapping("/room/found")
     @ResponseBody
-    public List<ChatDto.ChatRoomDto> roomInfo(@RequestParam String name, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return chatRoomService.roomInfo(name, userDetails.getUser());
+    public List<ChatDto.ChatRoomDto> roomInfo(@RequestParam String roomName, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return chatRoomService.roomInfo(roomName, userDetails.getUser());
     }
 
     @Operation(summary = "채팅방 대화 내용 조회" , description = "채팅방 전제 대화 내용 조회 API")

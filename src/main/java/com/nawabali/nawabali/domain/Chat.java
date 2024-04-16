@@ -1,5 +1,6 @@
 package com.nawabali.nawabali.domain;
 
+import com.nawabali.nawabali.constant.ChatRoomEnum;
 import com.nawabali.nawabali.constant.MessageType;
 import com.nawabali.nawabali.dto.ChatDto;
 import jakarta.persistence.*;
@@ -69,11 +70,19 @@ public class Chat {
         private String roomNumber;
 
         @Column (nullable = false)
-        private String name;
+        private String roomName;
+
+        @Column (nullable = false)
+        @Enumerated (EnumType.STRING)
+        private ChatRoomEnum chatRoomEnum;
 
         @ManyToOne (fetch = FetchType.LAZY)
         @JoinColumn (name = "user_id")
         private User user;
+
+        @ManyToOne (fetch = FetchType.LAZY)
+        @JoinColumn (name = "other_user_id")
+        private User otherUser;
 
     }
 }
