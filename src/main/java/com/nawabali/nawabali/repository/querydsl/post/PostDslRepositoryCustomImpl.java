@@ -88,7 +88,7 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
     }
 
     @Override
-    public Slice<PostDslDto.ResponseDto> findCategoryByPost(String category, String district, Pageable pageable) {
+    public Slice<PostDslDto.ResponseDto> findCategoryByPost(Category category, String district, Pageable pageable) {
         List<Post> posts = queryFactory
                 .selectFrom(post)
                 .leftJoin(post.user, user).fetchJoin()
@@ -145,10 +145,16 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
     }
 
     // Category 조건
-    private BooleanExpression categoryEq(String category) {
-        return hasText(category) ? post.category.eq(Category.valueOf(category)) : null;
+//    private BooleanExpression categoryEq(String category) {
+//        return hasText(category) ? post.category.eq(Category.valueOf(category)) : null;
+//    }
+
+    // District 조건
+    private BooleanExpression districtEq(String district) {
+        return hasText(district) ? post.town.district.eq(district) : null;
     }
 
+    // Category 조건
     private BooleanExpression categoryEq(Category category) {
         if(category==null){
             return null;
@@ -157,6 +163,7 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
         }
     }
 
+    // user 조건
     private BooleanExpression userEq(Long userId){
         if(userId ==null){
             return null;
@@ -165,8 +172,4 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
         }
     }
 
-    // District 조건
-    private BooleanExpression districtEq(String district) {
-        return hasText(district) ? post.town.district.eq(district) : null;
-    }
 }

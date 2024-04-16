@@ -1,5 +1,6 @@
 package com.nawabali.nawabali.controller;
 
+import com.nawabali.nawabali.constant.Category;
 import com.nawabali.nawabali.domain.elasticsearch.PostSearch;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
@@ -74,7 +75,7 @@ public class PostController {
             })
     @GetMapping("/filtered")
     public ResponseEntity<Slice<PostDto.ResponseDto>> getPostByFiltered(
-            @RequestParam(required = false) String category,
+            @RequestParam(required = false) Category category,
             @RequestParam(required = false) String district,
             @PageableDefault(
                     size = 10,
