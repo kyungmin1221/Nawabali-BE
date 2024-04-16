@@ -92,8 +92,8 @@ public class PostController {
                     @Parameter(name = "postId", description = "postId 로 게시물을 검색", example = "postId : 1")
             })
     @GetMapping("/{postId}")
-    public ResponseEntity<PostDto.ResponseDetailDto> getPost(@PathVariable Long postId) {
-        PostDto.ResponseDetailDto responseDto = postService.getPost(postId);
+    public ResponseEntity<PostDto.ResponseDetailDto> getPost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        PostDto.ResponseDetailDto responseDto = postService.getPost(postId, userDetails);
         return ResponseEntity.ok(responseDto);
     }
 
