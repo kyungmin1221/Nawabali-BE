@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookMark {
@@ -33,15 +34,4 @@ public class BookMark {
     private Post post;
 
 
-    @Builder
-    public BookMark(boolean status, User user, Post post,LocalDateTime createdAt) {
-        this.status = status;
-        this.user = user;
-        this.post = post;
-        this.createdAt = createdAt;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
 }

@@ -167,7 +167,6 @@ public class PostDto {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    @Builder
     public static class DeleteDto {
 
         private String message;
