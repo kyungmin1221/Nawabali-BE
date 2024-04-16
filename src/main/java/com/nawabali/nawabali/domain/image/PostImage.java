@@ -2,16 +2,16 @@ package com.nawabali.nawabali.domain.image;
 
 import com.nawabali.nawabali.domain.Post;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter @Setter
+@Getter
 @Entity
 @NoArgsConstructor
 public class PostImage {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id  @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String fileName;
@@ -22,6 +22,7 @@ public class PostImage {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
+    @Builder
     public PostImage(String fileName, String imgUrl, Post post) {
         this.fileName = fileName;
         this.imgUrl = imgUrl;

@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class BookMarkService {
 
     private final BookMarkRepository bookMarkRepository;
@@ -44,43 +45,16 @@ public class BookMarkService {
     public Slice<BookmarkDslDto.UserBookmarkDto> getBookmarks(User user, Pageable pageable) {
         Slice<BookmarkDslDto.UserBookmarkDto> bookmarkSlice = bookMarkRepository.getUserBookmarks(user, pageable);
         List<BookmarkDslDto.UserBookmarkDto> content = bookmarkSlice.getContent().stream()
-                .map(bookmark -> {
-                    Long likesCount = postService.getLikesCount(bookmark.getPostId(), LikeCategoryEnum.LIKE);
-                    Long localLikesCount = postService.getLikesCount(bookmark.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
-
-                    return new BookmarkDslDto.UserBookmarkDto(
-                            bookmark.getUserId(),
-                            bookmark.getPostId(),
-                            bookmark.getNickname(),
-                            bookmark.getContents(),
-                            bookmark.getCategory(),
-                            bookmark.getDistrict(),
-                            bookmark.getLatitude(),
-                            bookmark.getLongitude(),
-                            bookmark.getCreatedAt(),
-                            bookmark.getImageUrls(),
-                            likesCount,
-                            localLikesCount,
-                            bookmark.getCommentCount()
-                    );
-                })
+                .map(this::createBookmarkDto)
                 .collect(Collectors.toList());
 
         return new SliceImpl<>(content,pageable,bookmarkSlice.hasNext());
     }
 
 
-    public BookMarkDto.ResponseDto removeBookmark(BookMark bookmark) {
-        bookMarkRepository.delete(bookmark);
-        return new BookMarkDto.ResponseDto(false,
-                bookmark.getId(),
-                bookmark.getPost().getId(),
-                bookmark.getUser().getId(),
-                bookmark.getCreatedAt());
-    }
-
     public BookMarkDto.ResponseDto addBookmark(User user, Post post) {
         BookMark bookmark = BookMark.builder()
+                .status(true)
                 .user(user)
                 .post(post)
                 .createdAt(LocalDateTime.now())
@@ -95,6 +69,35 @@ public class BookMarkService {
                 bookmark.getCreatedAt());
     }
 
+    public BookMarkDto.ResponseDto removeBookmark(BookMark bookmark) {
+        bookMarkRepository.delete(bookmark);
+        return new BookMarkDto.ResponseDto(false,
+                bookmark.getId(),
+                bookmark.getPost().getId(),
+                bookmark.getUser().getId(),
+                bookmark.getCreatedAt());
+    }
+
+    public BookmarkDslDto.UserBookmarkDto createBookmarkDto(BookmarkDslDto.UserBookmarkDto bookmark) {
+        Long likesCount = postService.getLikesCount(bookmark.getPostId(), LikeCategoryEnum.LIKE);
+        Long localLikesCount = postService.getLikesCount(bookmark.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
+
+        return new BookmarkDslDto.UserBookmarkDto(
+                bookmark.getUserId(),
+                bookmark.getPostId(),
+                bookmark.getNickname(),
+                bookmark.getContents(),
+                bookmark.getCategory(),
+                bookmark.getDistrict(),
+                bookmark.getLatitude(),
+                bookmark.getLongitude(),
+                bookmark.getCreatedAt(),
+                bookmark.getImageUrls(),
+                likesCount,
+                localLikesCount,
+                bookmark.getCommentCount()
+        );
+    }
 
 }
 
