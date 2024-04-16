@@ -95,7 +95,7 @@ public class PostService {
     public Slice<PostDto.ResponseDto> getPostsByLatest(Pageable pageable) {
         Slice<PostDslDto.ResponseDto> postSlice = postRepository.findPostsByLatest(pageable);
         List<PostDto.ResponseDto> content = postSlice.getContent().stream()
-                .map(this::createPostResponseDto)
+                .map(this::createPostDto)
                 .collect(Collectors.toList());
 
         return new SliceImpl<>(content, pageable, postSlice.hasNext());
@@ -116,7 +116,7 @@ public class PostService {
     public Slice<PostDto.ResponseDto> getPostByCategory(String category, String district, Pageable pageable) {
         Slice<PostDslDto.ResponseDto> postCategory = postRepository.findCategoryByPost(category,district, pageable);
         List<PostDto.ResponseDto> content = postCategory.getContent().stream()
-                .map(this::createPostResponseDto)
+                .map(this::createPostDto)
                 .collect(Collectors.toList());
 
         return new SliceImpl<>(content, pageable, postCategory.hasNext());
@@ -221,7 +221,7 @@ public class PostService {
 
 
     //  조회시 dto 생성 메서드
-    public PostDto.ResponseDto createPostResponseDto(PostDslDto.ResponseDto post) {
+    public PostDto.ResponseDto createPostDto(PostDslDto.ResponseDto post) {
         Long likesCount = getLikesCount(post.getPostId(), LIKE);
         Long localLikesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
         String profileImageUrl = getProfileImage(post.getPostId()).getImgUrl();
