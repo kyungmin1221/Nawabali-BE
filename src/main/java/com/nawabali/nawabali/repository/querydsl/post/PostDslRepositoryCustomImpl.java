@@ -50,23 +50,7 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
             posts.remove(posts.size() - 1);
         }
 
-        List<PostDslDto.ResponseDto> responseDtos = posts.stream()
-                .map(newPost -> PostDslDto.ResponseDto.builder()
-                        .userId(newPost.getUser().getId())
-                        .postId(newPost.getId())
-                        .nickname(newPost.getUser().getNickname())
-                        .contents(newPost.getContents())
-                        .category(newPost.getCategory().name())
-                        .district(newPost.getTown().getDistrict())
-                        .latitude(newPost.getTown().getLatitude())
-                        .longitude(newPost.getTown().getLongitude())
-                        .createdAt(newPost.getCreatedAt())
-                        .modifiedAt(newPost.getModifiedAt())
-                        .imageUrls(newPost.getImages().stream().map(PostImage::getImgUrl).collect(Collectors.toList()))
-                        .commentCount(newPost.getComments().size())
-                        .build())
-                .collect(Collectors.toList());
-
+        List<PostDslDto.ResponseDto> responseDtos = convertPostDto(posts);
         return new SliceImpl<>(responseDtos, pageable, hasNext);
     }
 
@@ -104,23 +88,7 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
             posts.remove(posts.size() - 1);
         }
 
-        List<PostDslDto.ResponseDto> responseDtos = posts.stream()
-                .map(newPost -> PostDslDto.ResponseDto.builder()
-                        .userId(newPost.getUser().getId())
-                        .postId(newPost.getId())
-                        .nickname(newPost.getUser().getNickname())
-                        .contents(newPost.getContents())
-                        .category(newPost.getCategory().name())
-                        .district(newPost.getTown().getDistrict())
-                        .createdAt(newPost.getCreatedAt())
-                        .modifiedAt(newPost.getModifiedAt())
-                        .imageUrls(newPost.getImages().stream().map(PostImage::getImgUrl).collect(Collectors.toList()))
-                        .commentCount(newPost.getComments().size())
-                        .latitude(newPost.getTown().getLatitude())
-                        .longitude(newPost.getTown().getLongitude())
-                        .build())
-                .collect(Collectors.toList());
-
+        List<PostDslDto.ResponseDto> responseDtos = convertPostDto(posts);
         return new SliceImpl<>(responseDtos, pageable, hasNext);
     }
 
@@ -129,8 +97,10 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
         List<Post> posts= queryFactory
                 .selectFrom(post)
                 .leftJoin(post.user, user).fetchJoin()
-                .where(userEq(userId),
-                        categoryEq(category))
+                .where(
+                        userEq(userId),
+                        categoryEq(category)
+                )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize()+1)
                 .orderBy(post.createdAt.desc())
@@ -144,10 +114,6 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
         return new SliceImpl<>(posts, pageable, hasNext).map(PostDto.ResponseDto::new);
     }
 
-    // Category 조건
-//    private BooleanExpression categoryEq(String category) {
-//        return hasText(category) ? post.category.eq(Category.valueOf(category)) : null;
-//    }
 
     // District 조건
     private BooleanExpression districtEq(String district) {
@@ -171,5 +137,25 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
             return post.user.id.eq(userId);
         }
     }
+
+    private List<PostDslDto.ResponseDto> convertPostDto(List<Post> posts) {
+        return posts.stream()
+                .map(post -> PostDslDto.ResponseDto.builder()
+                        .userId(post.getUser().getId())
+                        .postId(post.getId())
+                        .nickname(post.getUser().getNickname())
+                        .contents(post.getContents())
+                        .category(post.getCategory().name())
+                        .district(post.getTown().getDistrict())
+                        .createdAt(post.getCreatedAt())
+                        .modifiedAt(post.getModifiedAt())
+                        .imageUrls(post.getImages().stream().map(PostImage::getImgUrl).collect(Collectors.toList()))
+                        .commentCount(post.getComments().size())
+                        .latitude(post.getTown().getLatitude())
+                        .longitude(post.getTown().getLongitude())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
 
 }
