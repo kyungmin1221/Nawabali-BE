@@ -54,6 +54,7 @@ public class BookMarkService {
 
     public BookMarkDto.ResponseDto addBookmark(User user, Post post) {
         BookMark bookmark = BookMark.builder()
+                .status(true)
                 .user(user)
                 .post(post)
                 .createdAt(LocalDateTime.now())
