@@ -89,6 +89,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         Map<String, String> successMessage = new LinkedHashMap<>();
         successMessage.put("message", "회원 로그인에 성공");
+        successMessage.put("id", user.getId().toString());
         successMessage.put("nickname", user.getNickname());
         successMessage.put("imgUrl", user.getProfileImage().getImgUrl());
         successMessage.put("district", user.getAddress().getDistrict());
