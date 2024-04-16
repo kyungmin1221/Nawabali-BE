@@ -2,6 +2,8 @@ package com.nawabali.nawabali.service;
 
 import com.nawabali.nawabali.constant.LikeCategoryEnum;
 import com.nawabali.nawabali.constant.Town;
+import com.nawabali.nawabali.domain.BookMark;
+import com.nawabali.nawabali.domain.Like;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.domain.elasticsearch.PostSearch;
@@ -11,12 +13,10 @@ import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.dto.querydsl.PostDslDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
-import com.nawabali.nawabali.repository.LikeRepository;
-import com.nawabali.nawabali.repository.PostImageRepository;
-import com.nawabali.nawabali.repository.PostRepository;
-import com.nawabali.nawabali.repository.ProfileImageRepository;
+import com.nawabali.nawabali.repository.*;
 import com.nawabali.nawabali.repository.elasticsearch.PostSearchRepository;
 import com.nawabali.nawabali.s3.AwsS3Service;
+import com.nawabali.nawabali.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -46,6 +46,7 @@ public class PostService {
     private final AwsS3Service awsS3Service;
     private final PostSearchRepository postSearchRepository;
     private final ProfileImageRepository profileImageRepository;
+    private final BookMarkRepository bookMarkRepository;
 
 
     // 게시물 생성
@@ -103,13 +104,25 @@ public class PostService {
 
 
     // 상세 게시물 조회
-    public PostDto.ResponseDetailDto getPost(Long postId) {
+    public PostDto.ResponseDetailDto getPost(Long postId, UserDetailsImpl userDetails) {
         Post post = getPostId(postId);
         Long likesCount = getLikesCount(postId, LIKE);
-        Long localLikesCount = getLikesCount(postId, LikeCategoryEnum.LOCAL_LIKE);
+        Long localLikesCount = getLikesCount(postId, LOCAL_LIKE);
         String profileImageUrl = getProfileImage(postId).getImgUrl();
 
-        return new PostDto.ResponseDetailDto(post, likesCount, localLikesCount, profileImageUrl);
+        // 로그인 상태
+        if(userDetails!=null){
+            // 토글링 여부 확인. DB에 있다면 누른 상태
+            Long userId = userDetails.getUser().getId();
+            Like like = (Like)likeRepository.findFirstByPostIdAndUserIdAndLikeCategoryEnum(postId, userId, LIKE).orElse(null);
+            Like localLike = (Like)likeRepository.findFirstByPostIdAndUserIdAndLikeCategoryEnum(postId, userId, LOCAL_LIKE).orElse(null);
+            BookMark bookMark = bookMarkRepository.findByUserIdAndPostId(userId, postId).orElse(null);
+
+            return new PostDto.ResponseDetailDto(post, likesCount, localLikesCount, profileImageUrl,
+                    like != null, localLike!=null, bookMark!=null);
+        }
+        // 비 로그인 상태
+        return new PostDto.ResponseDetailDto(post, likesCount, localLikesCount, profileImageUrl, false, false, false);
     }
 
     // 카테고리 별 게시물 조회
