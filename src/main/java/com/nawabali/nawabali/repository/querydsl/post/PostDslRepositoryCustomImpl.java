@@ -2,12 +2,12 @@ package com.nawabali.nawabali.repository.querydsl.post;
 
 import com.nawabali.nawabali.constant.Category;
 import com.nawabali.nawabali.domain.Post;
+import com.nawabali.nawabali.domain.QLike;
 import com.nawabali.nawabali.domain.QPost;
 import com.nawabali.nawabali.domain.QUser;
 import com.nawabali.nawabali.domain.image.PostImage;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.dto.querydsl.PostDslDto;
-import com.nawabali.nawabali.repository.LikeRepository;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -17,6 +17,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,7 @@ import static org.springframework.util.StringUtils.hasText;
 public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
 
     private final JPAQueryFactory queryFactory;
+
 
     // 게시물 전체 조회 시 무한 스크롤
     @Override
@@ -71,8 +73,12 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
         return searchResults;
     }
 
+    // 카테고리 및 구 를 이용하여 게시물 조회
     @Override
     public Slice<PostDslDto.ResponseDto> findCategoryByPost(Category category, String district, Pageable pageable) {
+        QPost post = QPost.post;
+        QUser user = QUser.user;
+
         List<Post> posts = queryFactory
                 .selectFrom(post)
                 .leftJoin(post.user, user).fetchJoin()
@@ -92,8 +98,37 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
         return new SliceImpl<>(responseDtos, pageable, hasNext);
     }
 
+    // 일주일 동안 좋아요 기준 상위 10개 게시물 조회
+    @Override
+    public List<PostDslDto.ResponseDto> topLikeByPosts() {
+        QPost post = QPost.post;
+        QUser user = QUser.user;
+        QLike like = QLike.like;
+        LocalDateTime oneWeekPost = LocalDateTime.now().minusWeeks(1);  // 일주일 계산
+
+        List<Post> posts = queryFactory
+                .selectFrom(post)
+                .leftJoin(post.user,user).fetchJoin()
+                .leftJoin(post.likes,like)
+                .where(post.createdAt.after(oneWeekPost))
+                .groupBy(post.id)
+                .orderBy(
+                        like.count().desc(),
+                        post.createdAt.desc()
+                )
+                .limit(10)
+                .fetch();
+
+        List<PostDslDto.ResponseDto> responseDtos = convertPostDto(posts);
+        return responseDtos;
+
+    }
+
     @Override
     public Slice<PostDto.ResponseDto> getMyPosts(Long userId, Pageable pageable, Category category) {
+        QPost post = QPost.post;
+        QUser user = QUser.user;
+
         List<Post> posts= queryFactory
                 .selectFrom(post)
                 .leftJoin(post.user, user).fetchJoin()

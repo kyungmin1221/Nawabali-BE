@@ -138,6 +138,17 @@ public class PostService {
     }
 
 
+    // 최근 일주일간 작성된 게시글을 좋아요가 많은 순으로 상위 10개
+    public List<PostDto.ResponseDto> getPostByLike() {
+        //topLikeByPosts
+        List<PostDslDto.ResponseDto> posts = postRepository.topLikeByPosts();
+
+        // PostDslDto.ResponseDto를 PostDto.ResponseDto로 변환
+        return posts.stream()
+                .map(this::createPostDto)
+                .collect(Collectors.toList());
+    }
+
     // 게시물 수정 - 사용자 신원 확인
     @Transactional
     public PostDto.PatchDto updatePost(Long postId, User user, PostDto.PatchDto patchDto) {

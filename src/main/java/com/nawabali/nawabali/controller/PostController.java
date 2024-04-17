@@ -99,6 +99,14 @@ public class PostController {
     }
 
 
+    @Operation(summary = "일주일 동안 좋아요 기준 상위 10개 게시물 조회",
+            description = "")
+    @GetMapping("/top-like")
+    public ResponseEntity<List<PostDto.ResponseDto>> getPostByLike() {
+        List<PostDto.ResponseDto> responseDto = postService.getPostByLike();
+        return ResponseEntity.ok(responseDto);
+    }
+
 
     @Operation(summary = "게시물 수정", description = "postId 를 이용한 게시물 수정")
     @PatchMapping("/{postId}")
