@@ -1,7 +1,7 @@
 package com.nawabali.nawabali.service;
 
-import com.amazonaws.services.ec2.model.GetReservedInstancesExchangeQuoteRequest;
-import com.nawabali.nawabali.constant.MessageType;
+//import com.amazonaws.services.ec2.model.GetReservedInstancesExchangeQuoteRequest;
+//import com.nawabali.nawabali.constant.MessageType;
 import com.nawabali.nawabali.domain.Chat;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.ChatDto;
@@ -17,6 +17,7 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static com.nawabali.nawabali.constant.ChatRoomEnum.GROUP;
 
@@ -41,11 +42,10 @@ public class ChatMessageService {
         Chat.ChatRoom chatRoom = chatRoomRepository.findById(message.getRoomId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
 
-        if (MessageType.ENTER.equals(message.getType())) {
-            message.setMessage(message.getSender() + "님이 입장하셨습니다.");
-            messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message); }
-
         if (!chatRoomRepository.findByIdAndUserId(chatRoom.getId(),userOptional.getId()).isPresent()){
+
+            message.setMessage(message.getSender() + "님이 입장하셨습니다.");
+            messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
 
             Chat.ChatRoom chatRoomSave = Chat.ChatRoom.builder()
                     .roomName(chatRoom.getRoomName())
@@ -55,6 +55,15 @@ public class ChatMessageService {
                     .build();
 
             chatRoomRepository.save(chatRoomSave);
+        }
+
+        List <Chat.ChatMessage> chatMessageList = chatMessageRepository.findByChatRoomIdAndUserId(chatRoom.getId(), userOptional.getId())
+                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+
+        for (Chat.ChatMessage user : chatMessageList) {
+            Chat.ChatMessage chatMessage = new Chat.ChatMessage();
+            chatMessage.update(true);
+            chatMessageRepository.save(chatMessage);
         }
 
     }
@@ -68,16 +77,34 @@ public class ChatMessageService {
         Chat.ChatRoom chatRoom = chatRoomRepository.findById(message.getRoomId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
 
-        Chat.ChatMessage chatMessage = Chat.ChatMessage.builder()
-                .type(message.getType())
-                .sender(message.getSender())
-                .message(message.getMessage())
-                .createdAt(LocalDateTime.now())
-                .user(userOptional)
-                .chatRoom(chatRoom)
-                .build();
+//        Chat.ChatMessage chatMessage = Chat.ChatMessage.builder()
+//                .type(message.getType())
+//                .sender(message.getSender())
+//                .message(message.getMessage())
+//                .createdMessageAt(LocalDateTime.now())
+//                .user(userOptional)
+//                .chatRoom(chatRoom)
+//                .build();
 
-        chatMessageRepository.save(chatMessage);
+        List<User> usersInChatRoom = (List<User>) chatRoom.getUser();
+
+        for (User user : usersInChatRoom) {
+
+            Chat.ChatMessage allUser = Chat.ChatMessage.builder()
+//                    .type(message.getType())
+                    .sender(userOptional.getNickname())
+                    .receiver(user.getNickname())
+                    .message(message.getMessage())
+                    .createdMessageAt(LocalDateTime.now())
+                    .read(user.equals(userOptional))
+                    .user(user)
+                    .chatRoom(chatRoom)
+                    .build();
+
+            chatMessageRepository.save(allUser);
+        }
+
+//        chatMessageRepository.save(chatMessage);
 
         notificationService.notifyMessage(chatRoom.getRoomNumber(), message.getUserId(), message.getSender());
 

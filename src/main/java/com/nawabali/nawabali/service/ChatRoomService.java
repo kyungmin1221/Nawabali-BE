@@ -104,12 +104,12 @@ public class ChatRoomService {
 
 
     // 특정 채팅방 조회
-    public List<ChatDto.ChatRoomDto> roomInfo(String roomName, User user) {
+    public List<ChatDto.ChatRoomDto> roomInfo(String name, User user) {
 
         userRepository.findById(user.getId())
                 .orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
 
-        List<Chat.ChatRoom> chatRooms = chatRoomRepository.findByRoomNameContainingIgnoreCase(roomName)
+        List<Chat.ChatRoom> chatRooms = chatRoomRepository.findByRoomNameContainingIgnoreCase(name)
                 .orElseThrow(()-> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
 
         // ID에 따라 내림차순으로 정렬
@@ -140,10 +140,10 @@ public class ChatRoomService {
         return chatMessages.stream()
                 .map(chatMessage -> ChatDto.ChatMessageDto.builder()
                         .id(chatMessage.getId())
-                        .type(chatMessage.getType())
+//                        .type(chatMessage.getType())
                         .sender(chatMessage.getSender())
                         .message(chatMessage.getMessage())
-                        .createdAt(chatMessage.getCreatedAt())
+                        .createdMessageAt(chatMessage.getCreatedMessageAt())
                         .build())
                 .collect(Collectors.toList());
     }

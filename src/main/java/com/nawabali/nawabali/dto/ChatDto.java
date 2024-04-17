@@ -1,7 +1,7 @@
 package com.nawabali.nawabali.dto;
 
 import com.nawabali.nawabali.constant.ChatRoomEnum;
-import com.nawabali.nawabali.constant.MessageType;
+//import com.nawabali.nawabali.constant.MessageType;
 import lombok.*;
 import org.springframework.stereotype.Component;
 
@@ -14,12 +14,12 @@ public class ChatDto {
     @Builder
     public static class ChatMessageDto {
         private Long id;
-        private MessageType type;
+//        private MessageType type;
         private Long roomId;
         private Long userId;
         private String sender;
         private String message;
-        private LocalDateTime createdAt;
+        private LocalDateTime createdMessageAt;
     }
 
     @Getter

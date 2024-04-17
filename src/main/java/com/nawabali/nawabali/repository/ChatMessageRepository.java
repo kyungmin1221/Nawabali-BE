@@ -12,4 +12,5 @@ public interface ChatMessageRepository extends JpaRepository<Chat.ChatMessage, L
 
     Optional<Object> findFirstBySenderOrderByCreatedAtDesc(String nickname);
 
+    Optional<Chat.ChatMessage> findByIdAndUserId(Long id, Long id1);
 }
