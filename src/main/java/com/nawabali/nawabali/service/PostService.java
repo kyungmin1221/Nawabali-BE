@@ -1,7 +1,10 @@
 package com.nawabali.nawabali.service;
 
+import com.nawabali.nawabali.constant.Category;
 import com.nawabali.nawabali.constant.LikeCategoryEnum;
 import com.nawabali.nawabali.constant.Town;
+import com.nawabali.nawabali.domain.BookMark;
+import com.nawabali.nawabali.domain.Like;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.domain.elasticsearch.PostSearch;
@@ -11,12 +14,10 @@ import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.dto.querydsl.PostDslDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
-import com.nawabali.nawabali.repository.LikeRepository;
-import com.nawabali.nawabali.repository.PostImageRepository;
-import com.nawabali.nawabali.repository.PostRepository;
-import com.nawabali.nawabali.repository.ProfileImageRepository;
+import com.nawabali.nawabali.repository.*;
 import com.nawabali.nawabali.repository.elasticsearch.PostSearchRepository;
 import com.nawabali.nawabali.s3.AwsS3Service;
+import com.nawabali.nawabali.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -28,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,6 +48,7 @@ public class PostService {
     private final AwsS3Service awsS3Service;
     private final PostSearchRepository postSearchRepository;
     private final ProfileImageRepository profileImageRepository;
+    private final BookMarkRepository bookMarkRepository;
 
 
     // 게시물 생성
@@ -69,12 +72,16 @@ public class PostService {
                 .build();
 
         List<String> imageUrls = awsS3Service.uploadFile(files, "postImages");
+
         imageUrls.forEach(url -> {
-            PostImage image = new PostImage();
-            image.setFileName(url);
-            image.setImgUrl(url);
-            post.addImage(image);
+            PostImage image = PostImage.builder()
+                    .fileName(url)
+                    .imgUrl(url)
+                    .post(post)
+                    .build();
+            post.getImages().add(image);
         });
+
 
         Post savedPost = postRepository.save(post);
         PostSearch postSearch = new PostSearch();
@@ -91,27 +98,7 @@ public class PostService {
     public Slice<PostDto.ResponseDto> getPostsByLatest(Pageable pageable) {
         Slice<PostDslDto.ResponseDto> postSlice = postRepository.findPostsByLatest(pageable);
         List<PostDto.ResponseDto> content = postSlice.getContent().stream()
-                .map(post -> {
-                    Long likesCount = getLikesCount(post.getPostId(), LIKE);
-                    Long localLikesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
-
-                    return new PostDto.ResponseDto(
-                            post.getUserId(),
-                            post.getPostId(),
-                            post.getNickname(),
-                            post.getContents(),
-                            post.getCategory(),
-                            post.getDistrict(),
-                            post.getLatitude(),
-                            post.getLongitude(),
-                            post.getCreatedAt(),
-                            post.getModifiedAt(),
-                            post.getImageUrls(),
-                            likesCount,
-                            localLikesCount,
-                            post.getCommentCount()
-                    );
-                })
+                .map(this::createPostDto)
                 .collect(Collectors.toList());
 
         return new SliceImpl<>(content, pageable, postSlice.hasNext());
@@ -119,44 +106,37 @@ public class PostService {
 
 
     // 상세 게시물 조회
-    public PostDto.ResponseDetailDto getPost(Long postId) {
+    public PostDto.ResponseDetailDto getPost(Long postId, UserDetailsImpl userDetails) {
         Post post = getPostId(postId);
         Long likesCount = getLikesCount(postId, LIKE);
-        Long localLikesCount = getLikesCount(postId, LikeCategoryEnum.LOCAL_LIKE);
+        Long localLikesCount = getLikesCount(postId, LOCAL_LIKE);
         String profileImageUrl = getProfileImage(postId).getImgUrl();
 
-        return new PostDto.ResponseDetailDto(post, likesCount, localLikesCount, profileImageUrl);
+        // 로그인 상태
+        if(userDetails!=null){
+            // 토글링 여부 확인. DB에 있다면 누른 상태
+            Long userId = userDetails.getUser().getId();
+            Like like = (Like)likeRepository.findFirstByPostIdAndUserIdAndLikeCategoryEnum(postId, userId, LIKE).orElse(null);
+            Like localLike = (Like)likeRepository.findFirstByPostIdAndUserIdAndLikeCategoryEnum(postId, userId, LOCAL_LIKE).orElse(null);
+            BookMark bookMark = bookMarkRepository.findByUserIdAndPostId(userId, postId).orElse(null);
+
+            return new PostDto.ResponseDetailDto(post, likesCount, localLikesCount, profileImageUrl,
+                    like != null, localLike!=null, bookMark!=null);
+        }
+        // 비 로그인 상태
+        return new PostDto.ResponseDetailDto(post, likesCount, localLikesCount, profileImageUrl, false, false, false);
     }
 
     // 카테고리 별 게시물 조회
-    public Slice<PostDto.ResponseDto> getPostByCategory(String category, String district, Pageable pageable) {
+    public Slice<PostDto.ResponseDto> getPostByCategory(Category category, String district, Pageable pageable) {
         Slice<PostDslDto.ResponseDto> postCategory = postRepository.findCategoryByPost(category,district, pageable);
         List<PostDto.ResponseDto> content = postCategory.getContent().stream()
-                .map(post -> {
-                    Long likesCount = getLikesCount(post.getPostId(), LIKE);
-                    Long localLikesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
-
-                    return new PostDto.ResponseDto(
-                            post.getUserId(),
-                            post.getPostId(),
-                            post.getNickname(),
-                            post.getContents(),
-                            post.getCategory(),
-                            post.getDistrict(),
-                            post.getLatitude(),
-                            post.getLongitude(),
-                            post.getCreatedAt(),
-                            post.getModifiedAt(),
-                            post.getImageUrls(),
-                            likesCount,
-                            localLikesCount,
-                            post.getCommentCount()
-                    );
-                })
+                .map(this::createPostDto)
                 .collect(Collectors.toList());
 
         return new SliceImpl<>(content, pageable, postCategory.hasNext());
     }
+
 
     // 게시물 수정 - 사용자 신원 확인
     @Transactional
@@ -167,6 +147,8 @@ public class PostService {
         }
 
         post.update(patchDto.getContents());
+        postRepository.save(post);
+
         postRepository.save(post);
 
         return new PostDto.PatchDto(post);
@@ -195,24 +177,6 @@ public class PostService {
     // 게시물 검색 (es)
     public List<PostSearch> searchByContents(String contents) {
         return postSearchRepository.findByContentsContaining(contents);
-    }
-
-
-    public Long getLikesCount(Long postId, LikeCategoryEnum likeCategoryEnum){
-        return likeRepository.countByPostIdAndLikeCategoryEnum(postId, likeCategoryEnum);
-    }
-
-    public Post getPostId(Long postId) {
-        return postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_POST));
-
-    }
-
-    public ProfileImage getProfileImage(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-        return profileImageRepository.findByUserId(post.getUser().getId())
-                .orElseThrow(() -> new CustomException(ErrorCode.PROFILEIMAGE_NOT_FOUND));
     }
 
     // 동네별 점수 조회
@@ -250,6 +214,50 @@ public class PostService {
         }
 
         return districtDtoList;
+    }
+
+
+    public Long getLikesCount(Long postId, LikeCategoryEnum likeCategoryEnum){
+        return likeRepository.countByPostIdAndLikeCategoryEnum(postId, likeCategoryEnum);
+    }
+
+    public Post getPostId(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_POST));
+
+    }
+
+    public ProfileImage getProfileImage(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
+        return profileImageRepository.findByUserId(post.getUser().getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.PROFILEIMAGE_NOT_FOUND));
+    }
+
+
+    //  조회시 dto 생성 메서드
+    public PostDto.ResponseDto createPostDto(PostDslDto.ResponseDto post) {
+        Long likesCount = getLikesCount(post.getPostId(), LIKE);
+        Long localLikesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
+        String profileImageUrl = getProfileImage(post.getPostId()).getImgUrl();
+
+        return new PostDto.ResponseDto(
+                post.getUserId(),
+                post.getPostId(),
+                post.getNickname(),
+                post.getContents(),
+                post.getCategory(),
+                post.getDistrict(),
+                post.getLatitude(),
+                post.getLongitude(),
+                post.getCreatedAt(),
+                post.getModifiedAt(),
+                post.getImageUrls(),
+                likesCount,
+                localLikesCount,
+                post.getCommentCount(),
+                profileImageUrl
+        );
     }
 
 }

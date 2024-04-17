@@ -1,10 +1,10 @@
 package com.nawabali.nawabali.domain;
 
-
 import com.nawabali.nawabali.constant.Category;
 import com.nawabali.nawabali.constant.Town;
 import com.nawabali.nawabali.domain.image.PostImage;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +15,7 @@ import java.util.List;
 @Getter
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 public class Post {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,7 +33,6 @@ public class Post {
     private Category category;
 
     @Embedded
-    @Column(nullable = false)
     private Town town;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -65,10 +65,5 @@ public class Post {
         this.contents = contents;
     }
 
-    // 이미지 생성
-    public void addImage(PostImage image) {
-        images.add(image);
-        image.setPost(this);
-    }
 
 }

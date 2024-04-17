@@ -3,7 +3,6 @@ package com.nawabali.nawabali.domain.image;
 import com.nawabali.nawabali.constant.DefaultProfileImage;
 import com.nawabali.nawabali.domain.User;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

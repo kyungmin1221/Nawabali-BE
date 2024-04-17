@@ -1,16 +1,13 @@
 package com.nawabali.nawabali.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.nawabali.nawabali.dto.UserDto;
 import com.nawabali.nawabali.service.KakaoService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
@@ -28,6 +25,8 @@ public class KakaoController {
             throws JsonProcessingException, IOException {
 
        kakaoService.kakaoLogin(code, response);
-       return "redirect: http://localhost:3000/api/user/kakao/callback";
+//       return "redirect:/";
+       return "redirect:https://www.dongnaebangnae.com/";
+
     }
 }

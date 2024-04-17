@@ -8,9 +8,6 @@ import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.constant.UserRoleEnum;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.KakaoDto;
-import com.nawabali.nawabali.dto.UserDto;
-import com.nawabali.nawabali.exception.CustomException;
-import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.global.tool.redis.RedisTool;
 import com.nawabali.nawabali.repository.UserRepository;
 import com.nawabali.nawabali.security.Jwt.JwtUtil;
@@ -45,7 +42,9 @@ public class KakaoService {
     private final RestTemplate restTemplate;
 
     private final String local= "http://localhost:8080/api/user/kakao/callback";
+    private final String frontLocal = "http://localhost:3000/api/user/kakao/callback";
     private final String aws = "https://hhboard.shop/api/user/kakao/callback";
+    private final String domain = "https://www.dongnaebangnae.com/api/user/kakao/callback";
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String clientId;
@@ -98,9 +97,10 @@ public class KakaoService {
     // 수정된 회원 가입 및 위치 정보 저장 로직
     private User registerKakaoUserIfNeeded(String accessToken) throws JsonProcessingException {
         KakaoDto.userInfoDto kakaoUserInfo = getKakaoUserInfo(accessToken);
+        Long kakaoId = kakaoUserInfo.getId();
 
         // DB 에 중복된 Kakao Email 가 있는지 확인
-        String kakaoEmail = String.valueOf(kakaoUserInfo.getEmail());
+        String kakaoEmail = kakaoUserInfo.getEmail();
         User kakaoUser = userRepository.findByEmail(kakaoEmail).orElse(null);
 
         if (kakaoUser == null) {
@@ -110,18 +110,18 @@ public class KakaoService {
             UserRoleEnum role = UserRoleEnum.USER; // 기본 역할을 ROLE_USER로 설정
 
             kakaoUser = User.builder()
+                    .kakaoId(kakaoId)
                     .nickname(kakaoNickname)
                     .email(kakaoEmail)
                     .password(password)
                     .role(role)
                     .rank(UserRankEnum.RESIDENT)
                     .build();
-            userRepository.save(kakaoUser);
         }
         else{
-            throw new CustomException(ErrorCode.DUPLICATE_EMAIL);
+            kakaoUser.updateKakaoId(kakaoId);
         }
-
+        userRepository.save(kakaoUser);
         return kakaoUser;
     }
 

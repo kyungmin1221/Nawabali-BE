@@ -1,17 +1,16 @@
 package com.nawabali.nawabali.controller;
 
-
+import com.nawabali.nawabali.constant.Category;
 import com.nawabali.nawabali.domain.elasticsearch.PostSearch;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
@@ -76,7 +75,7 @@ public class PostController {
             })
     @GetMapping("/filtered")
     public ResponseEntity<Slice<PostDto.ResponseDto>> getPostByFiltered(
-            @RequestParam(required = false) String category,
+            @RequestParam(required = false) Category category,
             @RequestParam(required = false) String district,
             @PageableDefault(
                     size = 10,
@@ -94,8 +93,8 @@ public class PostController {
                     @Parameter(name = "postId", description = "postId 로 게시물을 검색", example = "postId : 1")
             })
     @GetMapping("/{postId}")
-    public ResponseEntity<PostDto.ResponseDetailDto> getPost(@PathVariable Long postId) {
-        PostDto.ResponseDetailDto responseDto = postService.getPost(postId);
+    public ResponseEntity<PostDto.ResponseDetailDto> getPost(@PathVariable Long postId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        PostDto.ResponseDetailDto responseDto = postService.getPost(postId, userDetails);
         return ResponseEntity.ok(responseDto);
     }
 

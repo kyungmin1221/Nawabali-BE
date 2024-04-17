@@ -72,6 +72,8 @@ public class PostDto {
 
         private int commentCount;
 
+        private String profileImageUrl;
+
 
         public ResponseDto(Post post) {
             this.userId = post.getUser().getId();
@@ -88,7 +90,6 @@ public class PostDto {
                     .map(PostImage::getImgUrl)
                     .collect(Collectors.toList());
             this.commentCount = post.getComments().size();
-
 
         }
 
@@ -127,8 +128,12 @@ public class PostDto {
 
         private String district;
 
+        private boolean likeStatus;
+        private boolean localLikeStatus;
+        private boolean bookmarkStatus;
 
-        public ResponseDetailDto(Post post, Long likesCount, Long localLikesCount, String profileImageUrl) {
+
+        public ResponseDetailDto(Post post, Long likesCount, Long localLikesCount, String profileImageUrl, boolean likeStatus, boolean localLikesStatus, boolean bookmarkStatus) {
             this.userId = post.getUser().getId();
             this.postId = post.getId();
             this.nickname = post.getUser().getNickname();
@@ -144,6 +149,9 @@ public class PostDto {
             this.localLikesCount = localLikesCount;
             this.profileImageUrl = profileImageUrl;
             this.district = post.getTown().getDistrict();
+            this.likeStatus = likeStatus;
+            this.localLikeStatus = localLikesStatus;
+            this.bookmarkStatus = bookmarkStatus;
         }
 
     }
@@ -166,7 +174,6 @@ public class PostDto {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    @Builder
     public static class DeleteDto {
 
         private String message;

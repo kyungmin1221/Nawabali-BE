@@ -1,6 +1,8 @@
 package com.nawabali.nawabali.controller;
 
 
+import com.nawabali.nawabali.constant.Category;
+import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.dto.SignupDto;
 import com.nawabali.nawabali.dto.UserDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
@@ -9,8 +11,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +28,11 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "회원 API", description = "회원가입, 로그인 관련 API 입니다.")
 public class UserController {
     private final UserService userService;
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request){
+        return userService.logout(request);
+    }
 
     @PostMapping("/signup")
     @Operation(summary = "회원가입", description = "회원가입에 사용하는 API")
@@ -60,6 +72,15 @@ public class UserController {
     @GetMapping("/check-myPassword")
     public boolean checkMyPassword(@RequestParam("inputPassword") String inputPassword, @AuthenticationPrincipal UserDetailsImpl userDetails){
         return userService.checkMyPassword(inputPassword, userDetails.getUser());
+    }
+    @Operation(summary = "내가 쓴 게시글 조회", description = "10장씩 조회, 작성일 순으로 정렬, 카테고리로 필터링. 선택 안할시 전체 조회.")
+    @GetMapping("/my-posts")
+    public Slice<PostDto.ResponseDto> getMyPosts(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @RequestParam(name ="category",required = false) Category category)
+    {
+        return userService.getMyPosts(userDetails.getUser(), pageable, category);
     }
 
 

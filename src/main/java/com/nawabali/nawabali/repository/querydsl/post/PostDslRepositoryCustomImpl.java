@@ -5,13 +5,13 @@ import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.QPost;
 import com.nawabali.nawabali.domain.QUser;
 import com.nawabali.nawabali.domain.image.PostImage;
+import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.dto.querydsl.PostDslDto;
+import com.nawabali.nawabali.repository.LikeRepository;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -50,23 +50,7 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
             posts.remove(posts.size() - 1);
         }
 
-        List<PostDslDto.ResponseDto> responseDtos = posts.stream()
-                .map(newPost -> PostDslDto.ResponseDto.builder()
-                        .userId(newPost.getUser().getId())
-                        .postId(newPost.getId())
-                        .nickname(newPost.getUser().getNickname())
-                        .contents(newPost.getContents())
-                        .category(newPost.getCategory().name())
-                        .district(newPost.getTown().getDistrict())
-                        .latitude(newPost.getTown().getLatitude())
-                        .longitude(newPost.getTown().getLongitude())
-                        .createdAt(newPost.getCreatedAt())
-                        .modifiedAt(newPost.getModifiedAt())
-                        .imageUrls(newPost.getImages().stream().map(PostImage::getImgUrl).collect(Collectors.toList()))
-                        .commentCount(newPost.getComments().size())
-                        .build())
-                .collect(Collectors.toList());
-
+        List<PostDslDto.ResponseDto> responseDtos = convertPostDto(posts);
         return new SliceImpl<>(responseDtos, pageable, hasNext);
     }
 
@@ -88,7 +72,7 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
     }
 
     @Override
-    public Slice<PostDslDto.ResponseDto> findCategoryByPost(String category, String district, Pageable pageable) {
+    public Slice<PostDslDto.ResponseDto> findCategoryByPost(Category category, String district, Pageable pageable) {
         List<Post> posts = queryFactory
                 .selectFrom(post)
                 .leftJoin(post.user, user).fetchJoin()
@@ -104,31 +88,74 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
             posts.remove(posts.size() - 1);
         }
 
-        List<PostDslDto.ResponseDto> responseDtos = posts.stream()
-                .map(newPost -> PostDslDto.ResponseDto.builder()
-                        .userId(newPost.getUser().getId())
-                        .postId(newPost.getId())
-                        .nickname(newPost.getUser().getNickname())
-                        .contents(newPost.getContents())
-                        .category(newPost.getCategory().name())
-                        .district(newPost.getTown().getDistrict())
-                        .createdAt(newPost.getCreatedAt())
-                        .modifiedAt(newPost.getModifiedAt())
-                        .imageUrls(newPost.getImages().stream().map(PostImage::getImgUrl).collect(Collectors.toList()))
-                        .commentCount(newPost.getComments().size())
-                        .build())
-                .collect(Collectors.toList());
-
+        List<PostDslDto.ResponseDto> responseDtos = convertPostDto(posts);
         return new SliceImpl<>(responseDtos, pageable, hasNext);
     }
 
-    // Category 조건
-    private BooleanExpression categoryEq(String category) {
-        return hasText(category) ? post.category.eq(Category.valueOf(category)) : null;
+    @Override
+    public Slice<PostDto.ResponseDto> getMyPosts(Long userId, Pageable pageable, Category category) {
+        List<Post> posts= queryFactory
+                .selectFrom(post)
+                .leftJoin(post.user, user).fetchJoin()
+                .where(
+                        userEq(userId),
+                        categoryEq(category)
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize()+1)
+                .orderBy(post.createdAt.desc())
+                .fetch();
+
+        boolean hasNext = posts.size() > pageable.getPageSize();
+        if(hasNext){
+            posts.remove(posts.size() -1);
+        }
+
+        return new SliceImpl<>(posts, pageable, hasNext).map(PostDto.ResponseDto::new);
     }
+
 
     // District 조건
     private BooleanExpression districtEq(String district) {
         return hasText(district) ? post.town.district.eq(district) : null;
     }
+
+    // Category 조건
+    private BooleanExpression categoryEq(Category category) {
+        if(category==null){
+            return null;
+        }else{
+            return post.category.eq(category);
+        }
+    }
+
+    // user 조건
+    private BooleanExpression userEq(Long userId){
+        if(userId ==null){
+            return null;
+        }else{
+            return post.user.id.eq(userId);
+        }
+    }
+
+    private List<PostDslDto.ResponseDto> convertPostDto(List<Post> posts) {
+        return posts.stream()
+                .map(post -> PostDslDto.ResponseDto.builder()
+                        .userId(post.getUser().getId())
+                        .postId(post.getId())
+                        .nickname(post.getUser().getNickname())
+                        .contents(post.getContents())
+                        .category(post.getCategory().name())
+                        .district(post.getTown().getDistrict())
+                        .createdAt(post.getCreatedAt())
+                        .modifiedAt(post.getModifiedAt())
+                        .imageUrls(post.getImages().stream().map(PostImage::getImgUrl).collect(Collectors.toList()))
+                        .commentCount(post.getComments().size())
+                        .latitude(post.getTown().getLatitude())
+                        .longitude(post.getTown().getLongitude())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+
 }

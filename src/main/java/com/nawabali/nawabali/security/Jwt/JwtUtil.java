@@ -20,6 +20,7 @@ import java.util.Base64;
 import java.util.Date;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+
 @Slf4j(topic = "JwtUtil")
 @Component
 public class JwtUtil {
@@ -42,6 +43,7 @@ public class JwtUtil {
     // 토큰 만료 시간
     private final int ACCESS_EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 10분
     public final int REFRESH_EXPIRATION_TIME = 30 * 60 * 1000; // 30분
+
     @PostConstruct
     public void init() {
         byte[] bytes = Base64.getDecoder().decode(secretKey);
@@ -49,7 +51,7 @@ public class JwtUtil {
     }
 
     // 엑세스 토큰생성
-    public String createAccessToken(String email, UserRoleEnum role){
+    public String createAccessToken(String email, UserRoleEnum role) {
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + ACCESS_EXPIRATION_TIME);
         return BEARER_PREFIX + Jwts.builder()
@@ -95,24 +97,26 @@ public class JwtUtil {
         var refreshTokenCookie = URLEncoder.encode(cookieValue, UTF_8);
         Cookie cookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, refreshTokenCookie);
         cookie.setHttpOnly(true);
-        // cookie.setSecure(true); //Https 접근이 아직 활성화 안됨. 활성화되면 바꿔주기
+//        cookie.setSecure(true); //Https 접근이 아직 활성화 안됨. 활성화되면 바꿔주기
         cookie.setPath("/");
         cookie.setMaxAge(REFRESH_EXPIRATION_TIME);
         return cookie;
     }
+
     // 쿠키(엑세스) 생성
     public Cookie createAccessCookie(String token) {
         var accessTokenCookie = URLEncoder.encode(token, UTF_8);
         Cookie cookie = new Cookie(AUTHORIZATION_HEADER, accessTokenCookie);
         cookie.setPath("/");
+        cookie.setSecure(true);
         cookie.setMaxAge(ACCESS_EXPIRATION_TIME);
         return cookie;
     }
 
     // header 에서 JWT 가져오기
-    public String getJwtFromHeader(HttpServletRequest request){
+    public String getJwtFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)){
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
             return bearerToken.substring(7);
         }
         return null;
@@ -137,7 +141,7 @@ public class JwtUtil {
         return false;
     }
 
-    public Claims getUserInfoFromToken(String token){
+    public Claims getUserInfoFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
 
@@ -155,11 +159,11 @@ public class JwtUtil {
     }
 
     // JWT substring
-    public String substringToken(String token){
-        if(StringUtils.hasText(token) && token.startsWith("Bearer+")){
+    public String substringToken(String token) {
+        if (StringUtils.hasText(token) && token.startsWith("Bearer+")) {
             return token.substring(7);
         }
-        if(StringUtils.hasText(token) && token.startsWith("Bearer ")){
+        if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
             return token.substring(7);
         }
         throw new NullPointerException("Not Found Token");

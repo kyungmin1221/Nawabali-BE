@@ -3,8 +3,8 @@ package com.nawabali.nawabali.domain;
 import com.nawabali.nawabali.constant.Address;
 import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.constant.UserRoleEnum;
-import com.nawabali.nawabali.dto.UserDto;
 import com.nawabali.nawabali.domain.image.ProfileImage;
+import com.nawabali.nawabali.dto.UserDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,7 +40,7 @@ public class User {
     private Address address;
 
     @Column
-    private String kakaoId;
+    private Long kakaoId;
 
     @Column(nullable = false, name = "user_rank")
     @Enumerated(EnumType.STRING)
@@ -53,8 +53,9 @@ public class User {
     private List<BookMark> bookMarks = new ArrayList<>();
 
     @Builder
-    public User(String nickname, String email, String password,
+    public User(Long kakaoId, String nickname, String email, String password,
                 UserRoleEnum role, Address address, UserRankEnum rank, ProfileImage profileImage) {
+        this.kakaoId = kakaoId;
         this.nickname = nickname;
         this.email = email;
         this.password = password;
@@ -69,15 +70,8 @@ public class User {
         }
     }
 
-    @Builder
-    public User(String nickname, String email, String kakaoId){
-        this.nickname = nickname;
-        this.email = email;
+    public void updateKakaoId(Long kakaoId) {
         this.kakaoId = kakaoId;
-    }
-
-    public void updateKakaoId(String id) {
-        this.kakaoId = id;
     }
 
     public void update(UserDto.UserInfoRequestDto requestDto) {
