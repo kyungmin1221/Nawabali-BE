@@ -2,6 +2,7 @@ package com.nawabali.nawabali.service;
 
 import com.nawabali.nawabali.constant.Category;
 import com.nawabali.nawabali.constant.LikeCategoryEnum;
+import com.nawabali.nawabali.constant.Period;
 import com.nawabali.nawabali.constant.Town;
 import com.nawabali.nawabali.domain.BookMark;
 import com.nawabali.nawabali.domain.Like;
@@ -139,9 +140,9 @@ public class PostService {
     }
 
 
-    // 최근 일주일간 작성된 게시글을 좋아요가 많은 순으로 상위 10개
-    public List<PostDto.ResponseDto> getPostByLike() {
-        List<PostDslDto.ResponseDto> posts = postRepository.topLikeByPosts();
+    // 작성된 게시글을 좋아요가 많은 순으로 상위 10개( 카테고리, 구, 기간 으로 필터링 )
+    public List<PostDto.ResponseDto> getPostByLike(Category category, String district, Period period) {
+        List<PostDslDto.ResponseDto> posts = postRepository.topLikeByPosts(category,district, period);
         return posts.stream()
                 .map(this::createPostDto)
                 .collect(Collectors.toList());
