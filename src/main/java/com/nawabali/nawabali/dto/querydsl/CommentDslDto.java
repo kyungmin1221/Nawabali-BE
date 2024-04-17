@@ -1,6 +1,7 @@
 package com.nawabali.nawabali.dto.querydsl;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.domain.Comment;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
@@ -54,14 +55,16 @@ public class CommentDslDto {
         }
 
         public String RankInKorean(Comment comment) {
-            if (comment.getUser().getRank().equals(RESIDENT)) {
-                return "주민";
-            } else if ((comment.getUser().getRank().equals(NATIVE_PERSON))) {
-                return "토박이";
-            } else if ((comment.getUser().getRank().equals(LOCAL_ELDER))) {
-                return "터줏대감";
-            } else {
-                throw new CustomException(ErrorCode.RANK_NOT_FOUND);
+            UserRankEnum rank = comment.getUser().getRank();
+            switch (rank) {
+                case RESIDENT:
+                    return "주민";
+                case NATIVE_PERSON:
+                    return "토박이";
+                case LOCAL_ELDER:
+                    return "터줏대감";
+                default:
+                    throw new CustomException(ErrorCode.RANK_NOT_FOUND);
             }
         }
     }
