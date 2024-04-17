@@ -2,6 +2,7 @@ package com.nawabali.nawabali.service;
 
 import com.nawabali.nawabali.constant.Category;
 import com.nawabali.nawabali.constant.LikeCategoryEnum;
+import com.nawabali.nawabali.constant.Period;
 import com.nawabali.nawabali.constant.Town;
 import com.nawabali.nawabali.domain.BookMark;
 import com.nawabali.nawabali.domain.Like;
@@ -85,6 +86,7 @@ public class PostService {
 
         Post savedPost = postRepository.save(post);
         PostSearch postSearch = new PostSearch();
+        postSearch.setId(savedPost.getId().toString());
         postSearch.setContents(savedPost.getContents());
         postSearch.setPostId(savedPost.getId());
 
@@ -138,6 +140,14 @@ public class PostService {
     }
 
 
+    // 작성된 게시글을 좋아요가 많은 순으로 상위 10개( 카테고리, 구, 기간 으로 필터링 )
+    public List<PostDto.ResponseDto> getPostByLike(Category category, String district, Period period) {
+        List<PostDslDto.ResponseDto> posts = postRepository.topLikeByPosts(category,district, period);
+        return posts.stream()
+                .map(this::createPostDto)
+                .collect(Collectors.toList());
+    }
+
     // 게시물 수정 - 사용자 신원 확인
     @Transactional
     public PostDto.PatchDto updatePost(Long postId, User user, PostDto.PatchDto patchDto) {
@@ -149,7 +159,12 @@ public class PostService {
         post.update(patchDto.getContents());
         postRepository.save(post);
 
-        postRepository.save(post);
+        // es 업데이트
+        PostSearch existingPostSearch = postSearchRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("es 문서를 찾을 수 없음"));
+        existingPostSearch.setContents(post.getContents());
+
+        postSearchRepository.save(existingPostSearch);
 
         return new PostDto.PatchDto(post);
     }
