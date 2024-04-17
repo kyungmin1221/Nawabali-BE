@@ -52,6 +52,7 @@ public enum ErrorCode {
     DISTRICTPOST_NOT_FOUND(NOT_FOUND, "해당 구의 총 게시물 수를 찾을 수 없습니다."),
     DISTRICTLIKE_NOT_FOUND(NOT_FOUND, "해당 구의 총 좋아요 수를 찾을 수 없습니다."),
     DISTRICTLOCALLIKE_NOT_FOUND(NOT_FOUND, "해당 구의 총 동네인증 수를 찾을 수 없습니다."),
+    RANK_NOT_FOUND(NOT_FOUND, "해당 사용자의 회원등급을 찾을 수 없습니다."),
 
     // 409 CONFLICT: 중복된 리소스 (요청이 현재 서버 상태와 충돌될 때)
     DUPLICATE_EMAIL(CONFLICT, "이미 존재하는 이메일입니다."),

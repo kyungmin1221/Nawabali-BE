@@ -2,15 +2,11 @@ package com.nawabali.nawabali.dto;
 
 import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.domain.User;
+import com.nawabali.nawabali.domain.image.ProfileImage;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import com.nawabali.nawabali.domain.User;
-import com.nawabali.nawabali.domain.image.ProfileImage;
 import lombok.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class UserDto {
     @Getter
