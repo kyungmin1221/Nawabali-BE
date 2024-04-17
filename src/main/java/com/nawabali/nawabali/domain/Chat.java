@@ -40,7 +40,7 @@ public class Chat {
         private String receiver;
 
         @Column (nullable = false)
-        private boolean read;
+        private boolean isRead;
 
         @ManyToOne (fetch = FetchType.LAZY)
         @JoinColumn (name = "user_id")
@@ -56,7 +56,7 @@ public class Chat {
         }
 
         public void update(boolean read) {
-            this.read = read;
+            this.isRead = read;
         }
 
     }

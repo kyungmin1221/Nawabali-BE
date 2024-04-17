@@ -73,7 +73,7 @@ public class NotificationService {
 
         User userSender = userRepository.findByNickname(sender);
 
-        Chat.ChatMessage receiveMessage = (Chat.ChatMessage) chatMessageRepository.findFirstBySenderOrderByCreatedAtDesc(userSender.getNickname())
+        Chat.ChatMessage receiveMessage = (Chat.ChatMessage) chatMessageRepository.findFirstBySenderOrderByCreatedMessageAtDesc(userSender.getNickname())
                 .orElseThrow(()-> new CustomException(ErrorCode.CHAT_MESSAGE_NOT_FOUND));
 
         Long userId = user.getId();

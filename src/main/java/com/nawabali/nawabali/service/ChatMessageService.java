@@ -96,7 +96,7 @@ public class ChatMessageService {
                     .receiver(user.getNickname())
                     .message(message.getMessage())
                     .createdMessageAt(LocalDateTime.now())
-                    .read(user.equals(userOptional))
+                    .isRead(user.equals(userOptional))
                     .user(user)
                     .chatRoom(chatRoom)
                     .build();
