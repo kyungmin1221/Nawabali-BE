@@ -85,6 +85,7 @@ public class PostService {
 
         Post savedPost = postRepository.save(post);
         PostSearch postSearch = new PostSearch();
+        postSearch.setId(savedPost.getId().toString());
         postSearch.setContents(savedPost.getContents());
         postSearch.setPostId(savedPost.getId());
 
@@ -140,10 +141,7 @@ public class PostService {
 
     // 최근 일주일간 작성된 게시글을 좋아요가 많은 순으로 상위 10개
     public List<PostDto.ResponseDto> getPostByLike() {
-        //topLikeByPosts
         List<PostDslDto.ResponseDto> posts = postRepository.topLikeByPosts();
-
-        // PostDslDto.ResponseDto를 PostDto.ResponseDto로 변환
         return posts.stream()
                 .map(this::createPostDto)
                 .collect(Collectors.toList());
@@ -160,7 +158,12 @@ public class PostService {
         post.update(patchDto.getContents());
         postRepository.save(post);
 
-        postRepository.save(post);
+        // es 업데이트
+        PostSearch existingPostSearch = postSearchRepository.findById(Long.valueOf(postId.toString()))
+                .orElseThrow(() -> new RuntimeException("es 문서를 찾을 수 없음"));
+        existingPostSearch.setContents(post.getContents());
+
+        postSearchRepository.save(existingPostSearch);
 
         return new PostDto.PatchDto(post);
     }
