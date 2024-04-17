@@ -24,6 +24,7 @@ public enum ErrorCode {
     MISMATCH_ID(BAD_REQUEST,"잘못된 요청입니다."),
     MISMATCH_ADDRESS(BAD_REQUEST, "동네인증 좋아요는 해당 지역의 회원만 누를 수 있습니다."),
     MAX_UPLOAD_PHOTO(BAD_REQUEST, "최대 5장의 사진만 업로드할 수 있습니다."),
+    WRONG_OTHERUSER(BAD_REQUEST, "올바른 상대방의 닉네임을 넣어주세요"),
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
     INVALID_AUTH_TOKEN(UNAUTHORIZED, "권한 정보가 없는 토큰입니다"),
@@ -59,6 +60,7 @@ public enum ErrorCode {
     DUPLICATE_LIKE_TRUE(CONFLICT, "이미 좋아요 되어있습니다."),
     DUPLICATE_LIKE_FALSE(CONFLICT, "이미 좋아요가 취소 되어있습니다."),
     DUPLICATE_BOOKMARK(CONFLICT, "이미 등록된 북마크 입니다."),
+    DUPLICATE_CHATROOM(CONFLICT, "이미 존재하는 채팅방 입니다."),
 
 
     // 500 SERVER ERROR

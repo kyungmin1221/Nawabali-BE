@@ -73,7 +73,7 @@ public class NotificationService {
 
         User userSender = userRepository.findByNickname(sender);
 
-        Chat.ChatMessage receiveMessage = (Chat.ChatMessage) chatMessageRepository.findFirstBySenderOrderByCreatedAtDesc(userSender.getNickname())
+        Chat.ChatMessage receiveMessage = (Chat.ChatMessage) chatMessageRepository.findFirstBySenderOrderByCreatedMessageAtDesc(userSender.getNickname())
                 .orElseThrow(()-> new CustomException(ErrorCode.CHAT_MESSAGE_NOT_FOUND));
 
         Long userId = user.getId();
@@ -85,14 +85,14 @@ public class NotificationService {
             try {
                 Map<String,String> eventData = new HashMap<>();
                 eventData.put("message", receiveMessage.getSender() + "님이 메시지를 보냈습니다.");
-                eventData.put("createdAt", receiveMessage.getCreatedAt().toString());
+                eventData.put("createdAt", receiveMessage.getCreatedMessageAt().toString());
                 eventData.put("contents", receiveMessage.getMessage());
 
                 sseEmitter.send(SseEmitter.event().name("addMessage알림").data(eventData));
 
                 Notification notification = Notification.builder()
                         .sender(receiveMessage.getSender())
-                        .createdAt(receiveMessage.getCreatedAt())
+                        .createdAt(receiveMessage.getCreatedMessageAt())
                         .contents(receiveMessage.getMessage())
                         .chatRoom(receiveMessage.getChatRoom())
                         .build();

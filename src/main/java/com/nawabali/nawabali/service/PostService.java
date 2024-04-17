@@ -197,8 +197,8 @@ public class PostService {
             Long post = postRepository.countByTownDistrict(district)
                     .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTPOST_NOT_FOUND));
 
-            Long like = likeRepository.countByPostTownDistrictAndLikeCategoryEnum(district, LIKE)
-                    .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTLIKE_NOT_FOUND));
+//            Long like = likeRepository.countByPostTownDistrictAndLikeCategoryEnum(district, LIKE)
+//                    .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTLIKE_NOT_FOUND));
 
             Long localLike = likeRepository.countByPostTownDistrictAndLikeCategoryEnum(district, LOCAL_LIKE)
                     .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTLOCALLIKE_NOT_FOUND));
