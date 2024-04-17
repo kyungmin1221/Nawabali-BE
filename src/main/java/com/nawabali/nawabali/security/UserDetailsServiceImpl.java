@@ -13,18 +13,11 @@ import org.springframework.stereotype.Service;
 public class UserDetailsServiceImpl implements UserDetailsService {
     private final UserRepository userRepository;
 
-    //    @Override
-//    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-//        User user = userRepository.findByEmail(email);
-//        if(user==null){
-//            throw new UsernameNotFoundException("Not Found " + email);
-//        }
-//        return new UserDetailsImpl(user);
-//    }
+
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+                .orElseThrow(() -> new UsernameNotFoundException("해당 유저의 이메일 정보를 찾을 수 없습니다 : " + email));
 
         return new UserDetailsImpl(user);
     }

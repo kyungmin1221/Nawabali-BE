@@ -52,9 +52,7 @@ public class LikeService {
                     .status(findLike.isStatus())
                     .message("좋아요 취소 되었습니다.")
                     .build();
-        }
-
-        else{
+        }  else{
             // 내역에 없디면 추가.
             findLike = Like.builder()
                     .user(user)
@@ -88,7 +86,7 @@ public class LikeService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
-//         해당 지역의 회원인지 확인
+        // 해당 지역의 회원인지 확인
         if(!isMatchDistrict(user, post)){
             throw new CustomException(ErrorCode.MISMATCH_ADDRESS);
         }
