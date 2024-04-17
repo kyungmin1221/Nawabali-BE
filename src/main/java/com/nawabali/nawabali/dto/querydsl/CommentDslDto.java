@@ -34,9 +34,9 @@ public class CommentDslDto {
         private LocalDateTime createdAt;
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         private LocalDateTime modifiedAt;
-        private List<ResponseDto> children = new ArrayList<>();
         private String profileImageUrl;
         private String userInfo;
+        private List<ResponseDto> children = new ArrayList<>();
 
         public ResponseDto(Comment comment) {
             this.commentId = comment.getId();
