@@ -159,7 +159,7 @@ public class PostService {
         postRepository.save(post);
 
         // es 업데이트
-        PostSearch existingPostSearch = postSearchRepository.findById(Long.valueOf(postId.toString()))
+        PostSearch existingPostSearch = postSearchRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("es 문서를 찾을 수 없음"));
         existingPostSearch.setContents(post.getContents());
 
