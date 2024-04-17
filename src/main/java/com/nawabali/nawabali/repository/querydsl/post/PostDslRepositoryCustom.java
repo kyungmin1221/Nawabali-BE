@@ -13,7 +13,7 @@ public interface PostDslRepositoryCustom {
 
     Slice<PostDslDto.ResponseDto> findPostsByLatest(Pageable pageable);
 
-    Slice<PostDslDto.ResponseDto> findCategoryByPost(String category, String district, Pageable pageable);
+    Slice<PostDslDto.ResponseDto> findCategoryByPost(Category category, String district, Pageable pageable);
     List<PostDslDto.SearchDto> findSearchByPosts(String contents);
 
     Slice<PostDto.ResponseDto> getMyPosts(Long userId, Pageable pageable, Category category);

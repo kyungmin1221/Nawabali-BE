@@ -1,5 +1,6 @@
 package com.nawabali.nawabali.service;
 
+import com.nawabali.nawabali.constant.Category;
 import com.nawabali.nawabali.constant.LikeCategoryEnum;
 import com.nawabali.nawabali.constant.Town;
 import com.nawabali.nawabali.domain.BookMark;
@@ -28,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -126,7 +128,7 @@ public class PostService {
     }
 
     // 카테고리 별 게시물 조회
-    public Slice<PostDto.ResponseDto> getPostByCategory(String category, String district, Pageable pageable) {
+    public Slice<PostDto.ResponseDto> getPostByCategory(Category category, String district, Pageable pageable) {
         Slice<PostDslDto.ResponseDto> postCategory = postRepository.findCategoryByPost(category,district, pageable);
         List<PostDto.ResponseDto> content = postCategory.getContent().stream()
                 .map(this::createPostDto)

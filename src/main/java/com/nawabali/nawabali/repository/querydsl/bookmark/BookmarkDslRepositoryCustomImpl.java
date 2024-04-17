@@ -39,23 +39,27 @@ public class BookmarkDslRepositoryCustomImpl implements BookmarkDslRepositoryCus
             bookmarks.remove(bookmarks.size() - 1);
         }
 
-        List<BookmarkDslDto.UserBookmarkDto> responseDtos = bookmarks.stream()
-                .map(newBookmark -> BookmarkDslDto.UserBookmarkDto.builder()
-                        .userId(newBookmark.getUser().getId())
-                        .postId(newBookmark.getPost().getId())
-                        .nickname(newBookmark.getUser().getNickname())
-                        .contents(newBookmark.getPost().getContents())
-                        .category(newBookmark.getPost().getCategory().name())
-                        .district(newBookmark.getPost().getTown().getDistrict())
-                        .latitude(newBookmark.getPost().getTown().getLatitude())
-                        .longitude(newBookmark.getPost().getTown().getLongitude())
-                        .createdAt(newBookmark.getCreatedAt())
-                        .imageUrls(newBookmark.getPost().getImages().stream().map(PostImage::getImgUrl).collect(Collectors.toList()))
-                        .commentCount(newBookmark.getPost().getComments().size())
+        List<BookmarkDslDto.UserBookmarkDto> responseDtos = convertBookmarkDto(bookmarks);
+        return new SliceImpl<>(responseDtos, pageable, hasNext);
+    }
+
+
+    private  List<BookmarkDslDto.UserBookmarkDto> convertBookmarkDto(List<BookMark> bookMarks) {
+        return bookMarks.stream()
+                .map(bookMark -> BookmarkDslDto.UserBookmarkDto.builder()
+                        .userId(bookMark.getUser().getId())
+                        .postId(bookMark.getPost().getId())
+                        .nickname(bookMark.getUser().getNickname())
+                        .contents(bookMark.getPost().getContents())
+                        .category(bookMark.getPost().getCategory().name())
+                        .district(bookMark.getPost().getTown().getDistrict())
+                        .latitude(bookMark.getPost().getTown().getLatitude())
+                        .longitude(bookMark.getPost().getTown().getLongitude())
+                        .createdAt(bookMark.getCreatedAt())
+                        .imageUrls(bookMark.getPost().getImages().stream().map(PostImage::getImgUrl).collect(Collectors.toList()))
+                        .commentCount(bookMark.getPost().getComments().size())
                         .build())
                 .collect(Collectors.toList());
-
-        return new SliceImpl<>(responseDtos, pageable, hasNext);
     }
 
 }
