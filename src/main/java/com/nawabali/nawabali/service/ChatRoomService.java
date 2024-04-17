@@ -136,6 +136,14 @@ public class ChatRoomService {
         List<Chat.ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdAndUserId(chatRoom.getId(), user.getId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
 
+        if (chatMessages.isEmpty()) {
+            return Collections.singletonList(
+                    ChatDto.ChatMessageDto.builder()
+                            .message("채팅방에 메세지가 존재하지 않습니다.")
+                            .build()
+            );
+        }
+
         // ChatMessage를 ChatDto.ChatMessage로 변환하여 반환
         return chatMessages.stream()
                 .map(chatMessage -> ChatDto.ChatMessageDto.builder()
