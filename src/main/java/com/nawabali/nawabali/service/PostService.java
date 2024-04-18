@@ -28,10 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.nawabali.nawabali.constant.LikeCategoryEnum.LIKE;
@@ -218,11 +215,16 @@ public class PostService {
             Long localLike = likeRepository.countByPostTownDistrictAndLikeCategoryEnum(district, LOCAL_LIKE)
                     .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTLOCALLIKE_NOT_FOUND));
 
+            List<Category> category = postRepository.findMostFrequentCategoryByTownDistrict(district);
+            Category popularCategory = category.isEmpty() ? null : category.get(0);
+
+
             PostDto.DistrictDto districtDto = PostDto.DistrictDto.builder()
                     .district(district)
                     .totalPost(post)
 //                    .totalLike(like)
                     .totalLocalLike(localLike)
+                    .popularCategory(popularCategory)
                     .build();
 
             districtDtoList.add(districtDto);

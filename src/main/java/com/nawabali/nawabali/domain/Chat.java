@@ -8,6 +8,8 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Chat {
 
@@ -91,6 +93,10 @@ public class Chat {
         @ManyToOne (fetch = FetchType.LAZY)
         @JoinColumn (name = "other_user_id")
         private User otherUser;
+
+        @OneToMany (mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+        private List<ChatMessage> chatMessageList = new ArrayList<>();
+
 
     }
 }

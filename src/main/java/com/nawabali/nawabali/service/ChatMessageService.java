@@ -17,6 +17,9 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static com.nawabali.nawabali.constant.ChatRoomEnum.GROUP;
@@ -86,7 +89,17 @@ public class ChatMessageService {
 //                .chatRoom(chatRoom)
 //                .build();
 
-        List<User> usersInChatRoom = (List<User>) chatRoom.getUser();
+        List<User> usersInChatRoom;
+
+        Object chatRoomUsers = chatRoom.getUser();
+
+        if (chatRoomUsers instanceof List) {
+            usersInChatRoom = (List<User>) chatRoomUsers;
+        } else if (chatRoomUsers instanceof User) {
+            usersInChatRoom = Collections.singletonList((User) chatRoomUsers);
+        } else {
+            throw new IllegalStateException("반환한 객체의 타입이 예상과 다릅니다" + chatRoomUsers.getClass());
+        }
 
         for (User user : usersInChatRoom) {
 
