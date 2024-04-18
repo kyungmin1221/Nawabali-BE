@@ -1,6 +1,7 @@
 package com.nawabali.nawabali.controller;
 
 import com.nawabali.nawabali.constant.Category;
+import com.nawabali.nawabali.constant.Period;
 import com.nawabali.nawabali.domain.elasticsearch.PostSearch;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
@@ -98,6 +99,21 @@ public class PostController {
         return ResponseEntity.ok(responseDto);
     }
 
+
+    @Operation(summary = "일주일 동안 좋아요 기준 상위 10개 게시물 조회",
+               description =
+                       """
+                       category 또는 district 또는 기간(일주일,한달) 를 이용한 좋아요 기준 상위 10개 게시물을 조회
+                       * period 는 WEEK 와 MONTH 로 구분합니다.
+                       """)
+    @GetMapping("/top-like")
+    public ResponseEntity<List<PostDto.ResponseDto>> getPostByLike(
+            @RequestParam(required = false) Category category,
+            @RequestParam(required = false) String district,
+            @RequestParam(required = false) Period period) {
+        List<PostDto.ResponseDto> responseDto = postService.getPostByLike(category, district, period);
+        return ResponseEntity.ok(responseDto);
+    }
 
 
     @Operation(summary = "게시물 수정", description = "postId 를 이용한 게시물 수정")
