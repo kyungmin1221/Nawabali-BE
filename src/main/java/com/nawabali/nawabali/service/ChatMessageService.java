@@ -48,7 +48,7 @@ public class ChatMessageService {
         if (!chatRoomRepository.findByIdAndUserId(chatRoom.getId(),userOptional.getId()).isPresent()){
             message.setMessage(message.getSender() + "님이 입장하셨습니다.");
             log.debug("메세지가 잘 들어오는지" + message);
-            messagingTemplate.convertAndSend("/chat/room/" + message.getRoomId(), message);
+            messagingTemplate.convertAndSend("/chat/enter/room/" + message.getRoomId(), message);
 
             Chat.ChatRoom chatRoomSave = Chat.ChatRoom.builder()
                     .roomName(chatRoom.getRoomName())
