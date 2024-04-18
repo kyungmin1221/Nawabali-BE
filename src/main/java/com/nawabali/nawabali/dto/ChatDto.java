@@ -23,6 +23,20 @@ public class ChatDto {
     }
 
     @Getter
+    @Setter
+    @Builder
+    public static class ChatMessageResponseDto {
+        private Long id;
+        private Long roomId;
+        private Long userId;
+        private String sender;
+        private String message;
+        private String receiver;
+        private boolean isRead;
+        private LocalDateTime createdMessageAt;
+    }
+
+    @Getter
     @Builder
     @Component
     @NoArgsConstructor

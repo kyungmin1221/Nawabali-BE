@@ -78,18 +78,10 @@ public class ChatMessageService {
 
         User userOptional = userRepository.findById(message.getUserId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
-        log.debug("userOptional 유저 인포메이션" + userOptional);
+        log.info("userOptional 유저 인포메이션" + userOptional);
         Chat.ChatRoom chatRoom = chatRoomRepository.findById(message.getRoomId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
-        log.debug("chatroom roomid 찾기" + chatRoom);
-//        Chat.ChatMessage chatMessage = Chat.ChatMessage.builder()
-//                .type(message.getType())
-//                .sender(message.getSender())
-//                .message(message.getMessage())
-//                .createdMessageAt(LocalDateTime.now())
-//                .user(userOptional)
-//                .chatRoom(chatRoom)
-//                .build();
+        log.info("chatroom roomid 찾기" + chatRoom);
 
         List<User> usersInChatRoom;
 
@@ -106,9 +98,8 @@ public class ChatMessageService {
         }
 
         for (User user : usersInChatRoom) {
-            log.debug("가져온 유저들의 정보 보내기 위해서 한명씩 꺼내기" + user);
+            log.info("가져온 유저들의 정보 보내기 위해서 한명씩 꺼내기" + user);
             Chat.ChatMessage allUser = Chat.ChatMessage.builder()
-//                    .type(message.getType())
                     .sender(userOptional.getNickname())
                     .receiver(user.getNickname())
                     .message(message.getMessage())
@@ -119,15 +110,24 @@ public class ChatMessageService {
                     .build();
 
             chatMessageRepository.save(allUser);
-            log.debug("유저 정보 세이브 한거" + allUser);
-        }
+            log.info("유저 정보 세이브 한거" + allUser);
 
-//        chatMessageRepository.save(chatMessage);
+            ChatDto.ChatMessageResponseDto.builder()
+                    .id(allUser.getId()) // 채팅 메세지 ID
+                    .roomId(chatRoom.getId())
+                    .userId(userOptional.getId())
+                    .sender(userOptional.getNickname())
+                    .message(message.getMessage())
+                    .receiver(user.getNickname())
+                    .isRead(user.equals(userOptional))
+                    .createdMessageAt(LocalDateTime.now())
+                    .build();
+        }
 
 //        notificationService.notifyMessage(chatRoom.getRoomNumber(), message.getUserId(), message.getSender());
 
         messagingTemplate.convertAndSend("/chat/message" + message.getRoomId(), message);
-        log.debug("메세지 보내는거?" + messagingTemplate);
+        log.info("메세지 보내는거?" + messagingTemplate);
 
     }
 }
