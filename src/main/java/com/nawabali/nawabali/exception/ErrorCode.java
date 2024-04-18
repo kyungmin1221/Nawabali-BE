@@ -53,6 +53,7 @@ public enum ErrorCode {
     DISTRICTPOST_NOT_FOUND(NOT_FOUND, "해당 구의 총 게시물 수를 찾을 수 없습니다."),
     DISTRICTLIKE_NOT_FOUND(NOT_FOUND, "해당 구의 총 좋아요 수를 찾을 수 없습니다."),
     DISTRICTLOCALLIKE_NOT_FOUND(NOT_FOUND, "해당 구의 총 동네인증 수를 찾을 수 없습니다."),
+    DISTRICTCATEGORY_NOT_FOUND(NOT_FOUND, "해당 구의 가장 많은 카테고리를 찾을 수 없습니다."),
     RANK_NOT_FOUND(NOT_FOUND, "해당 사용자의 회원등급을 찾을 수 없습니다."),
     PERIOD_NOT_FOUND(NOT_FOUND, "해당 기간을 찾을 수 없습니다(일주일 또는 한달만 가능합니다)."),
 

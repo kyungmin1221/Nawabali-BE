@@ -46,5 +46,6 @@ public class ChatDto {
         private String roomName;
         private String roomNumber;
         private ChatRoomEnum chatRoomEnum;
+        private String chatMessage;
     }
 }

@@ -217,6 +217,7 @@ public class PostDto {
         private Long totalPost;
 //        private Long totalLike;
         private Long totalLocalLike;
+        private Category popularCategory;
 
     }
 
