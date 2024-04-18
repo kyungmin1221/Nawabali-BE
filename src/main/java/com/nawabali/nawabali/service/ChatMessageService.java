@@ -41,13 +41,13 @@ public class ChatMessageService {
 
         User userOptional = userRepository.findById(message.getUserId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
-
+        log.debug("유저 인포" + userOptional);
         Chat.ChatRoom chatRoom = chatRoomRepository.findById(message.getRoomId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
-
+        log.debug("chatroom roomid 찾기" + chatRoom);
         if (!chatRoomRepository.findByIdAndUserId(chatRoom.getId(),userOptional.getId()).isPresent()){
-
             message.setMessage(message.getSender() + "님이 입장하셨습니다.");
+            log.debug("메세지가 잘 들어오는지" + message);
             messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
 
             Chat.ChatRoom chatRoomSave = Chat.ChatRoom.builder()
@@ -58,15 +58,17 @@ public class ChatMessageService {
                     .build();
 
             chatRoomRepository.save(chatRoomSave);
+            log.debug("세이브 된 내용" + chatRoomSave);
         }
 
         List <Chat.ChatMessage> chatMessageList = chatMessageRepository.findByChatRoomIdAndUserId(chatRoom.getId(), userOptional.getId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
-
+        log.debug("메세지 리스트" + chatMessageList);
         for (Chat.ChatMessage user : chatMessageList) {
             Chat.ChatMessage chatMessage = new Chat.ChatMessage();
             chatMessage.update(true);
             chatMessageRepository.save(chatMessage);
+            log.debug("메세지?!" + chatMessage);
         }
 
     }
@@ -76,10 +78,10 @@ public class ChatMessageService {
 
         User userOptional = userRepository.findById(message.getUserId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
-
+        log.debug("userOptional 유저 인포메이션" + userOptional);
         Chat.ChatRoom chatRoom = chatRoomRepository.findById(message.getRoomId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
-
+        log.debug("chatroom roomid 찾기" + chatRoom);
 //        Chat.ChatMessage chatMessage = Chat.ChatMessage.builder()
 //                .type(message.getType())
 //                .sender(message.getSender())
@@ -92,17 +94,19 @@ public class ChatMessageService {
         List<User> usersInChatRoom;
 
         Object chatRoomUsers = chatRoom.getUser();
-
+        log.debug("채팅방에 있는 사람들 가져오기" + chatRoomUsers);
         if (chatRoomUsers instanceof List) {
             usersInChatRoom = (List<User>) chatRoomUsers;
+            log.debug("채팅방에 혼자 있을때" + usersInChatRoom);
         } else if (chatRoomUsers instanceof User) {
             usersInChatRoom = Collections.singletonList((User) chatRoomUsers);
+            log.debug("채팅방에 여러명 있을때" + usersInChatRoom);
         } else {
             throw new IllegalStateException("반환한 객체의 타입이 예상과 다릅니다" + chatRoomUsers.getClass());
         }
 
         for (User user : usersInChatRoom) {
-
+            log.debug("가져온 유저들의 정보 보내기 위해서 한명씩 꺼내기" + user);
             Chat.ChatMessage allUser = Chat.ChatMessage.builder()
 //                    .type(message.getType())
                     .sender(userOptional.getNickname())
@@ -115,6 +119,7 @@ public class ChatMessageService {
                     .build();
 
             chatMessageRepository.save(allUser);
+            log.debug("유저 정보 세이브 한거" + allUser);
         }
 
 //        chatMessageRepository.save(chatMessage);
@@ -122,6 +127,7 @@ public class ChatMessageService {
         notificationService.notifyMessage(chatRoom.getRoomNumber(), message.getUserId(), message.getSender());
 
         messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
+        log.debug("메세지 보내는거?" + messagingTemplate);
 
     }
 }
