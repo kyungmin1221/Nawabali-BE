@@ -1,6 +1,7 @@
 package com.nawabali.nawabali.repository.querydsl.post;
 
 import com.nawabali.nawabali.constant.Category;
+import com.nawabali.nawabali.constant.LikeCategoryEnum;
 import com.nawabali.nawabali.constant.Period;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.QLike;
@@ -24,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.nawabali.nawabali.constant.LikeCategoryEnum.LIKE;
 import static com.nawabali.nawabali.domain.QPost.post;
 import static com.nawabali.nawabali.domain.QUser.user;
 import static org.springframework.util.StringUtils.hasText;
@@ -37,7 +39,7 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
 
     // 게시물 전체 조회 시 무한 스크롤
     @Override
-    public Slice<PostDslDto.ResponseDto> findPostsByLatest(Pageable pageable) {
+    public Slice<PostDto.ResponseDto> findPostsByLatest(Pageable pageable) {
         QPost post = QPost.post;
         QUser user = QUser.user;
 
@@ -55,18 +57,18 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
             posts.remove(posts.size() - 1);
         }
 
-        List<PostDslDto.ResponseDto> responseDtos = convertPostDto(posts);
+        List<PostDto.ResponseDto> responseDtos = convertPostDto(posts);
         return new SliceImpl<>(responseDtos, pageable, hasNext);
     }
 
 
     // 게시물 contents 로 검색
     @Override
-    public List<PostDslDto.SearchDto> findSearchByPosts(String contents)  {
+    public List<PostDto.SearchDto> findSearchByPosts(String contents)  {
         QPost post = QPost.post;
 
-        List<PostDslDto.SearchDto> searchResults = queryFactory
-                .select(Projections.constructor(PostDslDto.SearchDto.class,
+        List<PostDto.SearchDto> searchResults = queryFactory
+                .select(Projections.constructor(PostDto.SearchDto.class,
                         post.id,
                         post.contents))
                 .from(post)
@@ -78,7 +80,7 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
 
     // 카테고리 및 구 를 이용하여 게시물 조회
     @Override
-    public Slice<PostDslDto.ResponseDto> findCategoryByPost(Category category, String district, Pageable pageable) {
+    public Slice<PostDto.ResponseDto> findCategoryByPost(Category category, String district, Pageable pageable) {
         QPost post = QPost.post;
         QUser user = QUser.user;
 
@@ -97,13 +99,14 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
             posts.remove(posts.size() - 1);
         }
 
-        List<PostDslDto.ResponseDto> responseDtos = convertPostDto(posts);
+        List<PostDto.ResponseDto> responseDtos = convertPostDto(posts);
+
         return new SliceImpl<>(responseDtos, pageable, hasNext);
     }
 
     // 일주일 동안 좋아요 기준 상위 10개 게시물 조회
     @Override
-    public List<PostDslDto.ResponseDto> topLikeByPosts(Category category, String district, Period period) {
+    public List<PostDto.ResponseDto> topLikeByPosts(Category category, String district, Period period) {
         QPost post = QPost.post;
         QUser user = QUser.user;
         QLike like = QLike.like;
@@ -126,10 +129,14 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
                 .limit(10)
                 .fetch();
 
-        List<PostDslDto.ResponseDto> responseDtos = convertPostDto(posts);
+        List<PostDto.ResponseDto> responseDtos = convertPostDto(posts);
         return responseDtos;
 
     }
+
+    // 각 카테고리 별 최근 한달간 게시글이 제일 많았던 구 출력
+//    @Override
+//    public
 
     @Override
     public Slice<PostDto.ResponseDto> getMyPosts(Long userId, Pageable pageable, Category category) {
@@ -196,9 +203,10 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
         }
     }
 
-    private List<PostDslDto.ResponseDto> convertPostDto(List<Post> posts) {
+
+    private List<PostDto.ResponseDto> convertPostDto(List<Post> posts) {
         return posts.stream()
-                .map(post -> PostDslDto.ResponseDto.builder()
+                .map(post -> PostDto.ResponseDto.builder()
                         .userId(post.getUser().getId())
                         .postId(post.getId())
                         .nickname(post.getUser().getNickname())

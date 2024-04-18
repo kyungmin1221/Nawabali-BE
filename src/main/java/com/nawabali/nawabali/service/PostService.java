@@ -98,12 +98,12 @@ public class PostService {
 
     // 전체 게시물 조회
     public Slice<PostDto.ResponseDto> getPostsByLatest(Pageable pageable) {
-        Slice<PostDslDto.ResponseDto> postSlice = postRepository.findPostsByLatest(pageable);
-        List<PostDto.ResponseDto> content = postSlice.getContent().stream()
-                .map(this::createPostDto)
+        Slice<PostDto.ResponseDto> postSlice = postRepository.findPostsByLatest(pageable);
+        List<PostDto.ResponseDto> responseDtos = postSlice.getContent().stream()
+                .map(this::convertToResponseDto)
                 .collect(Collectors.toList());
 
-        return new SliceImpl<>(content, pageable, postSlice.hasNext());
+        return new SliceImpl<>(responseDtos, pageable, postSlice.hasNext());
     }
 
 
@@ -131,21 +131,23 @@ public class PostService {
 
     // 카테고리 별 게시물 조회
     public Slice<PostDto.ResponseDto> getPostByCategory(Category category, String district, Pageable pageable) {
-        Slice<PostDslDto.ResponseDto> postCategory = postRepository.findCategoryByPost(category,district, pageable);
-        List<PostDto.ResponseDto> content = postCategory.getContent().stream()
-                .map(this::createPostDto)
+        Slice<PostDto.ResponseDto> postCategory = postRepository.findCategoryByPost(category,district, pageable);
+        List<PostDto.ResponseDto> responseDtos = postCategory.getContent().stream()
+                .map(this::convertToResponseDto)
                 .collect(Collectors.toList());
 
-        return new SliceImpl<>(content, pageable, postCategory.hasNext());
+        return new SliceImpl<>(responseDtos, pageable, postCategory.hasNext());
     }
 
 
     // 작성된 게시글을 좋아요가 많은 순으로 상위 10개( 카테고리, 구, 기간 으로 필터링 )
     public List<PostDto.ResponseDto> getPostByLike(Category category, String district, Period period) {
-        List<PostDslDto.ResponseDto> posts = postRepository.topLikeByPosts(category,district, period);
-        return posts.stream()
-                .map(this::createPostDto)
+        List<PostDto.ResponseDto> posts = postRepository.topLikeByPosts(category,district, period);
+        List<PostDto.ResponseDto> responseDtos = posts.stream()
+                .map(this::convertToResponseDto)
                 .collect(Collectors.toList());
+
+        return responseDtos;
     }
 
     // 게시물 수정 - 사용자 신원 확인
@@ -250,8 +252,7 @@ public class PostService {
     }
 
 
-    //  조회시 dto 생성 메서드
-    public PostDto.ResponseDto createPostDto(PostDslDto.ResponseDto post) {
+    private PostDto.ResponseDto convertToResponseDto(PostDto.ResponseDto post) {
         Long likesCount = getLikesCount(post.getPostId(), LIKE);
         Long localLikesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
         String profileImageUrl = getProfileImage(post.getPostId()).getImgUrl();
@@ -274,5 +275,6 @@ public class PostService {
                 profileImageUrl
         );
     }
+
 
 }

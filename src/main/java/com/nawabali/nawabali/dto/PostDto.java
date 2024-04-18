@@ -75,6 +75,27 @@ public class PostDto {
         private String profileImageUrl;
 
 
+        public ResponseDto(Post post, Long likesCount, Long localLikesCount, String profileImageUrl) {
+            this.userId = post.getUser().getId();
+            this.postId = post.getId();
+            this.nickname = post.getUser().getNickname();
+            this.contents = post.getContents();
+            this.category = post.getCategory().name();
+            this.district = post.getTown().getDistrict();
+            this.latitude = post.getTown().getLatitude();
+            this.longitude = post.getTown().getLongitude();
+            this.createdAt = post.getCreatedAt();
+            this.modifiedAt = post.getModifiedAt();
+            this.imageUrls = post.getImages().stream()
+                    .map(PostImage::getImgUrl)
+                    .collect(Collectors.toList());
+            this.likesCount = likesCount;
+            this.localLikesCount = localLikesCount;
+            this.profileImageUrl = profileImageUrl;
+            this.commentCount = post.getComments().size();
+
+        }
+
         public ResponseDto(Post post) {
             this.userId = post.getUser().getId();
             this.postId = post.getId();
@@ -90,9 +111,7 @@ public class PostDto {
                     .map(PostImage::getImgUrl)
                     .collect(Collectors.toList());
             this.commentCount = post.getComments().size();
-
         }
-
     }
 
     @Getter
@@ -198,6 +217,24 @@ public class PostDto {
         private Long totalPost;
 //        private Long totalLike;
         private Long totalLocalLike;
+
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class SearchDto {
+
+        private Long id;
+
+        private String contents;
+
+        public SearchDto(Post post) {
+            this.id = post.getId();
+            this.contents = post.getContents();
+        }
 
     }
 }

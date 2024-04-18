@@ -12,12 +12,12 @@ import java.util.List;
 
 public interface PostDslRepositoryCustom {
 
-    Slice<PostDslDto.ResponseDto> findPostsByLatest(Pageable pageable);
+    Slice<PostDto.ResponseDto> findPostsByLatest(Pageable pageable);
 
-    Slice<PostDslDto.ResponseDto> findCategoryByPost(Category category, String district, Pageable pageable);
-    List<PostDslDto.SearchDto> findSearchByPosts(String contents);
+    Slice<PostDto.ResponseDto> findCategoryByPost(Category category, String district, Pageable pageable);
+    List<PostDto.SearchDto> findSearchByPosts(String contents);
 
-    List<PostDslDto.ResponseDto> topLikeByPosts(Category category, String district, Period period);
+    List<PostDto.ResponseDto> topLikeByPosts(Category category, String district, Period period);
 
     Slice<PostDto.ResponseDto> getMyPosts(Long userId, Pageable pageable, Category category);
 
