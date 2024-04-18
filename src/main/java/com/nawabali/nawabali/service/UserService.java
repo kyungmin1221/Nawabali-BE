@@ -188,6 +188,9 @@ public class UserService {
     }
 
     public List<UserSearch> searchNickname(String nickname) {
+        if(!StringUtils.hasText(nickname)){
+            return null;
+        }
         return userSearchRepository.findByNicknameContaining(nickname);
     }
 

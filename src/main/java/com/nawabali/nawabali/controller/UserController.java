@@ -87,7 +87,7 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    public List<UserSearch> searchNickname(@RequestParam(name = "nickname") String nickname){
+    public List<UserSearch> searchNickname(@RequestParam(name = "nickname", required = false) String nickname){
         return userService.searchNickname(nickname);
     }
 
