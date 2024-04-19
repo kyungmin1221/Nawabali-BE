@@ -9,6 +9,7 @@ import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.ChatMessageRepository;
 import com.nawabali.nawabali.repository.ChatRoomRepository;
+import com.nawabali.nawabali.repository.ProfileImageRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -34,6 +35,7 @@ public class ChatRoomService {
     private final UserRepository userRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final UserService userService;
+    private final ProfileImageRepository profileImageRepository;
 
     // 채팅방 생성
     public ChatDto.ChatRoomDto createRoom(ChatRoomEnum chatRoomEnum, String roomName, User user) {
@@ -86,6 +88,7 @@ public class ChatRoomService {
                 .roomName(roomName)
                 .userId(user.getId())
                 .otherUserId(otherUser.getId())
+                .profileImageId(otherUser.getProfileImage().getId()) // 상대방 프로필 사진
                 .roomNumber(chatRoom.getRoomNumber())
                 .build();
 
@@ -104,12 +107,14 @@ public class ChatRoomService {
 
 
     // 특정 채팅방 조회
-    public List<ChatDto.ChatRoomDto> roomInfo(String name, User user) {
+    public List<ChatDto.ChatRoomDto> roomInfo(String roomName, User user, Pageable pageable) {
 
         userRepository.findById(user.getId())
                 .orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
 
-        List<Chat.ChatRoom> chatRooms = chatRoomRepository.findByRoomNameContainingIgnoreCase(name)
+//        Slice <ChatDto.ChatRoomListDto> chatRoomListDtoSlice = chatRoomRepository.findChatRoomByRoomName(roomName, pageable);
+
+        List<Chat.ChatRoom> chatRooms = chatRoomRepository.findByRoomNameContainingIgnoreCase(roomName)
                 .orElseThrow(()-> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
 
         // ID에 따라 내림차순으로 정렬
@@ -122,6 +127,7 @@ public class ChatRoomService {
                         .roomName(chatRoom.getRoomName())
                         .build())
                 .collect(Collectors.toList());
+//        return null;
     }
 
     // 대화 조회
