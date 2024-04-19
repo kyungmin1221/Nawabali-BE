@@ -16,7 +16,9 @@ import com.nawabali.nawabali.repository.ProfileImageRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import com.nawabali.nawabali.repository.elasticsearch.UserSearchRepository;
 import com.nawabali.nawabali.security.Jwt.JwtUtil;
+import io.jsonwebtoken.Jwt;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -48,7 +50,7 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final RedisTool redisTool;
 
-    public ResponseEntity<String> logout(HttpServletRequest request) {
+    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
         String accessToken = jwtUtil.getJwtFromHeader(request);
         log.info("refreshToken 삭제.  key = " + accessToken);
         if (StringUtils.hasText(accessToken)) {
@@ -67,6 +69,7 @@ public class UserService {
                 }
             }
         }
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, null);
         return ResponseEntity.ok(accessToken);
     }
 

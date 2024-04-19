@@ -97,6 +97,7 @@ public class WebSecurityConfig {
 //                        .anyRequest().permitAll()
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll() // resources 접근 허용 설정
                         .requestMatchers("/").permitAll() // 메인 페이지 요청 허가
+                        .requestMatchers("/users/logout").permitAll()
                         .requestMatchers("/main.html").permitAll() // 메인 html페이지 요청 허가
                         .requestMatchers("/ping").permitAll() // 항상 200 OK 반환하는 health check 전용 API
                         .requestMatchers("/users/signup").permitAll()
