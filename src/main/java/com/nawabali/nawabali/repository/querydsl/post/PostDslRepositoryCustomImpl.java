@@ -135,11 +135,11 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
 
     // 각 카테고리 별 최근 한달(일주)간 게시글이 제일 많았던 구 및 게시글 수 출력
     @Override
-    public PostDto.SortDto findDistrictByPost(Category category, Period period) {
+    public PostDto.SortDistrictDto findDistrictByPost(Category category, Period period) {
         QPost post = QPost.post;
 
-        PostDto.SortDto results = queryFactory
-                .select(Projections.bean(PostDto.SortDto.class,
+        PostDto.SortDistrictDto results = queryFactory
+                .select(Projections.bean(PostDto.SortDistrictDto.class,
                         post.town.district,
                         post.count().as("postCount")))
                 .from(post)
@@ -151,6 +151,36 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
                 .fetchOne();
 
         return results;
+    }
+
+    // 구 와 기간별 각 카테고리의 게시글 개수
+    @Override
+    public List<PostDto.SortCategoryDto> findCategoryByPost(String district) {
+        QPost post = QPost.post;
+        LocalDateTime oneMonth = LocalDateTime.now().minusMonths(1);
+
+        List<PostDto.SortCategoryDto> results = queryFactory
+                .select(Projections.bean(PostDto.SortCategoryDto.class,
+                        post.category.stringValue().as("category"),
+                        post.count().as("postCount"))
+                )
+                .from(post)
+                .where(
+                        districtEq(district),
+                        post.createdAt.after(oneMonth)
+                )
+                .groupBy(post.category)
+                .fetch();
+
+        // 정의된 모든 카테고리를 확인하고 빠진 카테고리에 대해 결과 추가
+        for (Category category : Category.values()) {
+            if (results.stream().noneMatch(r -> r.getCategory().equals(category.name()))) {
+                results.add(new PostDto.SortCategoryDto(category.name(), 0L));
+            }
+        }
+        
+        return results;
+
     }
 
     @Override

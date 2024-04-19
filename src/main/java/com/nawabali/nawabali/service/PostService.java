@@ -147,8 +147,12 @@ public class PostService {
     }
 
     // 각 카테고리 별 최근 한달(일주)간 게시글이 제일 많았던 구 출력
-    public PostDto.SortDto getDistrictByCategory(Category category, Period period) {
+    public PostDto.SortDistrictDto getDistrictByCategory(Category category, Period period) {
         return postRepository.findDistrictByPost(category, period);
+    }
+
+    public List<PostDto.SortCategoryDto> getCategoryByPost(String district) {
+        return postRepository.findCategoryByPost(district);
     }
 
     // 게시물 수정 - 사용자 신원 확인

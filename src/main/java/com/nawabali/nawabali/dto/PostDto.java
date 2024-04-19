@@ -252,8 +252,18 @@ public class PostDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class SortDto {
+    public static class SortDistrictDto {
         private String district;
         private Long postCount;
+    }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class SortCategoryDto {
+        private String category;
+        private Long postCount = 0L;
     }
 }
