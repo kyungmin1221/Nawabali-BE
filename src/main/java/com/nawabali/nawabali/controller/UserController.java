@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -33,8 +34,8 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletRequest request){
-        return userService.logout(request);
+    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response){
+        return userService.logout(request, response);
     }
 
     @PostMapping("/signup")
