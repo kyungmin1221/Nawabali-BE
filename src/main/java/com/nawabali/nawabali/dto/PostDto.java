@@ -1,6 +1,7 @@
 package com.nawabali.nawabali.dto;
 
 import com.nawabali.nawabali.constant.Category;
+import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.image.PostImage;
 import jakarta.validation.constraints.NotBlank;
@@ -46,6 +47,8 @@ public class PostDto {
 
         private Long userId;
 
+        private UserRankEnum userRank;
+
         private Long postId;
 
         private String nickname;
@@ -77,6 +80,7 @@ public class PostDto {
 
         public ResponseDto(Post post, Long likesCount, Long localLikesCount, String profileImageUrl) {
             this.userId = post.getUser().getId();
+            this.userRank = post.getUser().getRank();
             this.postId = post.getId();
             this.nickname = post.getUser().getNickname();
             this.contents = post.getContents();
@@ -98,6 +102,7 @@ public class PostDto {
 
         public ResponseDto(Post post) {
             this.userId = post.getUser().getId();
+            this.userRank = post.getUser().getRank();
             this.postId = post.getId();
             this.nickname = post.getUser().getNickname();
             this.contents = post.getContents();
@@ -122,6 +127,8 @@ public class PostDto {
     public static class ResponseDetailDto {     // 게시물 상세 조회 시
 
         private Long userId;
+
+        private UserRankEnum userRank;
 
         private Long postId;
 
@@ -154,6 +161,7 @@ public class PostDto {
 
         public ResponseDetailDto(Post post, Long likesCount, Long localLikesCount, String profileImageUrl, boolean likeStatus, boolean localLikesStatus, boolean bookmarkStatus) {
             this.userId = post.getUser().getId();
+            this.userRank=post.getUser().getRank();
             this.postId = post.getId();
             this.nickname = post.getUser().getNickname();
             this.contents = post.getContents();
