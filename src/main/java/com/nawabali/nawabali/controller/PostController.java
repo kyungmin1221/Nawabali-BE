@@ -116,6 +116,21 @@ public class PostController {
     }
 
 
+    @Operation(summary = "카테고리 별 일주일(한달) 동안 게시글이 가장 많았던 구를 출력",
+            description =
+                    """
+                    category 또는 period 를 이용한 게시글이 제일 많았던 구를 조회합니다.
+                    """)
+    @GetMapping("/top-district")
+    public ResponseEntity<String> getDistrictByCategory(
+            @RequestParam(required = false) Category category,
+            @RequestParam(required = false) Period period) {
+        String result = postService.getDistrictByCategory(category, period);
+        return ResponseEntity.ok(result);
+    }
+
+
+
     @Operation(summary = "게시물 수정", description = "postId 를 이용한 게시물 수정")
     @PatchMapping("/{postId}")
     public ResponseEntity<PostDto.PatchDto> updatePost(@PathVariable Long postId,

@@ -19,4 +19,6 @@ public interface PostDslRepositoryCustom {
 
     Slice<PostDto.ResponseDto> getMyPosts(Long userId, Pageable pageable, Category category);
 
+    String findDistrictByPost(Category category, Period period);
+
 }

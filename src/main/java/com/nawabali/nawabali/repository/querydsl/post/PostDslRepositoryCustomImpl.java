@@ -10,6 +10,7 @@ import com.nawabali.nawabali.domain.image.PostImage;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -132,9 +133,28 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
 
     }
 
-    // 각 카테고리 별 최근 한달간 게시글이 제일 많았던 구 출력
-//    @Override
-//    public
+    // 각 카테고리 별 최근 한달(일주)간 게시글이 제일 많았던 구 출력
+    @Override
+    public String findDistrictByPost(Category category, Period period) {
+        QPost post = QPost.post;
+
+        Tuple result = queryFactory
+                .select(post.town.district,
+                        post.count())
+                .from(post)
+                .where(categoryEq(category),
+                        periodEq(period))
+                .groupBy(post.town.district)
+                .orderBy(post.count().desc())
+                .limit(1)
+                .fetchOne();
+
+        if(result != null) {
+            return result.get(post.town.district);
+        }
+
+        return null;
+    }
 
     @Override
     public Slice<PostDto.ResponseDto> getMyPosts(Long userId, Pageable pageable, Category category) {
