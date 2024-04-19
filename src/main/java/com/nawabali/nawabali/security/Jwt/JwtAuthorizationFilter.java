@@ -62,11 +62,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     UserRoleEnum role = user.getRole();
                     // 새로운 access, refresh Token 발행
                     String newAccessToken = jwtUtil.createAccessToken(email, role);
-                    Cookie newAccessCookie = jwtUtil.createAccessCookie(newAccessToken);
                     String newRefreshToken = jwtUtil.createRefreshToken(email);
                     log.info("발급한 유저의 email : " + email);
 
-                    res.addCookie(newAccessCookie);
                     res.addHeader(JwtUtil.AUTHORIZATION_HEADER, newAccessToken);
 
                     redisTool.deleteValues(accessToken);
