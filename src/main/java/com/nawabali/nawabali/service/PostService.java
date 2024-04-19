@@ -147,7 +147,7 @@ public class PostService {
     }
 
     // 각 카테고리 별 최근 한달(일주)간 게시글이 제일 많았던 구 출력
-    public String getDistrictByCategory(Category category, Period period) {
+    public PostDto.SortDto getDistrictByCategory(Category category, Period period) {
         return postRepository.findDistrictByPost(category, period);
     }
 

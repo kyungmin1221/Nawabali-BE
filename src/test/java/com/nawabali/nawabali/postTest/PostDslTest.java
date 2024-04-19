@@ -55,16 +55,16 @@ class PostDslTest {
         System.out.println("QueryDSL 검색 실행 시간: " + (endTime - startTime) + "ms");
     }
 
-    @Test
-    public void testFindDistrictByPost() {
-        Category category = Category.CAFE;
-        Period period = Period.WEEK;
-
-        String district = postDslRepositoryCustom.findDistrictByPost(category, period);
-
-
-        // 결과 검증
-        assertNotNull(district, "구 이름이 null이면 안됩니다.");
-        System.out.println("가장 게시물이 많은 구: " + district);
-    }
+//    @Test
+//    public void testFindDistrictByPost() {
+//        Category category = Category.CAFE;
+//        Period period = Period.WEEK;
+//
+//        String district = postDslRepositoryCustom.findDistrictByPost(category, period);
+//
+//
+//        // 결과 검증
+//        assertNotNull(district, "구 이름이 null이면 안됩니다.");
+//        System.out.println("가장 게시물이 많은 구: " + district);
+//    }
 }

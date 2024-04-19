@@ -238,4 +238,14 @@ public class PostDto {
         }
 
     }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class SortDto {
+        private String district;
+        private Long postCount;
+    }
 }

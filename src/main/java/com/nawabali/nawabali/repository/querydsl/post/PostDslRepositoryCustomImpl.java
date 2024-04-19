@@ -133,14 +133,15 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
 
     }
 
-    // 각 카테고리 별 최근 한달(일주)간 게시글이 제일 많았던 구 출력
+    // 각 카테고리 별 최근 한달(일주)간 게시글이 제일 많았던 구 및 게시글 수 출력
     @Override
-    public String findDistrictByPost(Category category, Period period) {
+    public PostDto.SortDto findDistrictByPost(Category category, Period period) {
         QPost post = QPost.post;
 
-        Tuple result = queryFactory
-                .select(post.town.district,
-                        post.count())
+        PostDto.SortDto results = queryFactory
+                .select(Projections.bean(PostDto.SortDto.class,
+                        post.town.district,
+                        post.count().as("postCount")))
                 .from(post)
                 .where(categoryEq(category),
                         periodEq(period))
@@ -149,11 +150,7 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
                 .limit(1)
                 .fetchOne();
 
-        if(result != null) {
-            return result.get(post.town.district);
-        }
-
-        return null;
+        return results;
     }
 
     @Override

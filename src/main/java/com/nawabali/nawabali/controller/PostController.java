@@ -116,16 +116,16 @@ public class PostController {
     }
 
 
-    @Operation(summary = "카테고리 별 일주일(한달) 동안 게시글이 가장 많았던 구를 출력",
+    @Operation(summary = "카테고리 별 일주일(한달) 동안 게시글이 가장 많았던 구와 게시글 수 출력",
             description =
                     """
-                    category 또는 period 를 이용한 게시글이 제일 많았던 구를 조회합니다.
+                    category 또는 period 를 이용한 게시글이 제일 많았던 구 및 게시글 개수를 조회합니다.
                     """)
     @GetMapping("/top-district")
-    public ResponseEntity<String> getDistrictByCategory(
+    public ResponseEntity<PostDto.SortDto> getDistrictByCategory(
             @RequestParam(required = false) Category category,
             @RequestParam(required = false) Period period) {
-        String result = postService.getDistrictByCategory(category, period);
+        PostDto.SortDto result = postService.getDistrictByCategory(category, period);
         return ResponseEntity.ok(result);
     }
 
