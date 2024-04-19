@@ -1,5 +1,6 @@
 package com.nawabali.nawabali.service;
 
+import co.elastic.clients.elasticsearch._types.query_dsl.PercolateQuery;
 import com.nawabali.nawabali.constant.*;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.domain.elasticsearch.UserSearch;
@@ -50,13 +51,13 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final RedisTool redisTool;
 
-    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
-        String accessToken = jwtUtil.getJwtFromHeader(request);
-        log.info("refreshToken 삭제.  key = " + accessToken);
+    public ResponseEntity<String> logout(String accessToken) {
         if (StringUtils.hasText(accessToken)) {
+            log.info("accessToken : " + accessToken );
+            accessToken = accessToken.substring(7);
             String refreshToken = redisTool.getValues(accessToken);
             if (!refreshToken.equals("false")) {
-
+                log.info("refreshToken 삭제.  key = " + accessToken);
                 redisTool.deleteValues(accessToken);
 
                 //access의 남은 유효시간만큼  redis에 블랙리스트로 저장
@@ -69,7 +70,6 @@ public class UserService {
                 }
             }
         }
-        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, null);
         return ResponseEntity.ok(accessToken);
     }
 
@@ -134,27 +134,35 @@ public class UserService {
         Long totalLikeCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LIKE);
         Long totalLocalLikeCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LOCAL_LIKE);
 
+        Long needPosts = Math.max(existUser.getRank().getNeedPosts() - postIds.size(), 0L);
+        Long needLikes = Math.max(existUser.getRank().getNeedLikes() - totalLikeCount, 0L);
+
+        postIds = null;
 
         return UserDto.UserInfoResponseDto.builder()
                 .id(existUser.getId())
                 .email(existUser.getEmail())
                 .nickname(existUser.getNickname())
-                .rank(existUser.getRank())
+                .rankName(existUser.getRank().getName())
                 .city(existUser.getAddress().getCity())
                 .district(existUser.getAddress().getDistrict())
                 .totalLikesCount(totalLikeCount)
                 .totalLocalLikesCount(totalLocalLikeCount)
                 .profileImageUrl(existUser.getProfileImage().getImgUrl())
+                .needPosts(needPosts)
+                .needLikes(needLikes)
                 .build();
     }
 
     @Transactional
     public UserDto.UserInfoResponseDto updateUserInfo(User user, UserDto.UserInfoRequestDto requestDto) {
         User existUser = getUserId(user.getId());
-
-        String password = passwordEncoder.encode(requestDto.getPassword());
-        requestDto.setPassword(password);
-
+        if(StringUtils.hasText(requestDto.getPassword())) {
+            String password = passwordEncoder.encode(requestDto.getPassword());
+            requestDto.setPassword(password);
+        }else{
+            requestDto.setPassword(existUser.getPassword());
+        }
         existUser.update(requestDto);
 
         UserSearch userSearch = new UserSearch(existUser, existUser.getProfileImage().getImgUrl());

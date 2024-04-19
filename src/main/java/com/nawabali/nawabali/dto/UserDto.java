@@ -26,11 +26,12 @@ public class UserDto {
         String nickname;
         String city;
         String district;
-        UserRankEnum rank;
+        String rankName;
         Long totalLikesCount;
         Long totalLocalLikesCount;
         String profileImageUrl;
-
+        Long needPosts;
+        Long needLikes;
 
         public UserInfoResponseDto(User user) {
             this.id = user.getId();
@@ -38,8 +39,20 @@ public class UserDto {
             this.nickname = user.getNickname();
             this.city = user.getAddress().getCity();
             this.district = user.getAddress().getDistrict();
-            this.rank = user.getRank();
+            this.rankName = user.getRank().name();
             this.profileImageUrl = user.getProfileImage().getImgUrl();
+        }
+
+        public UserInfoResponseDto(User user, Long needPosts, Long needLikes) {
+            this.id = user.getId();
+            this.email = user.getEmail();
+            this.nickname = user.getNickname();
+            this.city = user.getAddress().getCity();
+            this.district = user.getAddress().getDistrict();
+            this.rankName = user.getRank().name();
+            this.profileImageUrl = user.getProfileImage().getImgUrl();
+            this.needPosts = needPosts;
+            this.needLikes = needLikes;
         }
     }
 

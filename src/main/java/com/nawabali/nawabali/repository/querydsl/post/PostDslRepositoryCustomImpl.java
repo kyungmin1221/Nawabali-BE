@@ -223,7 +223,7 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
         return posts.stream()
                 .map(post -> PostDto.ResponseDto.builder()
                         .userId(post.getUser().getId())
-                        .userRank(post.getUser().getRank())
+                        .userRankName(post.getUser().getRank().getName())
                         .postId(post.getId())
                         .nickname(post.getUser().getNickname())
                         .contents(post.getContents())

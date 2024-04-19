@@ -47,7 +47,7 @@ public class PostDto {
 
         private Long userId;
 
-        private UserRankEnum userRank;
+        private String userRankName;
 
         private Long postId;
 
@@ -80,7 +80,7 @@ public class PostDto {
 
         public ResponseDto(Post post, Long likesCount, Long localLikesCount, String profileImageUrl) {
             this.userId = post.getUser().getId();
-            this.userRank = post.getUser().getRank();
+            this.userRankName = post.getUser().getRank().getName();
             this.postId = post.getId();
             this.nickname = post.getUser().getNickname();
             this.contents = post.getContents();
@@ -102,7 +102,7 @@ public class PostDto {
 
         public ResponseDto(Post post) {
             this.userId = post.getUser().getId();
-            this.userRank = post.getUser().getRank();
+            this.userRankName = post.getUser().getRank().name();
             this.postId = post.getId();
             this.nickname = post.getUser().getNickname();
             this.contents = post.getContents();
@@ -128,7 +128,7 @@ public class PostDto {
 
         private Long userId;
 
-        private UserRankEnum userRank;
+        private String userRankName;
 
         private Long postId;
 
@@ -161,7 +161,7 @@ public class PostDto {
 
         public ResponseDetailDto(Post post, Long likesCount, Long localLikesCount, String profileImageUrl, boolean likeStatus, boolean localLikesStatus, boolean bookmarkStatus) {
             this.userId = post.getUser().getId();
-            this.userRank=post.getUser().getRank();
+            this.userRankName=post.getUser().getRank().getName();
             this.postId = post.getId();
             this.nickname = post.getUser().getNickname();
             this.contents = post.getContents();

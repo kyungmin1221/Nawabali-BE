@@ -265,7 +265,7 @@ public class PostService {
 
         return new PostDto.ResponseDto(
                 post.getUserId(),
-                post.getUserRank(),
+                post.getUserRankName(),
                 post.getPostId(),
                 post.getNickname(),
                 post.getContents(),
