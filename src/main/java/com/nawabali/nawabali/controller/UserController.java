@@ -2,6 +2,7 @@ package com.nawabali.nawabali.controller;
 
 
 import com.nawabali.nawabali.constant.Category;
+import com.nawabali.nawabali.domain.elasticsearch.UserSearch;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.dto.SignupDto;
 import com.nawabali.nawabali.dto.UserDto;
@@ -21,6 +22,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -81,6 +84,11 @@ public class UserController {
             @RequestParam(name ="category",required = false) Category category)
     {
         return userService.getMyPosts(userDetails.getUser(), pageable, category);
+    }
+
+    @GetMapping("/search")
+    public List<UserSearch> searchNickname(@RequestParam(name = "nickname", required = false) String nickname){
+        return userService.searchNickname(nickname);
     }
 
 

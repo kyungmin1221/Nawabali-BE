@@ -2,11 +2,13 @@ package com.nawabali.nawabali.service;
 
 import com.nawabali.nawabali.constant.DefaultProfileImage;
 import com.nawabali.nawabali.domain.User;
+import com.nawabali.nawabali.domain.elasticsearch.UserSearch;
 import com.nawabali.nawabali.domain.image.ProfileImage;
 import com.nawabali.nawabali.dto.UserDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.ProfileImageRepository;
+import com.nawabali.nawabali.repository.elasticsearch.UserSearchRepository;
 import com.nawabali.nawabali.s3.AwsS3Service;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class ImageService {
 
     private final AwsS3Service awsS3Service;
     private final ProfileImageRepository profileImageRepository;
+    private final UserSearchRepository userSearchRepository;
 
     @Transactional
     public UserDto.ProfileImageDto updateProfileImage(UserDetailsImpl userDetails, MultipartFile multipartFile) {
@@ -38,6 +41,9 @@ public class ImageService {
         profileImage.updateFileName(multipartFile.getOriginalFilename());
         profileImage.updateImgUrl(url);
         profileImageRepository.save(profileImage);
+        // 프로필 사진 변경 시 엘라스틱 서치에 반영
+        UserSearch userSearch = new UserSearch(user, url);
+        userSearchRepository.save(userSearch);
 
         return new UserDto.ProfileImageDto(profileImage);
     }
@@ -55,6 +61,11 @@ public class ImageService {
         profileImage.updateFileName(DefaultProfileImage.fileName);
         profileImage.updateImgUrl(DefaultProfileImage.imgUrl);
         profileImageRepository.save(profileImage);
+
+        // 프로필 사진 변경 시 엘라스틱 서치에 반영
+        UserSearch userSearch = new UserSearch(user, DefaultProfileImage.imgUrl);
+        userSearchRepository.save(userSearch);
+
         return new UserDto.DeleteDto("프로필사진이 삭제되었습니다.");
     }
 

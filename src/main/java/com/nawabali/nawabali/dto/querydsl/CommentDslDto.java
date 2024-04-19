@@ -56,16 +56,12 @@ public class CommentDslDto {
 
         public String RankInKorean(Comment comment) {
             UserRankEnum rank = comment.getUser().getRank();
-            switch (rank) {
-                case RESIDENT:
-                    return "주민";
-                case NATIVE_PERSON:
-                    return "토박이";
-                case LOCAL_ELDER:
-                    return "터줏대감";
-                default:
-                    throw new CustomException(ErrorCode.RANK_NOT_FOUND);
-            }
+            return switch (rank) {
+                case RESIDENT -> "주민";
+                case NATIVE_PERSON -> "토박이";
+                case LOCAL_ELDER -> "터줏대감";
+                default -> throw new CustomException(ErrorCode.RANK_NOT_FOUND);
+            };
         }
     }
 }
