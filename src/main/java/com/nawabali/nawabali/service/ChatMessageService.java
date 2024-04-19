@@ -42,9 +42,11 @@ public class ChatMessageService {
         User userOptional = userRepository.findById(message.getUserId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
         log.debug("유저 인포" + userOptional);
+
         Chat.ChatRoom chatRoom = chatRoomRepository.findById(message.getRoomId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
         log.debug("chatroom roomid 찾기" + chatRoom);
+
         if (!chatRoomRepository.findByIdAndUserId(chatRoom.getId(),userOptional.getId()).isPresent()){
             message.setMessage(message.getSender() + "님이 입장하셨습니다.");
             log.debug("메세지가 잘 들어오는지" + message);
@@ -61,9 +63,11 @@ public class ChatMessageService {
             log.debug("세이브 된 내용" + chatRoomSave);
         }
 
+        // 읽지 않은 메세지 읽음 표시
         List <Chat.ChatMessage> chatMessageList = chatMessageRepository.findByChatRoomIdAndUserId(chatRoom.getId(), userOptional.getId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
         log.debug("메세지 리스트" + chatMessageList);
+
         for (Chat.ChatMessage user : chatMessageList) {
             Chat.ChatMessage chatMessage = new Chat.ChatMessage();
             chatMessage.update(true);

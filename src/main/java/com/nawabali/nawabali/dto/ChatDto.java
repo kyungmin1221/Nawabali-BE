@@ -47,6 +47,7 @@ public class ChatDto {
         private ChatRoomEnum chatRoomEnum;
         private Long userId;
         private Long otherUserId;
+        private Long profileImageId;
     } // pub/sub 방식으로 구독자 관리 / 발송의 구현이 되므로 간소화 됐다.
 
     @Getter
