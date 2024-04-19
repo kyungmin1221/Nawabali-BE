@@ -12,7 +12,6 @@ import com.nawabali.nawabali.domain.elasticsearch.PostSearch;
 import com.nawabali.nawabali.domain.image.PostImage;
 import com.nawabali.nawabali.domain.image.ProfileImage;
 import com.nawabali.nawabali.dto.PostDto;
-import com.nawabali.nawabali.dto.querydsl.PostDslDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.*;

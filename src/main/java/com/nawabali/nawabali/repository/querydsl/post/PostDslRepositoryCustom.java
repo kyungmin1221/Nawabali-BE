@@ -2,9 +2,7 @@ package com.nawabali.nawabali.repository.querydsl.post;
 
 import com.nawabali.nawabali.constant.Category;
 import com.nawabali.nawabali.constant.Period;
-import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.dto.PostDto;
-import com.nawabali.nawabali.dto.querydsl.PostDslDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 

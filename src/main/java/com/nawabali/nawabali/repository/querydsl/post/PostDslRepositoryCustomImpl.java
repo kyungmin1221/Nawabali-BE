@@ -1,7 +1,6 @@
 package com.nawabali.nawabali.repository.querydsl.post;
 
 import com.nawabali.nawabali.constant.Category;
-import com.nawabali.nawabali.constant.LikeCategoryEnum;
 import com.nawabali.nawabali.constant.Period;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.QLike;
@@ -9,7 +8,6 @@ import com.nawabali.nawabali.domain.QPost;
 import com.nawabali.nawabali.domain.QUser;
 import com.nawabali.nawabali.domain.image.PostImage;
 import com.nawabali.nawabali.dto.PostDto;
-import com.nawabali.nawabali.dto.querydsl.PostDslDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.querydsl.core.types.Projections;
