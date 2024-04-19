@@ -26,9 +26,6 @@ public class Chat {
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long Id;
 
-//        @Column (nullable = false)
-//        private MessageType type; // 메세지 타입
-
         @Column (nullable = false)
         private String sender; // 메시지 보낸사람
 

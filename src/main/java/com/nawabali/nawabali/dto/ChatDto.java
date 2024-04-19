@@ -14,7 +14,6 @@ public class ChatDto {
     @Builder
     public static class ChatMessageDto {
         private Long id;
-//        private MessageType type;
         private Long roomId;
         private Long userId;
         private String sender;
@@ -26,7 +25,7 @@ public class ChatDto {
     @Setter
     @Builder
     public static class ChatMessageResponseDto {
-        private Long id;
+        private Long id; // message id
         private Long roomId;
         private Long userId;
         private String sender;

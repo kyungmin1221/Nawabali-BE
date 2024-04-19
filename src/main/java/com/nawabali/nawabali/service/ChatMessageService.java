@@ -74,11 +74,12 @@ public class ChatMessageService {
     }
 
     // 메세지 보내기
-    public ChatDto.ChatMessageResponseDto message(ChatDto.ChatMessageDto message) {
+    public List <ChatDto.ChatMessageResponseDto> message(ChatDto.ChatMessageDto message) {
 
         User userOptional = userRepository.findById(message.getUserId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
         log.info("userOptional 유저 인포메이션" + userOptional);
+
         Chat.ChatRoom chatRoom = chatRoomRepository.findById(message.getRoomId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
         log.info("chatroom roomid 찾기" + chatRoom);
@@ -87,6 +88,7 @@ public class ChatMessageService {
 
         Object chatRoomUsers = chatRoom.getUser();
         log.debug("채팅방에 있는 사람들 가져오기" + chatRoomUsers);
+
         if (chatRoomUsers instanceof List) {
             usersInChatRoom = (List<User>) chatRoomUsers;
             log.debug("채팅방에 혼자 있을때" + usersInChatRoom);
@@ -97,7 +99,7 @@ public class ChatMessageService {
             throw new IllegalStateException("반환한 객체의 타입이 예상과 다릅니다" + chatRoomUsers.getClass());
         }
 
-        ChatDto.ChatMessageResponseDto chatMessageResponseDto = null;
+        List <ChatDto.ChatMessageResponseDto> chatMessageResponseDtoList = new ArrayList<>();
 
         for (User user : usersInChatRoom) {
             log.info("가져온 유저들의 정보 보내기 위해서 한명씩 꺼내기" + user);
@@ -114,16 +116,18 @@ public class ChatMessageService {
             chatMessageRepository.save(allUser);
             log.info("유저 정보 세이브 한거" + allUser);
 
-            chatMessageResponseDto = ChatDto.ChatMessageResponseDto.builder()
+            ChatDto.ChatMessageResponseDto chatMessageResponseDto = ChatDto.ChatMessageResponseDto.builder()
                     .id(allUser.getId()) // 채팅 메세지 ID
-                    .roomId(chatRoom.getId())
-                    .userId(userOptional.getId())
-                    .sender(userOptional.getNickname())
-                    .message(message.getMessage())
-                    .receiver(user.getNickname())
+                    .roomId(allUser.getChatRoom().getId())
+                    .userId(allUser.getUser().getId())
+                    .sender(allUser.getSender())
+                    .message(allUser.getMessage())
+                    .receiver(allUser.getReceiver())
                     .isRead(user.equals(userOptional))
                     .createdMessageAt(LocalDateTime.now())
                     .build();
+
+            chatMessageResponseDtoList.add(chatMessageResponseDto);
         }
 
 //        notificationService.notifyMessage(chatRoom.getRoomNumber(), message.getUserId(), message.getSender());
@@ -131,6 +135,6 @@ public class ChatMessageService {
         messagingTemplate.convertAndSend("/chat/message" + message.getRoomId(), message);
         log.info("메세지 보내는거?" + messagingTemplate);
 
-        return chatMessageResponseDto;
+        return chatMessageResponseDtoList;
     }
 }

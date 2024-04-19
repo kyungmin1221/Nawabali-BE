@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 
+import java.util.List;
+
 @Tag(name = "채팅 API", description = "채팅 관련 API 입니다.")
 @RequiredArgsConstructor
 @Controller
@@ -25,10 +27,9 @@ public class ChatController {
 
     @Operation(summary = "채팅(DM) 전송" , description = "MessageType : TALK _ 메세지 전송")
     @MessageMapping("/chat/message")
-    public ChatDto.ChatMessageResponseDto message(ChatDto.ChatMessageDto message) {
+    public List<ChatDto.ChatMessageResponseDto> message(ChatDto.ChatMessageDto message) {
 
-        return chatMessageService.message(message);
-
+        return  chatMessageService.message(message);
 
     }
 }
