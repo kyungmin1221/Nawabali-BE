@@ -2,6 +2,7 @@ package com.nawabali.nawabali.service;
 
 import com.nawabali.nawabali.constant.*;
 import com.nawabali.nawabali.domain.User;
+import com.nawabali.nawabali.domain.elasticsearch.UserSearch;
 import com.nawabali.nawabali.domain.image.ProfileImage;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.dto.SignupDto;
@@ -13,6 +14,7 @@ import com.nawabali.nawabali.repository.LikeRepository;
 import com.nawabali.nawabali.repository.PostRepository;
 import com.nawabali.nawabali.repository.ProfileImageRepository;
 import com.nawabali.nawabali.repository.UserRepository;
+import com.nawabali.nawabali.repository.elasticsearch.UserSearchRepository;
 import com.nawabali.nawabali.security.Jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +44,7 @@ public class UserService {
 
     private final PostRepository postRepository;
     private final LikeRepository likeRepository;
+    private final UserSearchRepository userSearchRepository;
     private final JwtUtil jwtUtil;
     private final RedisTool redisTool;
 
@@ -81,7 +84,6 @@ public class UserService {
 
         String password = passwordEncoder.encode(rawPassword);
 
-
         // 관리자 권한 부여
         UserRoleEnum role = UserRoleEnum.USER;
 //        if(requestDto.isAdmin()){
@@ -109,6 +111,10 @@ public class UserService {
         profileImageRepository.save(profileImage);
         User responseUser = userRepository.findByEmail(user.getEmail())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
+        UserSearch userSearch = new UserSearch(responseUser, profileImage.getImgUrl());
+        userSearchRepository.save(userSearch);
+
         return ResponseEntity.ok(new SignupDto.SignupResponseDto(responseUser.getId()));
     }
 
@@ -147,6 +153,9 @@ public class UserService {
         requestDto.setPassword(password);
 
         existUser.update(requestDto);
+
+        UserSearch userSearch = new UserSearch(existUser, existUser.getProfileImage().getImgUrl());
+        userSearchRepository.save(userSearch);
         return new UserDto.UserInfoResponseDto(existUser);
     }
 
@@ -155,6 +164,7 @@ public class UserService {
         User existUser = getUserId(user.getId());
 
         userRepository.delete(existUser);
+        userSearchRepository.deleteById(existUser.getId());
         return ResponseEntity.ok(new UserDto.deleteResponseDto());
     }
 
@@ -175,6 +185,13 @@ public class UserService {
                 .toList();
 
         return new SliceImpl<>(posts, pageable, rawPosts.hasNext());
+    }
+
+    public List<UserSearch> searchNickname(String nickname) {
+        if(!StringUtils.hasText(nickname)){
+            return null;
+        }
+        return userSearchRepository.findByNicknameContaining(nickname);
     }
 
     // 메서드 //
@@ -200,11 +217,11 @@ public class UserService {
         return likeRepository.countByPostIdInAndLikeCategoryEnum(postIds, likeCategoryEnum);
     }
 
-    public Long getLikesCount(Long postId, LikeCategoryEnum likeCategoryEnum){
+    public Long getLikesCount(Long postId, LikeCategoryEnum likeCategoryEnum) {
         return likeRepository.countByPostIdAndLikeCategoryEnum(postId, likeCategoryEnum);
     }
 
-    public List<Long> getMyPostIds(Long userId){
+    public List<Long> getMyPostIds(Long userId) {
         return postRepository.findByUserId(userId).stream()
                 .map(PostDto.getMyPostsResponseDto::getId)
                 .toList();

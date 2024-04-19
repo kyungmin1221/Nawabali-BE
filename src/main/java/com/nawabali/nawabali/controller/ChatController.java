@@ -25,9 +25,10 @@ public class ChatController {
 
     @Operation(summary = "채팅(DM) 전송" , description = "MessageType : TALK _ 메세지 전송")
     @MessageMapping("/chat/message")
-    public void message(ChatDto.ChatMessageDto message) {
+    public ChatDto.ChatMessageResponseDto message(ChatDto.ChatMessageDto message) {
 
-        chatMessageService.message(message);
+        return chatMessageService.message(message);
+
 
     }
 }

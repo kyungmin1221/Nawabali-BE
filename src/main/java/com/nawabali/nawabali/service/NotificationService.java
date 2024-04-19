@@ -63,51 +63,51 @@ public class NotificationService {
     }
 
     // 채팅 알림
-    @Transactional
-    public void notifyMessage (String roomNumber, Long receiver, String sender) {
-
-        Chat.ChatRoom chatRoom = chatRoomRepository.findByRoomNumber(roomNumber);
-
-        User user = userRepository.findById(receiver)
-                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
-
-        User userSender = userRepository.findByNickname(sender);
-
-        Chat.ChatMessage receiveMessage = (Chat.ChatMessage) chatMessageRepository.findFirstBySenderOrderByCreatedMessageAtDesc(userSender.getNickname())
-                .orElseThrow(()-> new CustomException(ErrorCode.CHAT_MESSAGE_NOT_FOUND));
-
-        Long userId = user.getId();
-
-        if (NotificationController.sseEmitters.containsKey(userId)) {
-
-            SseEmitter sseEmitter = NotificationController.sseEmitters.get(userId);
-
-            try {
-                Map<String,String> eventData = new HashMap<>();
-                eventData.put("message", receiveMessage.getSender() + "님이 메시지를 보냈습니다.");
-                eventData.put("createdAt", receiveMessage.getCreatedMessageAt().toString());
-                eventData.put("contents", receiveMessage.getMessage());
-
-                sseEmitter.send(SseEmitter.event().name("addMessage알림").data(eventData));
-
-                Notification notification = Notification.builder()
-                        .sender(receiveMessage.getSender())
-                        .createdAt(receiveMessage.getCreatedMessageAt())
-                        .contents(receiveMessage.getMessage())
-                        .chatRoom(receiveMessage.getChatRoom())
-                        .build();
-
-                notificationRepository.save(notification);
-
-                notificationCounts.put(userId, notificationCounts.getOrDefault(userId,0) + 1);
-
-                sseEmitter.send(SseEmitter.event().name("notificationCount").data(notificationCounts.get(userId)));
-
-            } catch (Exception e) {
-                NotificationController.sseEmitters.remove(userId);
-            }
-        }
-    }
+//    @Transactional
+//    public void notifyMessage (String roomNumber, Long receiver, String sender) {
+//
+//        Chat.ChatRoom chatRoom = chatRoomRepository.findByRoomNumber(roomNumber);
+//
+//        User user = userRepository.findById(receiver)
+//                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+//
+//        User userSender = userRepository.findByNickname(sender);
+//
+//        Chat.ChatMessage receiveMessage = (Chat.ChatMessage) chatMessageRepository.findFirstBySenderOrderByCreatedMessageAtDesc(userSender.getNickname())
+//                .orElseThrow(()-> new CustomException(ErrorCode.CHAT_MESSAGE_NOT_FOUND));
+//
+//        Long userId = user.getId();
+//
+//        if (NotificationController.sseEmitters.containsKey(userId)) {
+//
+//            SseEmitter sseEmitter = NotificationController.sseEmitters.get(userId);
+//
+//            try {
+//                Map<String,String> eventData = new HashMap<>();
+//                eventData.put("message", receiveMessage.getSender() + "님이 메시지를 보냈습니다.");
+//                eventData.put("createdAt", receiveMessage.getCreatedMessageAt().toString());
+//                eventData.put("contents", receiveMessage.getMessage());
+//
+//                sseEmitter.send(SseEmitter.event().name("addMessage알림").data(eventData));
+//
+//                Notification notification = Notification.builder()
+//                        .sender(receiveMessage.getSender())
+//                        .createdAt(receiveMessage.getCreatedMessageAt())
+//                        .contents(receiveMessage.getMessage())
+//                        .chatRoom(receiveMessage.getChatRoom())
+//                        .build();
+//
+//                notificationRepository.save(notification);
+//
+//                notificationCounts.put(userId, notificationCounts.getOrDefault(userId,0) + 1);
+//
+//                sseEmitter.send(SseEmitter.event().name("notificationCount").data(notificationCounts.get(userId)));
+//
+//            } catch (Exception e) {
+//                NotificationController.sseEmitters.remove(userId);
+//            }
+//        }
+//    }
 
     // 댓글 알림
     @Transactional
