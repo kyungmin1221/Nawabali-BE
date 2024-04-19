@@ -116,6 +116,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/ws-stomp/**").permitAll()
                         .requestMatchers("/chat/**").permitAll()
                         .requestMatchers("/posts/district/*").permitAll()
+                        .requestMatchers("/comments/check/posts/**").permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
 
