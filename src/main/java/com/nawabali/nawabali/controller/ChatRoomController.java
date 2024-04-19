@@ -63,12 +63,12 @@ public class ChatRoomController {
         return chatRoomDtoSlice;
     }
 
-    @Operation(summary = "특정 채팅방 조회" , description = "채팅방 검색 API")
-    @GetMapping("/room/found")
-    @ResponseBody
-    public List<ChatDto.ChatRoomDto> roomInfo(@RequestParam String roomName, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return chatRoomService.roomInfo(roomName, userDetails.getUser());
-    }
+//    @Operation(summary = "특정 채팅방 조회" , description = "채팅방 검색 API")
+//    @GetMapping("/room/found")
+//    @ResponseBody
+//    public List<ChatDto.ChatRoomDto> roomInfo(@RequestParam String roomName, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+//        return chatRoomService.roomInfo(roomName, userDetails.getUser());
+//    }
 
     @Operation(summary = "채팅방 대화 내용 조회" , description = "채팅방 전제 대화 내용 조회 API")
     @GetMapping("/room/{roomId}/message")

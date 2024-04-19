@@ -107,28 +107,28 @@ public class ChatRoomService {
 
 
     // 특정 채팅방 조회
-    public List<ChatDto.ChatRoomDto> roomInfo(String roomName, User user, Pageable pageable) {
-
-        userRepository.findById(user.getId())
-                .orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
-
-        Slice <ChatDto.ChatRoomListDto> chatRoomListDtoSlice = chatRoomRepository.findChatRoomByRoomName(roomName, pageable);
-
-//        List<Chat.ChatRoom> chatRooms = chatRoomRepository.findByRoomNameContainingIgnoreCase(name)
-//                .orElseThrow(()-> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
+//    public List<ChatDto.ChatRoomDto> roomInfo(String roomName, User user, Pageable pageable) {
 //
-//        // ID에 따라 내림차순으로 정렬
-//        chatRooms.sort(Comparator.comparing(Chat.ChatRoom::getId).reversed());
+//        userRepository.findById(user.getId())
+//                .orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
 //
-//        return chatRooms.stream()
-//                .map(chatRoom -> ChatDto.ChatRoomDto.builder()
-//                        .roomId(chatRoom.getId())
-//                        .roomNumber(chatRoom.getRoomNumber())
-//                        .roomName(chatRoom.getRoomName())
-//                        .build())
-//                .collect(Collectors.toList());
-        return null;
-    }
+//        Slice <ChatDto.ChatRoomListDto> chatRoomListDtoSlice = chatRoomRepository.findChatRoomByRoomName(roomName, pageable);
+//
+////        List<Chat.ChatRoom> chatRooms = chatRoomRepository.findByRoomNameContainingIgnoreCase(name)
+////                .orElseThrow(()-> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
+////
+////        // ID에 따라 내림차순으로 정렬
+////        chatRooms.sort(Comparator.comparing(Chat.ChatRoom::getId).reversed());
+////
+////        return chatRooms.stream()
+////                .map(chatRoom -> ChatDto.ChatRoomDto.builder()
+////                        .roomId(chatRoom.getId())
+////                        .roomNumber(chatRoom.getRoomNumber())
+////                        .roomName(chatRoom.getRoomName())
+////                        .build())
+////                .collect(Collectors.toList());
+//        return null;
+//    }
 
     // 대화 조회
     public List<ChatDto.ChatMessageDto> loadMessage(Long roomId, User user) {
