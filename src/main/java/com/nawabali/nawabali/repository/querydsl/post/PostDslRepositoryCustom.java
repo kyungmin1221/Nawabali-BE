@@ -19,6 +19,8 @@ public interface PostDslRepositoryCustom {
 
     Slice<PostDto.ResponseDto> getMyPosts(Long userId, Pageable pageable, Category category);
 
-    PostDto.SortDto findDistrictByPost(Category category, Period period);
+    PostDto.SortDistrictDto findDistrictByPost(Category category, Period period);
+
+    List<PostDto.SortCategoryDto> findCategoryByPost(String district);
 
 }

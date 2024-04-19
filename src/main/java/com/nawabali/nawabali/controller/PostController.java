@@ -122,12 +122,21 @@ public class PostController {
                     category 또는 period 를 이용한 게시글이 제일 많았던 구 및 게시글 개수를 조회합니다.
                     """)
     @GetMapping("/top-district")
-    public ResponseEntity<PostDto.SortDto> getDistrictByCategory(
+    public ResponseEntity<PostDto.SortDistrictDto> getDistrictByCategory(
             @RequestParam(required = false) Category category,
             @RequestParam(required = false) Period period) {
-        PostDto.SortDto result = postService.getDistrictByCategory(category, period);
+        PostDto.SortDistrictDto result = postService.getDistrictByCategory(category, period);
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/sort-category")
+    public ResponseEntity<List<PostDto.SortCategoryDto>> getCategoryByPost(
+            @RequestParam(required = false) String district
+    ) {
+        List<PostDto.SortCategoryDto> result = postService.getCategoryByPost(district);
+        return ResponseEntity.ok(result);
+    }
+
 
 
 
