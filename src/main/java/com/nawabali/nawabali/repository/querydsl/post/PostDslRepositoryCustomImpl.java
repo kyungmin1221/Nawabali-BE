@@ -8,9 +8,9 @@ import com.nawabali.nawabali.domain.QPost;
 import com.nawabali.nawabali.domain.QUser;
 import com.nawabali.nawabali.domain.image.PostImage;
 import com.nawabali.nawabali.dto.PostDto;
-import com.nawabali.nawabali.dto.querydsl.PostDslDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.nawabali.nawabali.constant.LikeCategoryEnum.LIKE;
 import static com.nawabali.nawabali.domain.QPost.post;
 import static com.nawabali.nawabali.domain.QUser.user;
 import static org.springframework.util.StringUtils.hasText;
@@ -37,7 +38,7 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
 
     // 게시물 전체 조회 시 무한 스크롤
     @Override
-    public Slice<PostDslDto.ResponseDto> findPostsByLatest(Pageable pageable) {
+    public Slice<PostDto.ResponseDto> findPostsByLatest(Pageable pageable) {
         QPost post = QPost.post;
         QUser user = QUser.user;
 
@@ -55,18 +56,18 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
             posts.remove(posts.size() - 1);
         }
 
-        List<PostDslDto.ResponseDto> responseDtos = convertPostDto(posts);
+        List<PostDto.ResponseDto> responseDtos = convertPostDto(posts);
         return new SliceImpl<>(responseDtos, pageable, hasNext);
     }
 
 
     // 게시물 contents 로 검색
     @Override
-    public List<PostDslDto.SearchDto> findSearchByPosts(String contents)  {
+    public List<PostDto.SearchDto> findSearchByPosts(String contents)  {
         QPost post = QPost.post;
 
-        List<PostDslDto.SearchDto> searchResults = queryFactory
-                .select(Projections.constructor(PostDslDto.SearchDto.class,
+        List<PostDto.SearchDto> searchResults = queryFactory
+                .select(Projections.constructor(PostDto.SearchDto.class,
                         post.id,
                         post.contents))
                 .from(post)
@@ -78,7 +79,7 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
 
     // 카테고리 및 구 를 이용하여 게시물 조회
     @Override
-    public Slice<PostDslDto.ResponseDto> findCategoryByPost(Category category, String district, Pageable pageable) {
+    public Slice<PostDto.ResponseDto> findCategoryByPost(Category category, String district, Pageable pageable) {
         QPost post = QPost.post;
         QUser user = QUser.user;
 
@@ -97,13 +98,14 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
             posts.remove(posts.size() - 1);
         }
 
-        List<PostDslDto.ResponseDto> responseDtos = convertPostDto(posts);
+        List<PostDto.ResponseDto> responseDtos = convertPostDto(posts);
+
         return new SliceImpl<>(responseDtos, pageable, hasNext);
     }
 
     // 일주일 동안 좋아요 기준 상위 10개 게시물 조회
     @Override
-    public List<PostDslDto.ResponseDto> topLikeByPosts(Category category, String district, Period period) {
+    public List<PostDto.ResponseDto> topLikeByPosts(Category category, String district, Period period) {
         QPost post = QPost.post;
         QUser user = QUser.user;
         QLike like = QLike.like;
@@ -126,9 +128,29 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
                 .limit(10)
                 .fetch();
 
-        List<PostDslDto.ResponseDto> responseDtos = convertPostDto(posts);
+        List<PostDto.ResponseDto> responseDtos = convertPostDto(posts);
         return responseDtos;
 
+    }
+
+    // 각 카테고리 별 최근 한달(일주)간 게시글이 제일 많았던 구 및 게시글 수 출력
+    @Override
+    public PostDto.SortDto findDistrictByPost(Category category, Period period) {
+        QPost post = QPost.post;
+
+        PostDto.SortDto results = queryFactory
+                .select(Projections.bean(PostDto.SortDto.class,
+                        post.town.district,
+                        post.count().as("postCount")))
+                .from(post)
+                .where(categoryEq(category),
+                        periodEq(period))
+                .groupBy(post.town.district)
+                .orderBy(post.count().desc())
+                .limit(1)
+                .fetchOne();
+
+        return results;
     }
 
     @Override
@@ -196,9 +218,10 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
         }
     }
 
-    private List<PostDslDto.ResponseDto> convertPostDto(List<Post> posts) {
+
+    private List<PostDto.ResponseDto> convertPostDto(List<Post> posts) {
         return posts.stream()
-                .map(post -> PostDslDto.ResponseDto.builder()
+                .map(post -> PostDto.ResponseDto.builder()
                         .userId(post.getUser().getId())
                         .postId(post.getId())
                         .nickname(post.getUser().getNickname())

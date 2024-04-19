@@ -5,7 +5,6 @@ import com.nawabali.nawabali.domain.BookMark;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.BookMarkDto;
-import com.nawabali.nawabali.dto.querydsl.BookmarkDslDto;
 import com.nawabali.nawabali.repository.BookMarkRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -42,9 +41,9 @@ public class BookMarkService {
 
 
     // 유저의 북마크 조회
-    public Slice<BookmarkDslDto.UserBookmarkDto> getBookmarks(User user, Pageable pageable) {
-        Slice<BookmarkDslDto.UserBookmarkDto> bookmarkSlice = bookMarkRepository.getUserBookmarks(user, pageable);
-        List<BookmarkDslDto.UserBookmarkDto> content = bookmarkSlice.getContent().stream()
+    public Slice<BookMarkDto.UserBookmarkDto> getBookmarks(User user, Pageable pageable) {
+        Slice<BookMarkDto.UserBookmarkDto> bookmarkSlice = bookMarkRepository.getUserBookmarks(user, pageable);
+        List<BookMarkDto.UserBookmarkDto> content = bookmarkSlice.getContent().stream()
                 .map(this::createBookmarkDto)
                 .collect(Collectors.toList());
 
@@ -78,11 +77,11 @@ public class BookMarkService {
                 bookmark.getCreatedAt());
     }
 
-    public BookmarkDslDto.UserBookmarkDto createBookmarkDto(BookmarkDslDto.UserBookmarkDto bookmark) {
+    public BookMarkDto.UserBookmarkDto createBookmarkDto(BookMarkDto.UserBookmarkDto bookmark) {
         Long likesCount = postService.getLikesCount(bookmark.getPostId(), LikeCategoryEnum.LIKE);
         Long localLikesCount = postService.getLikesCount(bookmark.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
 
-        return new BookmarkDslDto.UserBookmarkDto(
+        return new BookMarkDto.UserBookmarkDto(
                 bookmark.getUserId(),
                 bookmark.getPostId(),
                 bookmark.getNickname(),

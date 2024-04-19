@@ -2,7 +2,7 @@ package com.nawabali.nawabali.repository.querydsl.bookmark;
 
 import com.nawabali.nawabali.domain.*;
 import com.nawabali.nawabali.domain.image.PostImage;
-import com.nawabali.nawabali.dto.querydsl.BookmarkDslDto;
+import com.nawabali.nawabali.dto.BookMarkDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +19,7 @@ public class BookmarkDslRepositoryCustomImpl implements BookmarkDslRepositoryCus
 
     private final JPAQueryFactory queryFactory;
 
-    public Slice<BookmarkDslDto.UserBookmarkDto> getUserBookmarks(User user, Pageable pageable) {
+    public Slice<BookMarkDto.UserBookmarkDto> getUserBookmarks(User user, Pageable pageable) {
         QBookMark bookMark = QBookMark.bookMark;
         QPost post = QPost.post;
         QUser quser = QUser.user;
@@ -39,14 +39,14 @@ public class BookmarkDslRepositoryCustomImpl implements BookmarkDslRepositoryCus
             bookmarks.remove(bookmarks.size() - 1);
         }
 
-        List<BookmarkDslDto.UserBookmarkDto> responseDtos = convertBookmarkDto(bookmarks);
+        List<BookMarkDto.UserBookmarkDto> responseDtos = convertBookmarkDto(bookmarks);
         return new SliceImpl<>(responseDtos, pageable, hasNext);
     }
 
 
-    private  List<BookmarkDslDto.UserBookmarkDto> convertBookmarkDto(List<BookMark> bookMarks) {
+    private  List<BookMarkDto.UserBookmarkDto> convertBookmarkDto(List<BookMark> bookMarks) {
         return bookMarks.stream()
-                .map(bookMark -> BookmarkDslDto.UserBookmarkDto.builder()
+                .map(bookMark -> BookMarkDto.UserBookmarkDto.builder()
                         .userId(bookMark.getUser().getId())
                         .postId(bookMark.getPost().getId())
                         .nickname(bookMark.getUser().getNickname())
