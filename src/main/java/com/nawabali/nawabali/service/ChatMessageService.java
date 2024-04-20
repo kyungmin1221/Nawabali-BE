@@ -130,7 +130,7 @@ public class ChatMessageService {
 
 //            chatMessageResponseDtoList.add(chatMessageResponseDto);
 
-            messagingTemplate.convertAndSend("/chat/message" + chatRoomId, chatMessageResponseDto);
+            messagingTemplate.convertAndSend("/sub/chat/message" + chatRoomId, message);
         }
 
 //        notificationService.notifyMessage(chatRoom.getRoomNumber(), message.getUserId(), message.getSender());
