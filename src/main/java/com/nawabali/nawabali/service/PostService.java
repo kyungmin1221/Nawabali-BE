@@ -46,6 +46,13 @@ public class PostService {
     private final PostSearchRepository postSearchRepository;
     private final ProfileImageRepository profileImageRepository;
     private final BookMarkRepository bookMarkRepository;
+    private final List <String> seoulDistrictNames = Arrays.asList(
+            "강남구", "강동구", "강서구", "강북구", "관악구",
+            "광진구", "구로구", "금천구", "노원구", "동대문구",
+            "도봉구", "동작구", "마포구", "서대문구", "성동구",
+            "성북구", "서초구", "송파구", "영등포구", "용산구",
+            "양천구", "은평구", "종로구", "중구", "중랑구"
+    );
 
 
     // 게시물 생성
@@ -118,11 +125,26 @@ public class PostService {
             Like localLike = (Like)likeRepository.findFirstByPostIdAndUserIdAndLikeCategoryEnum(postId, userId, LOCAL_LIKE).orElse(null);
             BookMark bookMark = bookMarkRepository.findByUserIdAndPostId(userId, postId).orElse(null);
 
-            return new PostDto.ResponseDetailDto(post, likesCount, localLikesCount, profileImageUrl,
-                    like != null, localLike!=null, bookMark!=null);
+            return new PostDto.ResponseDetailDto(
+                    post,
+                    likesCount,
+                    localLikesCount,
+                    profileImageUrl,
+                    like != null,
+                    localLike!=null,
+                    bookMark!=null
+            );
         }
         // 비 로그인 상태
-        return new PostDto.ResponseDetailDto(post, likesCount, localLikesCount, profileImageUrl, false, false, false);
+        return new PostDto.ResponseDetailDto(
+                post,
+                likesCount,
+                localLikesCount,
+                profileImageUrl,
+                false,
+                false,
+                false
+        );
     }
 
     // 카테고리 별 게시물 조회
@@ -183,7 +205,6 @@ public class PostService {
         getPostId(postId);
         List<PostImage> images = postImageRepository.findAllByPostId(postId);
 
-        // AWS S3에서 각 이미지 삭제
         images.forEach(image -> {
             String fullPath = "postImages/" + image.getFileName(); // 폴더 경로를 포함한 전체 경로
             awsS3Service.deleteFile(fullPath);
@@ -203,46 +224,41 @@ public class PostService {
 
     // 동네별 점수 조회
     public List<PostDto.DistrictDto> districtMap() {
-
-        List <String> seoulDistrictNames = Arrays.asList(
-                "강남구", "강동구", "강서구", "강북구", "관악구",
-                "광진구", "구로구", "금천구", "노원구", "동대문구",
-                "도봉구", "동작구", "마포구", "서대문구", "성동구",
-                "성북구", "서초구", "송파구", "영등포구", "용산구",
-                "양천구", "은평구", "종로구", "중구", "중랑구"
-        );
-
-        List <PostDto.DistrictDto> districtDtoList = new ArrayList<>();
-
-        for (String district : seoulDistrictNames) {
-
-            Long post = postRepository.countByTownDistrict(district)
-                    .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTPOST_NOT_FOUND));
-
-//            Long like = likeRepository.countByPostTownDistrictAndLikeCategoryEnum(district, LIKE)
-//                    .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTLIKE_NOT_FOUND));
-
-            Long localLike = likeRepository.countByPostTownDistrictAndLikeCategoryEnum(district, LOCAL_LIKE)
-                    .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTLOCALLIKE_NOT_FOUND));
-
-            List<Category> category = postRepository.findMostFrequentCategoryByTownDistrict(district);
-            Category popularCategory = category.isEmpty() ? null : category.get(0);
-
-
-            PostDto.DistrictDto districtDto = PostDto.DistrictDto.builder()
-                    .district(district)
-                    .totalPost(post)
-//                    .totalLike(like)
-                    .totalLocalLike(localLike)
-                    .popularCategory(popularCategory)
-                    .build();
-
-            districtDtoList.add(districtDto);
-        }
-
-        return districtDtoList;
+        return seoulDistrictNames.stream()
+                .map(district -> createDistrictDto(
+                        district,
+                        countPostsByDistrict(district),
+                        countLocalLikeByDistrict(district),
+                        getPopularCategoryByDistrict(district)))
+                .collect(Collectors.toList());
     }
 
+    // 해당하는 구의 전체 게시물 개수 반환
+    private Long countPostsByDistrict(String district) {
+        return postRepository.countByTownDistrict(district)
+                .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTPOST_NOT_FOUND));
+    }
+
+    // 해당하는 구의 전체 지역주민 좋아요 개수 반환
+    private Long countLocalLikeByDistrict(String district) {
+        return likeRepository.countByPostTownDistrictAndLikeCategoryEnum(district, LOCAL_LIKE)
+                .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTLOCALLIKE_NOT_FOUND));
+    }
+
+    // 해당하는 구의 인기있는 카테고리 이름 반환
+    private Category getPopularCategoryByDistrict(String district) {
+        List<Category> categories = postRepository.findMostFrequentCategoryByTownDistrict(district);
+        return categories.isEmpty() ? null : categories.get(0);
+    }
+
+    private PostDto.DistrictDto createDistrictDto(String district, Long posts, Long localLikes, Category popularCategory) {
+        return PostDto.DistrictDto.builder()
+                .district(district)
+                .totalPost(posts)
+                .totalLocalLike(localLikes)
+                .popularCategory(popularCategory)
+                .build();
+    }
 
     public Long getLikesCount(Long postId, LikeCategoryEnum likeCategoryEnum){
         return likeRepository.countByPostIdAndLikeCategoryEnum(postId, likeCategoryEnum);

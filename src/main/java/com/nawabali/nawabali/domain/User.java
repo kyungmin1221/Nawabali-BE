@@ -6,6 +6,7 @@ import com.nawabali.nawabali.constant.UserRoleEnum;
 import com.nawabali.nawabali.domain.image.ProfileImage;
 import com.nawabali.nawabali.dto.UserDto;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,8 +36,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRoleEnum role;
 
-    @Column(nullable = false)
     @Embedded
+    @Column(nullable = false)
+    @NotNull
     private Address address;
 
     @Column
