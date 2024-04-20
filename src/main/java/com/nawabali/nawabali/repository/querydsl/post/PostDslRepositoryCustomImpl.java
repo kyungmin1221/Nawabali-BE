@@ -86,7 +86,10 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
         List<Post> posts = queryFactory
                 .selectFrom(post)
                 .leftJoin(post.user, user).fetchJoin()
-                .where(categoryEq(category) , districtEq(district))
+                .where(
+                        categoryEq(category),
+                        districtEq(district)
+                )
                 .orderBy(post.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
@@ -114,7 +117,7 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
         List<Post> posts = queryFactory
                 .selectFrom(post)
                 .leftJoin(post.user,user).fetchJoin()
-                .leftJoin(post.likes,like)
+                .leftJoin(post.likes,like).fetchJoin()
                 .where(
                         periodEq(period),
                         categoryEq(category),

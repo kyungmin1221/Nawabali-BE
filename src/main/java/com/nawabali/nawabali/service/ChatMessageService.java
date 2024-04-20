@@ -137,6 +137,7 @@ public class ChatMessageService {
 //        notificationService.notifyMessage(chatRoom.getRoomNumber(), message.getUserId(), message.getSender());
 
         messagingTemplate.convertAndSend("/chat/message" + message.getRoomId(), message);
+        messagingTemplate.convertAndSend("/chat/message" + message.getRoomId(), chatMessageResponseDtoList);
         log.info("메세지 보내는거?" + messagingTemplate);
 
         return chatMessageResponseDtoList;
