@@ -128,11 +128,13 @@ public class ChatMessageService {
                     .createdMessageAt(LocalDateTime.now())
                     .build();
 
-            chatMessageResponseDtoList.add(chatMessageResponseDto);
+//            chatMessageResponseDtoList.add(chatMessageResponseDto);
+
+            messagingTemplate.convertAndSend("/chat/message" + chatRoomId, chatMessageResponseDto);
         }
 
 //        notificationService.notifyMessage(chatRoom.getRoomNumber(), message.getUserId(), message.getSender());
 
-        messagingTemplate.convertAndSend("/chat/message" + chatRoomId, message);
+//        messagingTemplate.convertAndSend("/chat/message" + chatRoomId, message);
     }
 }
