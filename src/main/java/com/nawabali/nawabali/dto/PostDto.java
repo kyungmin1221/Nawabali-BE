@@ -222,9 +222,11 @@ public class PostDto {
     public static class DistrictDto {
 
         private String district;
+
         private Long totalPost;
-//        private Long totalLike;
+
         private Long totalLocalLike;
+
         private Category popularCategory;
 
     }

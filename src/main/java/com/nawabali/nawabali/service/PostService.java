@@ -205,7 +205,6 @@ public class PostService {
         getPostId(postId);
         List<PostImage> images = postImageRepository.findAllByPostId(postId);
 
-        // AWS S3에서 각 이미지 삭제
         images.forEach(image -> {
             String fullPath = "postImages/" + image.getFileName(); // 폴더 경로를 포함한 전체 경로
             awsS3Service.deleteFile(fullPath);
@@ -234,16 +233,19 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
+    // 해당하는 구의 전체 게시물 개수 반환
     private Long countPostsByDistrict(String district) {
         return postRepository.countByTownDistrict(district)
                 .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTPOST_NOT_FOUND));
     }
 
+    // 해당하는 구의 전체 지역주민 좋아요 개수 반환
     private Long countLocalLikeByDistrict(String district) {
         return likeRepository.countByPostTownDistrictAndLikeCategoryEnum(district, LOCAL_LIKE)
                 .orElseThrow(()-> new CustomException(ErrorCode.DISTRICTLOCALLIKE_NOT_FOUND));
     }
 
+    // 해당하는 구의 인기있는 카테고리 이름 반환
     private Category getPopularCategoryByDistrict(String district) {
         List<Category> categories = postRepository.findMostFrequentCategoryByTownDistrict(district);
         return categories.isEmpty() ? null : categories.get(0);
