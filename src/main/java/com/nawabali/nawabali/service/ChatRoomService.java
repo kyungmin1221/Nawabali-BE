@@ -156,6 +156,7 @@ public class ChatRoomService {
                         .id(chatMessage.getId())
 //                        .type(chatMessage.getType())
                         .sender(chatMessage.getSender())
+//                        .nickname / url, id
                         .message(chatMessage.getMessage())
                         .createdMessageAt(chatMessage.getCreatedMessageAt())
                         .build())
