@@ -7,7 +7,6 @@ import java.util.Objects;
 
 @Embeddable
 @Getter
-//값타입은 불변객체인게 유리하므로 Setter는 만들지 말아야함
 public class Address {
 
     private String city;    // 도시

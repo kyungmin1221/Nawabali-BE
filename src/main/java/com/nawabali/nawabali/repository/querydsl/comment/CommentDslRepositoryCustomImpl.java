@@ -26,7 +26,7 @@ public class CommentDslRepositoryCustomImpl implements CommentDslRepositoryCusto
         List<Comment> comments = queryFactory
                 .select(comment)
                 .from(comment)
-                .leftJoin(comment.parent)
+                .leftJoin(comment.parent).fetchJoin()
                 .where(comment.post.id.eq(postId))
                 .orderBy(
                         comment.createdAt.asc(),
