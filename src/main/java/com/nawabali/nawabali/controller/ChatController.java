@@ -32,7 +32,7 @@ public class ChatController {
     @Operation(summary = "채팅(DM) 전송" , description = "MessageType : TALK _ 메세지 전송")
     @MessageMapping("/chat/message/{chatRoomId}")
     public void message(@DestinationVariable Long chatRoomId, @Payload ChatDto.ChatMessageDto message) {
-
+        // roomid 따로 받을지 이렇게 할지 물어보기
         chatMessageService.message(chatRoomId, message);
 
     } // sender command
