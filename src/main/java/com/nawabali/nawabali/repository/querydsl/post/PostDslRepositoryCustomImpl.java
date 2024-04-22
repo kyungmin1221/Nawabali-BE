@@ -116,8 +116,8 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
 
         List<Post> posts = queryFactory
                 .selectFrom(post)
-                .leftJoin(post.user,user).fetchJoin()
-                .leftJoin(post.likes,like).fetchJoin()
+                .leftJoin(post.user,user)
+                .leftJoin(post.likes,like)
                 .where(
                         periodEq(period),
                         categoryEq(category),
@@ -262,6 +262,8 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
                         .contents(post.getContents())
                         .category(post.getCategory().name())
                         .district(post.getTown().getDistrict())
+                        .placeName(post.getTown().getPlaceName())
+                        .placeAddr(post.getTown().getPlaceAddr())
                         .createdAt(post.getCreatedAt())
                         .modifiedAt(post.getModifiedAt())
                         .imageUrls(post.getImages().stream().map(PostImage::getImgUrl).collect(Collectors.toList()))

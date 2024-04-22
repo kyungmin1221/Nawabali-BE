@@ -295,6 +295,8 @@ public class PostService {
                 post.getContents(),
                 post.getCategory(),
                 post.getDistrict(),
+                post.getPlaceName(),
+                post.getPlaceAddr(),
                 post.getLatitude(),
                 post.getLongitude(),
                 post.getCreatedAt(),
