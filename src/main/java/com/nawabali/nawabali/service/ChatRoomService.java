@@ -158,7 +158,7 @@ public class ChatRoomService {
                         .sender(chatMessage.getSender())
 //                        .nickname / url, id
                         .message(chatMessage.getMessage())
-                        .createdMessageAt(chatMessage.getCreatedMessageAt())
+//                        .createdMessageAt(chatMessage.getCreatedMessageAt())
                         .build())
                 .collect(Collectors.toList());
     }
