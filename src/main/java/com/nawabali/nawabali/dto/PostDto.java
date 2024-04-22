@@ -120,6 +120,8 @@ public class PostDto {
             this.contents = post.getContents();
             this.category = post.getCategory().name();
             this.district = post.getTown().getDistrict();
+            this.placeName = post.getTown().getPlaceName();
+            this.placeAddr = post.getTown().getPlaceAddr();
             this.latitude = post.getTown().getLatitude();
             this.longitude = post.getTown().getLongitude();
             this.createdAt = post.getCreatedAt();
