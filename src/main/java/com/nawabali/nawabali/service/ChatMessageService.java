@@ -133,13 +133,13 @@ public class ChatMessageService {
 
 //            chatMessageResponseDtoList.add(chatMessageResponseDto);
 
-            try {
-                String jsonResponse = objectMapper.writeValueAsString(chatMessageResponseDto);
-                messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, jsonResponse);
-                log.info("Message sent in room {}: sender: {}, message: {}, user ID: {}, created at {}", chatRoomId, chatMessageResponseDto.getSender(), chatMessageResponseDto.getMessage(), chatMessageResponseDto.getUserId(), chatMessageResponseDto.getCreatedMessageAt());
-            } catch (JsonProcessingException e) {
-                log.error("Error converting message to JSON", e);
-            }
+//            try {
+//                String jsonResponse = objectMapper.writeValueAsString(chatMessageResponseDto);
+//                messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, jsonResponse);
+//                log.info("Message sent in room {}: sender: {}, message: {}, user ID: {}, created at {}", chatRoomId, chatMessageResponseDto.getSender(), chatMessageResponseDto.getMessage(), chatMessageResponseDto.getUserId(), chatMessageResponseDto.getCreatedMessageAt());
+//            } catch (JsonProcessingException e) {
+//                log.error("Error converting message to JSON", e);
+//            }
 
             messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, chatMessageResponseDto);
             log.info("정보확인 {} 이 방에서 새로운 메시지가 도착했습니다. 보낸 사람: {}, 메시지 내용: {}, 유저 아이디 : {}, 만든 시간 {}", chatRoomId, chatMessageResponseDto.getSender(), chatMessageResponseDto.getMessage(), chatMessageResponseDto.getUserId(), chatMessageResponseDto.getCreatedMessageAt());
@@ -150,8 +150,8 @@ public class ChatMessageService {
 
 //        notificationService.notifyMessage(chatRoom.getRoomNumber(), message.getUserId(), message.getSender());
 
-        messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, message);
-        log.info("정보확인 {} 이 방에서 새로운 메시지가 도착했습니다. 보낸 사람: {}, 메시지 내용: {}, 유저 아이디 : {}", chatRoomId, message.getSender(), message.getMessage(), message.getUserId(), message.getCreatedMessageAt());
+//        messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, message);
+//        log.info("정보확인 {} 이 방에서 새로운 메시지가 도착했습니다. 보낸 사람: {}, 메시지 내용: {}, 유저 아이디 : {}", chatRoomId, message.getSender(), message.getMessage(), message.getUserId(), message.getCreatedMessageAt());
 
     }
 
