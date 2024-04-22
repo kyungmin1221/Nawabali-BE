@@ -36,6 +36,12 @@ public class PostDto {
         @NotNull
         private String district;
 
+        @NotNull
+        private String placeName;
+
+        @NotNull
+        private String placeAddr;
+
     }
 
     @Getter

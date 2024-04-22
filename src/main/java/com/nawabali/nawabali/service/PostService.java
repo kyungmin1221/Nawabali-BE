@@ -63,7 +63,9 @@ public class PostService {
         Town town = new Town(
                 requestDto.getLatitude(),
                 requestDto.getLongitude(),
-                requestDto.getDistrict()
+                requestDto.getDistrict(),
+                requestDto.getPlaceName(),
+                requestDto.getPlaceAddr()
         );
 
         Post post = Post.builder()
