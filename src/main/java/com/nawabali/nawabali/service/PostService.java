@@ -173,6 +173,8 @@ public class PostService {
         return postRepository.findDistrictByPost(category, period);
     }
 
+
+    // 구 와 한달기준 각 카테고리의 게시글 개수
     public List<PostDto.SortCategoryDto> getCategoryByPost(String district) {
         return postRepository.findCategoryByPost(district);
     }

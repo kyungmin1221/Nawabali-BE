@@ -156,7 +156,7 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
         return results;
     }
 
-    // 구 와 기간별 각 카테고리의 게시글 개수
+    // 구 와 한달기준 각 카테고리의 게시글 개수
     @Override
     public List<PostDto.SortCategoryDto> findCategoryByPost(String district) {
         QPost post = QPost.post;

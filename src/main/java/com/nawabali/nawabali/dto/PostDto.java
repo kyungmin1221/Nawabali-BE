@@ -266,6 +266,6 @@ public class PostDto {
     @Builder
     public static class SortCategoryDto {
         private String category;
-        private Long postCount = 0L;
+        private Long postCount;
     }
 }
