@@ -4,7 +4,6 @@ import com.nawabali.nawabali.constant.ChatRoomEnum;
 import com.nawabali.nawabali.domain.Chat;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.ChatDto;
-import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.ChatMessageRepository;
@@ -23,7 +22,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.nawabali.nawabali.constant.ChatRoomEnum.GROUP;
 import static com.nawabali.nawabali.constant.ChatRoomEnum.PERSONAL;
 
 @Service
@@ -89,7 +87,7 @@ public class ChatRoomService {
                 .roomName(roomName)
                 .userId(user.getId())
                 .otherUserId(otherUser.getId())
-//                .profileImageId(otherUser.getProfileImage().getId()) // 상대방 프로필 사진
+                .profileImageId(otherUser.getProfileImage().getId()) // 상대방 프로필 사진
                 .roomNumber(chatRoom.getRoomNumber())
                 .build();
 
@@ -141,20 +139,20 @@ public class ChatRoomService {
     }
 
     // 대화 조회
-    public List<ChatDto.ChatMessageDto> loadMessage(Long roomId, User user) {
+    public List<ChatDto.ChatMessageResponseDto> loadMessage(Long roomId, User user) {
 
         User userOptional = userRepository.findById(user.getId())
-                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+                .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
 
         Chat.ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+                .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
 
         List<Chat.ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdAndUserId(chatRoom.getId(), user.getId())
-                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+                .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
 
         if (chatMessages.isEmpty()) {
             return Collections.singletonList(
-                    ChatDto.ChatMessageDto.builder()
+                    ChatDto.ChatMessageResponseDto.builder()
                             .message("채팅방에 메세지가 존재하지 않습니다.")
                             .build()
             );
@@ -162,11 +160,10 @@ public class ChatRoomService {
 
         // ChatMessage를 ChatDto.ChatMessage로 변환하여 반환
         return chatMessages.stream()
-                .map(chatMessage -> ChatDto.ChatMessageDto.builder()
+                .map(chatMessage -> ChatDto.ChatMessageResponseDto.builder()
                         .id(chatMessage.getId())
 //                        .type(chatMessage.getType())
                         .sender(chatMessage.getSender())
-//                        .nickname / url, id
                         .message(chatMessage.getMessage())
                         .createdMessageAt(chatMessage.getCreatedMessageAt())
                         .build())

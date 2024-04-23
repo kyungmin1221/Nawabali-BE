@@ -80,8 +80,8 @@ public class ChatRoomController {
 
     @Operation(summary = "채팅방 대화 내용 조회" , description = "채팅방 전제 대화 내용 조회 API")
     @GetMapping("/room/{roomId}/message")
-    public ResponseEntity<List<ChatDto.ChatMessageDto>> loadMessage (@PathVariable Long roomId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        List<ChatDto.ChatMessageDto> messages = chatRoomService.loadMessage(roomId, userDetails.getUser());
+    public ResponseEntity<List<ChatDto.ChatMessageResponseDto>> loadMessage (@PathVariable Long roomId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<ChatDto.ChatMessageResponseDto> messages = chatRoomService.loadMessage(roomId, userDetails.getUser());
         return ResponseEntity.ok(messages);
     }
 

@@ -16,6 +16,7 @@ public class Chat {
 
     @Entity
     @Getter
+    @Setter
     @Builder(toBuilder = true)
     @NoArgsConstructor
     @AllArgsConstructor

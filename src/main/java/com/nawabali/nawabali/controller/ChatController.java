@@ -28,9 +28,9 @@ public class ChatController {
 
     @Operation(summary = "채팅방(DM) 입장" , description = "MessageType : ENTER _ 입장")
     @MessageMapping("/chat/enter/message/{chatRoomId}")
-    public void enterMessage(@DestinationVariable Long chatRoomId, ChatDto.ChatMessageDto message) {
+    public void enterMessage(@DestinationVariable Long chatRoomId, ChatDto.ChatMessageDto message, Principal principal) {
 
-        chatMessageService.enterMessage(chatRoomId, message);
+        chatMessageService.enterMessage(chatRoomId, message, principal);
 
     }
 

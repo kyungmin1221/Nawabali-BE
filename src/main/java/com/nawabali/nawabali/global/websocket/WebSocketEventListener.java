@@ -26,11 +26,8 @@ public class WebSocketEventListener {
         this.chatRoomCount = chatRoomCount;
     }
 
-//    private static final Logger logger = LoggerFactory.getLogger(WebSocketEventListener.class);
-
     @EventListener
     public void sessionConnectedEvent (SessionConnectedEvent connectedEvent) {
-//        String sessionId = connectedEvent.getMessage().getHeaders().get("simp")
         SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.wrap(connectedEvent.getMessage());
         log.info("accessor 리스너" +accessor);
     }
@@ -59,18 +56,37 @@ public class WebSocketEventListener {
                 log.info("제발 방 아이디: " + chatRoomId);
             }
         }
+
         chatRoomCount.addUser(Long.valueOf(chatRoomId), email);
+
     }
 
     @EventListener
     public void sessionUnsubscribeEvent (SessionUnsubscribeEvent unsubscribeEvent) {
-        SimpMessageHeaderAccessor accessor = SimpMessageHeaderAccessor.wrap(unsubscribeEvent.getMessage());
+
+        StompHeaderAccessor accessor = StompHeaderAccessor.wrap(unsubscribeEvent.getMessage());
+        log.info("accessor 리스너" +accessor);
 
         Authentication authentication = (Authentication) unsubscribeEvent.getMessage().getHeaders().get("simpUser");
-        assert authentication != null;
+        log.info("authentication 리스너 " + authentication);
+        assert  authentication != null;
+
         String email = authentication.getName();
-        Long chatRoomId = Long.valueOf(Objects.requireNonNull(accessor.getFirstNativeHeader("chatRoomId")));
-       chatRoomCount.outUser(chatRoomId,email);
+        log.info("이메일" + email);
+
+        String chatRoomId = null;
+        String destination = accessor.getDestination();
+        if (destination != null) {
+            // 정규 표현식을 사용하여 "/sub/chat/room/" 다음의 숫자 부분을 추출합니다.
+            Pattern pattern = Pattern.compile("/sub/chat/room/(\\d+)");
+            Matcher matcher = pattern.matcher(destination);
+            if (matcher.find()) {
+                chatRoomId = matcher.group(1);
+                log.info("제발 방 아이디: " + chatRoomId);
+            }
+        }
+
+       chatRoomCount.outUser(Long.valueOf(chatRoomId),email);
     }
 
     @EventListener
