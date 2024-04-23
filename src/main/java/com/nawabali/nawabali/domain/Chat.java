@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class Chat {
 
@@ -40,6 +41,9 @@ public class Chat {
 
         @Column (nullable = false)
         private boolean isRead;
+
+        @Column (nullable = false)
+        private boolean isReceiverRead;
 
         @ManyToOne (fetch = FetchType.LAZY)
         @JoinColumn (name = "user_id")
@@ -94,6 +98,14 @@ public class Chat {
         @OneToMany (mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
         private List<ChatMessage> chatMessageList = new ArrayList<>();
 
-
+        public Optional<ChatMessage> getLatestMessage() {
+            // chatMessageList가 비어있는지 확인
+            if (chatMessageList.isEmpty()) {
+                return Optional.empty(); // chatMessageList가 비어있으면 빈 Optional 반환
+            } else {
+                // chatMessageList가 비어있지 않으면 가장 최근의 메시지를 반환
+                return Optional.of(chatMessageList.get(chatMessageList.size() - 1));
+            }
+        }
     }
 }

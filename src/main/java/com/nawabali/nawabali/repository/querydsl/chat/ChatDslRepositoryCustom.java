@@ -8,4 +8,6 @@ public interface ChatDslRepositoryCustom {
 
     Slice<ChatDto.ChatRoomListDto> findAllByUserId(Long userId, Pageable pageable);
 
+    Slice <ChatDto.ChatRoomListDto> findChatRoomByRoomName (String roomName, Pageable pageable);
+
 }

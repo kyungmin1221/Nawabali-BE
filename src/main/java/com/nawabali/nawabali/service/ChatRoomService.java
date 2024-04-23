@@ -19,6 +19,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -88,7 +89,7 @@ public class ChatRoomService {
                 .roomName(roomName)
                 .userId(user.getId())
                 .otherUserId(otherUser.getId())
-                .profileImageId(otherUser.getProfileImage().getId()) // 상대방 프로필 사진
+//                .profileImageId(otherUser.getProfileImage().getId()) // 상대방 프로필 사진
                 .roomNumber(chatRoom.getRoomNumber())
                 .build();
 
@@ -107,27 +108,36 @@ public class ChatRoomService {
 
 
     // 특정 채팅방 조회
-    public List<ChatDto.ChatRoomDto> roomInfo(String roomName, User user, Pageable pageable) {
+    public Slice <ChatDto.ChatRoomListDto> roomInfo(String roomName, User user, Pageable pageable) {
 
         userRepository.findById(user.getId())
                 .orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
-
+//        log.info("아이디" + user.getId());
 //        Slice <ChatDto.ChatRoomListDto> chatRoomListDtoSlice = chatRoomRepository.findChatRoomByRoomName(roomName, pageable);
-
+//        log.info("결과?" + chatRoomListDtoSlice);
         List<Chat.ChatRoom> chatRooms = chatRoomRepository.findByRoomNameContainingIgnoreCase(roomName)
                 .orElseThrow(()-> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
+
+        List<LocalDateTime> messageCreationDates = new ArrayList<>(); // 이게 아닌듯?
+        for (Chat.ChatRoom chatRoom : chatRooms) {
+            chatRoom.getLatestMessage().ifPresent(chatMessage -> {
+                messageCreationDates.add(chatMessage.getCreatedMessageAt());
+            });
+        }
 
         // ID에 따라 내림차순으로 정렬
         chatRooms.sort(Comparator.comparing(Chat.ChatRoom::getId).reversed());
 
-        return chatRooms.stream()
-                .map(chatRoom -> ChatDto.ChatRoomDto.builder()
+        Slice <ChatDto.ChatRoomListDto> slice = new SliceImpl<>(chatRooms.stream()
+                .map(chatRoom -> ChatDto.ChatRoomListDto.builder()
                         .roomId(chatRoom.getId())
                         .roomNumber(chatRoom.getRoomNumber())
                         .roomName(chatRoom.getRoomName())
                         .build())
-                .collect(Collectors.toList());
-//        return null;
+                .collect(Collectors.toList()));
+
+        return slice;
+//        return new SliceImpl<>(chatRoomListDtoSlice.getContent(), pageable, chatRoomListDtoSlice.hasNext());
     }
 
     // 대화 조회
@@ -158,7 +168,7 @@ public class ChatRoomService {
                         .sender(chatMessage.getSender())
 //                        .nickname / url, id
                         .message(chatMessage.getMessage())
-//                        .createdMessageAt(chatMessage.getCreatedMessageAt())
+                        .createdMessageAt(chatMessage.getCreatedMessageAt())
                         .build())
                 .collect(Collectors.toList());
     }
