@@ -76,7 +76,9 @@ public class PostDto {
 
         private LocalDateTime modifiedAt;
 
-        private List<String> imageUrls;
+        private String mainImageUrl;
+
+        private boolean multiImages;
 
         private Long likesCount;
 
@@ -87,29 +89,6 @@ public class PostDto {
         private String profileImageUrl;
 
 
-        public ResponseDto(Post post, Long likesCount, Long localLikesCount, String profileImageUrl) {
-            this.userId = post.getUser().getId();
-            this.userRankName = post.getUser().getRank().getName();
-            this.postId = post.getId();
-            this.nickname = post.getUser().getNickname();
-            this.contents = post.getContents();
-            this.category = post.getCategory().name();
-            this.district = post.getTown().getDistrict();
-            this.placeName = post.getTown().getPlaceName();
-            this.placeAddr = post.getTown().getPlaceAddr();
-            this.latitude = post.getTown().getLatitude();
-            this.longitude = post.getTown().getLongitude();
-            this.createdAt = post.getCreatedAt();
-            this.modifiedAt = post.getModifiedAt();
-            this.imageUrls = post.getImages().stream()
-                    .map(PostImage::getImgUrl)
-                    .collect(Collectors.toList());
-            this.likesCount = likesCount;
-            this.localLikesCount = localLikesCount;
-            this.profileImageUrl = profileImageUrl;
-            this.commentCount = post.getComments().size();
-
-        }
 
         public ResponseDto(Post post) {
             this.userId = post.getUser().getId();
@@ -125,9 +104,8 @@ public class PostDto {
             this.longitude = post.getTown().getLongitude();
             this.createdAt = post.getCreatedAt();
             this.modifiedAt = post.getModifiedAt();
-            this.imageUrls = post.getImages().stream()
-                    .map(PostImage::getImgUrl)
-                    .collect(Collectors.toList());
+            this.mainImageUrl = post.getImages().get(0).getImgUrl();
+            this.multiImages = post.getImages().size() > 1;
             this.commentCount = post.getComments().size();
         }
     }
