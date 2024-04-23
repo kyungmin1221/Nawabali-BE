@@ -129,6 +129,11 @@ public class PostController {
         return ResponseEntity.ok(result);
     }
 
+    @Operation(summary = "구 와 한달기준 각 카테고리의 게시글 개수를 출력",
+            description =
+                    """
+                    district 로 한달간 각 카테고리의 게시글 수를 출력합니다.
+                    """)
     @GetMapping("/sort-category")
     public ResponseEntity<List<PostDto.SortCategoryDto>> getCategoryByPost(
             @RequestParam(required = false) String district

@@ -36,6 +36,11 @@ public class PostDto {
         @NotNull
         private String district;
 
+        private String placeName;
+
+        @NotNull
+        private String placeAddr;
+
     }
 
     @Getter
@@ -59,6 +64,10 @@ public class PostDto {
 
         private String district;
 
+        private String placeName;
+
+        private String placeAddr;
+
         private Double latitude;
 
         private Double longitude;
@@ -80,6 +89,7 @@ public class PostDto {
         private String profileImageUrl;
 
 
+
         public ResponseDto(Post post) {
             this.userId = post.getUser().getId();
             this.userRankName = post.getUser().getRank().name();
@@ -88,6 +98,8 @@ public class PostDto {
             this.contents = post.getContents();
             this.category = post.getCategory().name();
             this.district = post.getTown().getDistrict();
+            this.placeName = post.getTown().getPlaceName();
+            this.placeAddr = post.getTown().getPlaceAddr();
             this.latitude = post.getTown().getLatitude();
             this.longitude = post.getTown().getLongitude();
             this.createdAt = post.getCreatedAt();
@@ -133,6 +145,10 @@ public class PostDto {
 
         private String district;
 
+        private String placeName;
+
+        private String placeAddr;
+
         private boolean likeStatus;
         private boolean localLikeStatus;
         private boolean bookmarkStatus;
@@ -155,6 +171,8 @@ public class PostDto {
             this.localLikesCount = localLikesCount;
             this.profileImageUrl = profileImageUrl;
             this.district = post.getTown().getDistrict();
+            this.placeName = post.getTown().getPlaceName();
+            this.placeAddr = post.getTown().getPlaceAddr();
             this.likeStatus = likeStatus;
             this.localLikeStatus = localLikesStatus;
             this.bookmarkStatus = bookmarkStatus;
@@ -245,6 +263,6 @@ public class PostDto {
     @Builder
     public static class SortCategoryDto {
         private String category;
-        private Long postCount = 0L;
+        private Long postCount;
     }
 }
