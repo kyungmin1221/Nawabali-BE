@@ -25,6 +25,10 @@ public class QTown extends BeanPath<Town> {
 
     public final NumberPath<Double> longitude = createNumber("longitude", Double.class);
 
+    public final StringPath placeAddr = createString("placeAddr");
+
+    public final StringPath placeName = createString("placeName");
+
     public QTown(String variable) {
         super(Town.class, forVariable(variable));
     }

@@ -63,7 +63,9 @@ public class PostService {
         Town town = new Town(
                 requestDto.getLatitude(),
                 requestDto.getLongitude(),
-                requestDto.getDistrict()
+                requestDto.getDistrict(),
+                requestDto.getPlaceName(),
+                requestDto.getPlaceAddr()
         );
 
         Post post = Post.builder()
@@ -173,6 +175,8 @@ public class PostService {
         return postRepository.findDistrictByPost(category, period);
     }
 
+
+    // 구 와 한달기준 각 카테고리의 게시글 개수
     public List<PostDto.SortCategoryDto> getCategoryByPost(String district) {
         return postRepository.findCategoryByPost(district);
     }
@@ -291,6 +295,8 @@ public class PostService {
                 post.getContents(),
                 post.getCategory(),
                 post.getDistrict(),
+                post.getPlaceName(),
+                post.getPlaceAddr(),
                 post.getLatitude(),
                 post.getLongitude(),
                 post.getCreatedAt(),
