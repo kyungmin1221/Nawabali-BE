@@ -14,7 +14,7 @@ public interface ChatRoomRepository extends JpaRepository<Chat.ChatRoom, Long>, 
     Optional<List<Chat.ChatRoom>> findByRoomNameContainingIgnoreCase(String roomName);
     Chat.ChatRoom findByRoomNumber(String roomNumber);
 
-    Optional<List<Chat.ChatRoom>> findAllByUserId(Long userId);
+//    Optional<List<Chat.ChatRoom>> findAllByUserId(Long userId);
 
     Optional<List<Chat.ChatRoom>> findByIdAndUserId(Long id, Long userId);
 

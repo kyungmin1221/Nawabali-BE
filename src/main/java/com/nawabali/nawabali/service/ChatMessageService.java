@@ -7,6 +7,7 @@ import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.ChatDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
+import com.nawabali.nawabali.global.websocket.WebSocketChatRoomCount;
 import com.nawabali.nawabali.repository.ChatMessageRepository;
 import com.nawabali.nawabali.repository.ChatRoomRepository;
 import com.nawabali.nawabali.repository.UserRepository;
@@ -16,20 +17,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static com.nawabali.nawabali.constant.ChatRoomEnum.GROUP;
 
 @Service
 @AllArgsConstructor
 @Transactional
-@Slf4j(topic = "ChatMessageService 로그")
+@Slf4j(topic = "ChatMessageService 메세지 보내는 로그")
 public class ChatMessageService {
 
     private final UserRepository userRepository;
@@ -38,22 +36,24 @@ public class ChatMessageService {
     private final SimpMessageSendingOperations messagingTemplate;
     private final NotificationService notificationService;
     private ObjectMapper objectMapper;
+    private final WebSocketChatRoomCount chatRoomCount;
+    private final WebSocketChatRoomCount webSocketChatRoomCount;
 
     // 입장
-    public void enterMessage(Long chatRoomId, ChatDto.ChatMessageDto message) {
+    public void enterMessage(Long chatRoomId, ChatDto.ChatMessageDto message, Principal principal) {
 
-        User userOptional = userRepository.findById(message.getUserId())
-                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
-        log.debug("유저 인포" + userOptional);
+        User userOptional = userRepository.findByEmail(principal.getName())
+                .orElseThrow(()-> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        log.info("본인인증" + userOptional);
 
         Chat.ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
         log.debug("chatroom roomid 찾기" + chatRoom);
 
         if (!chatRoomRepository.findByIdAndUserId(chatRoom.getId(),userOptional.getId()).isPresent()){
-            message.setMessage(message.getSender() + "님이 입장하셨습니다.");
+            message.setMessage(userOptional.getNickname() + "님이 입장하셨습니다.");
             log.debug("메세지가 잘 들어오는지" + message);
-            messagingTemplate.convertAndSend("/chat/enter/message" + chatRoomId, message);
+            messagingTemplate.convertAndSend("/sub/chat/enter/message" + chatRoomId, message);
 
             Chat.ChatRoom chatRoomSave = Chat.ChatRoom.builder()
                     .roomName(chatRoom.getRoomName())
@@ -67,93 +67,122 @@ public class ChatMessageService {
         }
 
         // 읽지 않은 메세지 읽음 표시
-        List <Chat.ChatMessage> chatMessageList = chatMessageRepository.findByChatRoomIdAndUserId(chatRoom.getId(), userOptional.getId())
+//        List <Chat.ChatMessage> chatMessageList = chatMessageRepository.findByChatRoomIdAndUserId(chatRoom.getId(), userOptional.getId())
+//                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+//        log.debug("메세지 리스트" + chatMessageList);
+//
+//        for (Chat.ChatMessage user : chatMessageList) {
+//            Chat.ChatMessage chatMessage = new Chat.ChatMessage();
+//            chatMessage.update(true);
+//            chatMessageRepository.save(chatMessage);
+//            log.debug("메세지?!" + chatMessage);
+//        }
+
+        List<Chat.ChatMessage> chatMessageList = chatMessageRepository.findByChatRoomId(chatRoom.getId())
+                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+        log.info("받은 메세지" + chatMessageList);
+
+        List <Chat.ChatMessage> chatMessageList1 = chatMessageRepository.findByChatRoomIdAndUserId(chatRoom.getId(), userOptional.getId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
         log.debug("메세지 리스트" + chatMessageList);
 
-        for (Chat.ChatMessage user : chatMessageList) {
-            Chat.ChatMessage chatMessage = new Chat.ChatMessage();
-            chatMessage.update(true);
-            chatMessageRepository.save(chatMessage);
-            log.debug("메세지?!" + chatMessage);
+        for (Chat.ChatMessage chatMessage : chatMessageList) {
+           if (!chatMessage.getUser().getId().equals(userOptional.getId())) {
+               chatMessage.setReceiverRead(true);
+               chatMessageRepository.save(chatMessage);
+           }
         }
 
     }
 
     // 메세지 보내기
-    public void message(Long chatRoomId, ChatDto.ChatMessageDto message) {
+    public void message(Long chatRoomId, ChatDto.ChatMessageDto message, Principal principal) {
 
-        User userOptional = userRepository.findById(message.getUserId())
+        User userOptional = userRepository.findByEmail(principal.getName())
                 .orElseThrow(()-> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
+        log.info("본인인증" + userOptional);
 
         Chat.ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+        log.info("방번호" + chatRoom);
 
-        List<User> usersInChatRoom;
+        // 이걸로 현재 방에 있는 사람들 count로 받기
+        int memberInRoom = chatRoomCount.getChatRoomUserCountInRoom(chatRoomId);
+        log.info("현재 방에 있는 사람" + memberInRoom);
 
-        Object chatRoomUsers = chatRoom.getUser();
+        if (memberInRoom == 2) {
+            log.info("몇명?" +memberInRoom);
 
-        if (chatRoomUsers instanceof List) {
-            usersInChatRoom = (List<User>) chatRoomUsers;
-
-        } else if (chatRoomUsers instanceof User) {
-            usersInChatRoom = Collections.singletonList((User) chatRoomUsers);
-
-        } else {
-            throw new IllegalStateException("반환한 객체의 타입이 예상과 다릅니다" + chatRoomUsers.getClass());
-        }
-
-        List <ChatDto.ChatMessageResponseDto> chatMessageResponseDtoList = new ArrayList<>();
-
-        for (User user : usersInChatRoom) {
-
-            Chat.ChatMessage allUser = Chat.ChatMessage.builder()
+            Chat.ChatMessage sendMessage = Chat.ChatMessage.builder()
                     .sender(userOptional.getNickname())
-                    .receiver(user.getNickname())
+                    .receiver(chatRoom.getOtherUser().getNickname())
                     .message(message.getMessage())
                     .createdMessageAt(LocalDateTime.now())
-                    .isRead(user.equals(userOptional))
-                    .user(user)
+                    .isRead(true)
+                    .isReceiverRead(true)
+                    .user(userOptional)
                     .chatRoom(chatRoom)
                     .build();
 
-            chatMessageRepository.save(allUser);
+            chatMessageRepository.save(sendMessage);
+            log.info("저장" + sendMessage);
 
             ChatDto.ChatMessageResponseDto chatMessageResponseDto = ChatDto.ChatMessageResponseDto.builder()
-                    .id(allUser.getId()) // 채팅 메세지 ID
-                    .roomId(allUser.getChatRoom().getId())
-                    .userId(allUser.getUser().getId())
-                    .sender(allUser.getSender())
-                    .message(allUser.getMessage())
-                    .receiver(allUser.getReceiver())
-                    .isRead(user.equals(userOptional))
+                    .id(sendMessage.getId()) // 채팅 메세지 ID
+                    .roomId(sendMessage.getChatRoom().getId())
+                    .userId(sendMessage.getUser().getId())
+                    .sender(sendMessage.getSender())
+                    .message(sendMessage.getMessage())
+                    .receiver(sendMessage.getReceiver())
+                    .isRead(sendMessage.isRead())
+                    .isReceiverRead(sendMessage.isReceiverRead())
                     .createdMessageAt(LocalDateTime.now())
                     .build();
-
-//            chatMessageResponseDtoList.add(chatMessageResponseDto);
-
-//            try {
-//                String jsonResponse = objectMapper.writeValueAsString(chatMessageResponseDto);
-//                messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, jsonResponse);
-//                log.info("Message sent in room {}: sender: {}, message: {}, user ID: {}, created at {}", chatRoomId, chatMessageResponseDto.getSender(), chatMessageResponseDto.getMessage(), chatMessageResponseDto.getUserId(), chatMessageResponseDto.getCreatedMessageAt());
-//            } catch (JsonProcessingException e) {
-//                log.error("Error converting message to JSON", e);
-//            }
 
             messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, chatMessageResponseDto);
             log.info("정보확인 {} 이 방에서 새로운 메시지가 도착했습니다. 보낸 사람: {}, 메시지 내용: {}, 유저 아이디 : {}, 만든 시간 {}", chatRoomId, chatMessageResponseDto.getSender(), chatMessageResponseDto.getMessage(), chatMessageResponseDto.getUserId(), chatMessageResponseDto.getCreatedMessageAt());
 
         }
 
+        if (memberInRoom == 1) {
+            log.info("몇명?" +memberInRoom);
+            Chat.ChatMessage sendMessage = Chat.ChatMessage.builder()
+                    .sender(userOptional.getNickname())
+                    .receiver(chatRoom.getOtherUser().getNickname())
+                    .message(message.getMessage())
+                    .createdMessageAt(LocalDateTime.now())
+                    .isRead(true)
+                    .isReceiverRead(false)
+                    .user(userOptional)
+                    .chatRoom(chatRoom)
+                    .build();
 
+            chatMessageRepository.save(sendMessage);
+            log.info("저장" + sendMessage);
+
+            ChatDto.ChatMessageResponseDto chatMessageResponseDto = ChatDto.ChatMessageResponseDto.builder()
+                    .id(sendMessage.getId()) // 채팅 메세지 ID
+                    .roomId(sendMessage.getChatRoom().getId())
+                    .userId(sendMessage.getUser().getId())
+                    .sender(sendMessage.getSender())
+                    .message(sendMessage.getMessage())
+                    .receiver(sendMessage.getReceiver())
+                    .isRead(sendMessage.isRead())
+                    .isReceiverRead(sendMessage.isReceiverRead())
+                    .createdMessageAt(LocalDateTime.now())
+                    .build();
+
+            messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, chatMessageResponseDto);
+            log.info("정보확인 {} 이 방에서 새로운 메시지가 도착했습니다. 보낸 사람: {}, 메시지 내용: {}, 유저 아이디 : {}, 만든 시간 {}", chatRoomId, chatMessageResponseDto.getSender(), chatMessageResponseDto.getMessage(), chatMessageResponseDto.getUserId(), chatMessageResponseDto.getCreatedMessageAt());
+
+        }
 
 //        notificationService.notifyMessage(chatRoom.getRoomNumber(), message.getUserId(), message.getSender());
 
-//        messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, message);
-//        log.info("정보확인 {} 이 방에서 새로운 메시지가 도착했습니다. 보낸 사람: {}, 메시지 내용: {}, 유저 아이디 : {}", chatRoomId, message.getSender(), message.getMessage(), message.getUserId(), message.getCreatedMessageAt());
+        messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, message);
+//        log.info("정보확인 {} 이 방에서 새로운 메시지가 도착했습니다. 보낸 사람: {}, 메시지 내용: {}, 유저 아이디 : {}, 만든 시간 {}", chatRoomId, chatMessageResponseDto.getSender(), chatMessageResponseDto.getMessage(), chatMessageResponseDto.getUserId(), chatMessageResponseDto.getCreatedMessageAt());
+        log.info("카운트 되는지" + memberInRoom);
 
     }
-
 
 }

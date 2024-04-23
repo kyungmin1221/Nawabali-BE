@@ -4,7 +4,6 @@ import com.nawabali.nawabali.constant.ChatRoomEnum;
 import com.nawabali.nawabali.domain.Chat;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.ChatDto;
-import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.ChatMessageRepository;
@@ -19,10 +18,10 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.nawabali.nawabali.constant.ChatRoomEnum.GROUP;
 import static com.nawabali.nawabali.constant.ChatRoomEnum.PERSONAL;
 
 @Service
@@ -107,44 +106,53 @@ public class ChatRoomService {
 
 
     // 특정 채팅방 조회
-    public List<ChatDto.ChatRoomDto> roomInfo(String roomName, User user, Pageable pageable) {
+    public Slice <ChatDto.ChatRoomListDto> roomInfo(String roomName, User user, Pageable pageable) {
 
         userRepository.findById(user.getId())
                 .orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
-
+//        log.info("아이디" + user.getId());
 //        Slice <ChatDto.ChatRoomListDto> chatRoomListDtoSlice = chatRoomRepository.findChatRoomByRoomName(roomName, pageable);
-
+//        log.info("결과?" + chatRoomListDtoSlice);
         List<Chat.ChatRoom> chatRooms = chatRoomRepository.findByRoomNameContainingIgnoreCase(roomName)
                 .orElseThrow(()-> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
+
+        List<LocalDateTime> messageCreationDates = new ArrayList<>(); // 이게 아닌듯?
+        for (Chat.ChatRoom chatRoom : chatRooms) {
+            chatRoom.getLatestMessage().ifPresent(chatMessage -> {
+                messageCreationDates.add(chatMessage.getCreatedMessageAt());
+            });
+        }
 
         // ID에 따라 내림차순으로 정렬
         chatRooms.sort(Comparator.comparing(Chat.ChatRoom::getId).reversed());
 
-        return chatRooms.stream()
-                .map(chatRoom -> ChatDto.ChatRoomDto.builder()
+        Slice <ChatDto.ChatRoomListDto> slice = new SliceImpl<>(chatRooms.stream()
+                .map(chatRoom -> ChatDto.ChatRoomListDto.builder()
                         .roomId(chatRoom.getId())
                         .roomNumber(chatRoom.getRoomNumber())
                         .roomName(chatRoom.getRoomName())
                         .build())
-                .collect(Collectors.toList());
-//        return null;
+                .collect(Collectors.toList()));
+
+        return slice;
+//        return new SliceImpl<>(chatRoomListDtoSlice.getContent(), pageable, chatRoomListDtoSlice.hasNext());
     }
 
     // 대화 조회
-    public List<ChatDto.ChatMessageDto> loadMessage(Long roomId, User user) {
+    public List<ChatDto.ChatMessageResponseDto> loadMessage(Long roomId, User user) {
 
         User userOptional = userRepository.findById(user.getId())
-                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+                .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
 
         Chat.ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+                .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
 
         List<Chat.ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdAndUserId(chatRoom.getId(), user.getId())
-                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+                .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
 
         if (chatMessages.isEmpty()) {
             return Collections.singletonList(
-                    ChatDto.ChatMessageDto.builder()
+                    ChatDto.ChatMessageResponseDto.builder()
                             .message("채팅방에 메세지가 존재하지 않습니다.")
                             .build()
             );
@@ -152,13 +160,12 @@ public class ChatRoomService {
 
         // ChatMessage를 ChatDto.ChatMessage로 변환하여 반환
         return chatMessages.stream()
-                .map(chatMessage -> ChatDto.ChatMessageDto.builder()
+                .map(chatMessage -> ChatDto.ChatMessageResponseDto.builder()
                         .id(chatMessage.getId())
 //                        .type(chatMessage.getType())
                         .sender(chatMessage.getSender())
-//                        .nickname / url, id
                         .message(chatMessage.getMessage())
-//                        .createdMessageAt(chatMessage.getCreatedMessageAt())
+                        .createdMessageAt(chatMessage.getCreatedMessageAt())
                         .build())
                 .collect(Collectors.toList());
     }

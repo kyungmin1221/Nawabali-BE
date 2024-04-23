@@ -41,7 +41,7 @@ public class JwtUtil {
     // 로그 설정
     public static final Logger logger = LoggerFactory.getLogger("JWT 관련 로그");
     // 토큰 만료 시간
-    private final int ACCESS_EXPIRATION_TIME = 60 * 60 * 1000; // 60분
+    private final int ACCESS_EXPIRATION_TIME = 1000 * 1000; // 60분
     public final int REFRESH_EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 24시간
 
     @PostConstruct
