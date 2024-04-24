@@ -149,6 +149,18 @@ public class PostService {
         );
     }
 
+
+    // 유저 닉네임으로 그 유저의 게시물들 조회
+    public Slice<PostDto.ResponseDto> getUserPost(Long userId, Pageable pageable) {
+        Slice<PostDto.ResponseDto> usersPost = postRepository.getUserPost(userId, pageable);
+        List<PostDto.ResponseDto> responseDtos = usersPost.getContent().stream()
+                .map(this::convertToResponseDto)
+                .collect(Collectors.toList());
+
+        return new SliceImpl<>(responseDtos, pageable, usersPost.hasNext());
+    }
+
+
     // 카테고리 별 게시물 조회
     public Slice<PostDto.ResponseDto> getPostByCategory(Category category, String district, Pageable pageable) {
         Slice<PostDto.ResponseDto> postCategory = postRepository.findCategoryByPost(category,district, pageable);

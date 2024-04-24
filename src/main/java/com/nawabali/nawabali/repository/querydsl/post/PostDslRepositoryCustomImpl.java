@@ -60,6 +60,35 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
         return new SliceImpl<>(responseDtos, pageable, hasNext);
     }
 
+    // 유저 id로 그 유저의 게시물을 조회
+    @Override
+    public Slice<PostDto.ResponseDto> getUserPost(Long userId, Pageable pageable) {
+        QPost post = QPost.post;
+        QUser user = QUser.user;
+
+        List<Post> posts = queryFactory
+                .selectFrom(post)
+                .leftJoin(post.user, user).fetchJoin()
+                .where(
+                        userEq(userId)
+                )
+                .orderBy(post.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        boolean hasNext = posts.size() > pageable.getPageSize();
+
+        if(hasNext) {
+            posts.remove(posts.size() - 1);
+        }
+
+        List<PostDto.ResponseDto> responseDtos = convertPostDto(posts);
+        return new SliceImpl<>(responseDtos, pageable, hasNext);
+
+    }
+
+
 
     // 게시물 contents 로 검색
     @Override
