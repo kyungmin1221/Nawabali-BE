@@ -60,9 +60,9 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
         return new SliceImpl<>(responseDtos, pageable, hasNext);
     }
 
-    // 유저 닉네임으로 그 유저의 게시물을 조회
+    // 유저 id로 그 유저의 게시물을 조회
     @Override
-    public Slice<PostDto.ResponseDto> getUserPost(String nickname, Pageable pageable) {
+    public Slice<PostDto.ResponseDto> getUserPost(Long userId, Pageable pageable) {
         QPost post = QPost.post;
         QUser user = QUser.user;
 
@@ -70,7 +70,7 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
                 .selectFrom(post)
                 .leftJoin(post.user, user).fetchJoin()
                 .where(
-                        userNickEq(nickname)
+                        userEq(userId)
                 )
                 .orderBy(post.createdAt.desc())
                 .offset(pageable.getOffset())
@@ -277,15 +277,6 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
             return null;
         }else{
             return post.user.id.eq(userId);
-        }
-    }
-
-    // user 의 닉네임 동적 확인
-    private BooleanExpression userNickEq(String nickname){
-        if(nickname ==null){
-            return null;
-        }  else{
-            return post.user.nickname.eq(nickname);
         }
     }
 

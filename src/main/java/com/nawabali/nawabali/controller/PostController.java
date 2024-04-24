@@ -81,12 +81,12 @@ public class PostController {
     )
     @GetMapping("/users-nick")
     public ResponseEntity<Slice<PostDto.ResponseDto>> getUserPost(
-            @RequestParam(required = false) String nickname,
+            @RequestParam(required = false) Long userId,
             @PageableDefault(
                     size = 10,
                     sort = "createdAt",
                     direction = Sort.Direction.DESC) Pageable pageable) {
-        Slice<PostDto.ResponseDto> results = postService.getUserPost(nickname,pageable);
+        Slice<PostDto.ResponseDto> results = postService.getUserPost(userId, pageable);
         return ResponseEntity.ok(results);
     }
 
