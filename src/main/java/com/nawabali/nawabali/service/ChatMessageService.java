@@ -110,12 +110,19 @@ public class ChatMessageService {
         int memberInRoom = chatRoomCount.getChatRoomUserCountInRoom(chatRoomId);
         log.info("현재 방에 있는 사람" + memberInRoom);
 
+        String receiver = "";
+        if (userOptional.getNickname().equals(chatRoom.getUser().getNickname())) {
+            if (chatRoom.getOtherUser() != null) {
+                receiver = chatRoom.getOtherUser().getNickname();
+            }
+        } else { receiver = chatRoom.getUser().getNickname();}
+
         if (memberInRoom == 2) {
             log.info("몇명?" +memberInRoom);
 
             Chat.ChatMessage sendMessage = Chat.ChatMessage.builder()
                     .sender(userOptional.getNickname())
-                    .receiver(chatRoom.getOtherUser().getNickname())
+                    .receiver(receiver)
                     .message(message.getMessage())
                     .createdMessageAt(LocalDateTime.now())
                     .isRead(true)
@@ -139,7 +146,8 @@ public class ChatMessageService {
                     .createdMessageAt(LocalDateTime.now())
                     .build();
 
-            messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, chatMessageResponseDto);
+            log.info("현재 채팅방에 " + memberInRoom + "명이 있는 채팅방에 메세지를 보내셨습니다" );
+            messagingTemplate.convertAndSendToUser(receiver,"/sub/chat/room/" + chatRoomId, chatMessageResponseDto);
             log.info("정보확인 {} 이 방에서 새로운 메시지가 도착했습니다. 보낸 사람: {}, 메시지 내용: {}, 유저 아이디 : {}, 만든 시간 {}", chatRoomId, chatMessageResponseDto.getSender(), chatMessageResponseDto.getMessage(), chatMessageResponseDto.getUserId(), chatMessageResponseDto.getCreatedMessageAt());
 
         }
@@ -148,7 +156,7 @@ public class ChatMessageService {
             log.info("몇명?" +memberInRoom);
             Chat.ChatMessage sendMessage = Chat.ChatMessage.builder()
                     .sender(userOptional.getNickname())
-                    .receiver(chatRoom.getOtherUser().getNickname())
+                    .receiver(receiver)
                     .message(message.getMessage())
                     .createdMessageAt(LocalDateTime.now())
                     .isRead(true)
@@ -172,16 +180,13 @@ public class ChatMessageService {
                     .createdMessageAt(LocalDateTime.now())
                     .build();
 
+            log.info("현재 채팅방에 {}명이 있는 채팅방에 메세지를 보내셨습니다" + memberInRoom);
             messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, chatMessageResponseDto);
             log.info("정보확인 {} 이 방에서 새로운 메시지가 도착했습니다. 보낸 사람: {}, 메시지 내용: {}, 유저 아이디 : {}, 만든 시간 {}", chatRoomId, chatMessageResponseDto.getSender(), chatMessageResponseDto.getMessage(), chatMessageResponseDto.getUserId(), chatMessageResponseDto.getCreatedMessageAt());
 
         }
 
-//        notificationService.notifyMessage(chatRoom.getRoomNumber(), message.getUserId(), message.getSender());
-
-        messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, message);
-//        log.info("정보확인 {} 이 방에서 새로운 메시지가 도착했습니다. 보낸 사람: {}, 메시지 내용: {}, 유저 아이디 : {}, 만든 시간 {}", chatRoomId, chatMessageResponseDto.getSender(), chatMessageResponseDto.getMessage(), chatMessageResponseDto.getUserId(), chatMessageResponseDto.getCreatedMessageAt());
-        log.info("카운트 되는지" + memberInRoom);
+        notificationService.notifyMessage(chatRoom.getRoomNumber(), receiver, userOptional.getNickname());
 
     }
 

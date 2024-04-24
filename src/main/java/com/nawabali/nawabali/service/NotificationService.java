@@ -7,6 +7,7 @@ import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -14,11 +15,13 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.nawabali.nawabali.constant.LikeCategoryEnum.LIKE;
 import static com.nawabali.nawabali.constant.LikeCategoryEnum.LOCAL_LIKE;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
@@ -63,51 +66,65 @@ public class NotificationService {
     }
 
     // 채팅 알림
-//    @Transactional
-//    public void notifyMessage (String roomNumber, Long receiver, String sender) {
-//
-//        Chat.ChatRoom chatRoom = chatRoomRepository.findByRoomNumber(roomNumber);
-//
-//        User user = userRepository.findById(receiver)
-//                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
-//
-//        User userSender = userRepository.findByNickname(sender);
-//
+    @Transactional
+    public void notifyMessage (String roomNumber, String receiver, String sender) {
+
+        Chat.ChatRoom chatRoom = chatRoomRepository.findByRoomNumber(roomNumber);
+        log.info("방번호" + chatRoom);
+
+        User user = userRepository.findByNickname(receiver);
+        log.info("알림 받는 사람 : " + user);
+
+        User userSender = userRepository.findByNickname(sender);
+        log.info("보낸 사람 : " + userSender);
+
 //        Chat.ChatMessage receiveMessage = (Chat.ChatMessage) chatMessageRepository.findFirstBySenderOrderByCreatedMessageAtDesc(userSender.getNickname())
 //                .orElseThrow(()-> new CustomException(ErrorCode.CHAT_MESSAGE_NOT_FOUND));
-//
-//        Long userId = user.getId();
-//
-//        if (NotificationController.sseEmitters.containsKey(userId)) {
-//
-//            SseEmitter sseEmitter = NotificationController.sseEmitters.get(userId);
-//
-//            try {
-//                Map<String,String> eventData = new HashMap<>();
-//                eventData.put("message", receiveMessage.getSender() + "님이 메시지를 보냈습니다.");
-//                eventData.put("createdAt", receiveMessage.getCreatedMessageAt().toString());
-//                eventData.put("contents", receiveMessage.getMessage());
-//
-//                sseEmitter.send(SseEmitter.event().name("addMessage알림").data(eventData));
-//
-//                Notification notification = Notification.builder()
-//                        .sender(receiveMessage.getSender())
-//                        .createdAt(receiveMessage.getCreatedMessageAt())
-//                        .contents(receiveMessage.getMessage())
-//                        .chatRoom(receiveMessage.getChatRoom())
-//                        .build();
-//
-//                notificationRepository.save(notification);
-//
-//                notificationCounts.put(userId, notificationCounts.getOrDefault(userId,0) + 1);
-//
-//                sseEmitter.send(SseEmitter.event().name("notificationCount").data(notificationCounts.get(userId)));
-//
-//            } catch (Exception e) {
-//                NotificationController.sseEmitters.remove(userId);
-//            }
-//        }
-//    }
+
+        List<Chat.ChatMessage> receiveMessageList = chatMessageRepository.findByChatRoomIdOrderByCreatedMessageAtDesc(chatRoom.getId());
+
+        if (receiveMessageList.isEmpty()) {
+            throw new CustomException(ErrorCode.CHAT_MESSAGE_NOT_FOUND);
+        }
+
+        Chat.ChatMessage receiveMessage = receiveMessageList.get(0);
+        log.info("메세지 내용?! : " + receiveMessage);
+
+        Long userId = user.getId();
+        log.info("유저아이디 잘 들어가?" + userId);
+
+        if (NotificationController.sseEmitters.containsKey(userId)) {
+
+            SseEmitter sseEmitter = NotificationController.sseEmitters.get(userId);
+
+            try {
+                Map<String,String> eventData = new HashMap<>();
+                eventData.put("message", receiveMessage.getSender() + "님이 메시지를 보냈습니다.");
+                log.info("message", receiveMessage.getSender() + "님이 메시지를 보냈습니다.");
+                eventData.put("createdAt", receiveMessage.getCreatedMessageAt().toString());
+                eventData.put("contents", receiveMessage.getMessage());
+
+                sseEmitter.send(SseEmitter.event().name("addMessage알림").data(eventData));
+
+                Notification notification = Notification.builder()
+                        .sender(receiveMessage.getSender())
+                        .createdAt(receiveMessage.getCreatedMessageAt())
+                        .contents(receiveMessage.getMessage())
+                        .chatRoom(receiveMessage.getChatRoom())
+                        .user(userSender)
+                        .build();
+
+                notificationRepository.save(notification);
+
+                notificationCounts.put(userId, notificationCounts.getOrDefault(userId,0) + 1);
+
+                sseEmitter.send(SseEmitter.event().name("notificationCount").data(notificationCounts.get(userId)));
+
+            } catch (Exception e) {
+                NotificationController.sseEmitters.remove(userId);
+            }
+        }
+    }
 
     // 댓글 알림
     @Transactional
@@ -281,9 +298,9 @@ public class NotificationService {
     }
 
     // 해당 알림 삭제
-    public NotiDeleteResponseDto deleteNotification (Long id) throws IOException {
+    public NotiDeleteResponseDto deleteNotification (Long notificationId) throws IOException {
 
-        Notification notification = notificationRepository.findById(id)
+        Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(()-> new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND));
 
         Long userId = notification.getUser().getId();
