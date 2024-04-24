@@ -68,6 +68,30 @@ public class PostController {
         return ResponseEntity.ok(postsSlice);
     }
 
+
+    // 유저 닉네임으로 그 유저의 게시물들 조회
+    @Operation(
+            summary = "유저의 게시물 조회",
+            description = "생성일 기준으로 유저의 게시물을 조회합니다. 페이징 파라미터를 사용하여 결과를 페이지별로 나눌 수 있습니다.",
+            parameters = {
+                    @Parameter(name = "page", description = "페이지 번호 (0부터 시작)", example = "0"),
+                    @Parameter(name = "size", description = "페이지 당 게시물 수", example = "10"),
+                    @Parameter(name = "sort", description = "정렬 기준과 방향, 예: createdAt,desc(생성일 내림차순 정렬)", example = "createdAt,desc")
+            }
+    )
+    @GetMapping("/users-nick")
+    public ResponseEntity<Slice<PostDto.ResponseDto>> getUserPost(
+            @RequestParam(required = false) String nickname,
+            @PageableDefault(
+                    size = 10,
+                    sort = "createdAt",
+                    direction = Sort.Direction.DESC) Pageable pageable) {
+        Slice<PostDto.ResponseDto> results = postService.getUserPost(nickname,pageable);
+        return ResponseEntity.ok(results);
+    }
+
+
+
     @Operation(summary = "게시물 카테고리 or 구 로 조회",
             description = "category 또는 district 를 이용한 게시물 조회 , 둘중 하나가 null이어도 상관없다.",
             parameters = {
