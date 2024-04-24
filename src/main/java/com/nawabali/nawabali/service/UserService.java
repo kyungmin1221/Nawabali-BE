@@ -152,39 +152,6 @@ public class UserService {
                 .build();
     }
 
-    public UserDto.UserInfoResponseDto getUserInfo(Long userId){
-        User existUser = getUserId(userId);
-
-        // 유저 아이디로 작성된 postID 모두 검색
-        List<Long> postIds = getMyPostIds(userId);
-        System.out.println("postIds = " + postIds);
-
-        // 작성된 postID로  게시글, 좋아요, 로컬좋아요 카운팅
-        int totalPostsCount = postIds.size();
-        Long totalLikesCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LIKE);
-        Long totalLocalLikesCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LOCAL_LIKE);
-
-        Long needPosts = Math.max(existUser.getRank().getNeedPosts() - totalPostsCount, 0L);
-        Long needLikes = Math.max(existUser.getRank().getNeedLikes() - totalLikesCount, 0L);
-
-        postIds = null;
-
-        return UserDto.UserInfoResponseDto.builder()
-                .id(existUser.getId())
-                .email(existUser.getEmail())
-                .nickname(existUser.getNickname())
-                .rankName(existUser.getRank().getName())
-                .city(existUser.getAddress().getCity())
-                .district(existUser.getAddress().getDistrict())
-                .totalPostsCount(totalPostsCount)
-                .totalLikesCount(totalLikesCount)
-                .totalLocalLikesCount(totalLocalLikesCount)
-                .profileImageUrl(existUser.getProfileImage().getImgUrl())
-                .needPosts(needPosts)
-                .needLikes(needLikes)
-                .build();
-    }
-
     @Transactional
     public UserDto.UserInfoResponseDto updateUserInfo(User user, UserDto.UserInfoRequestDto requestDto) {
         User existUser = getUserId(user.getId());
