@@ -12,6 +12,7 @@ import com.nawabali.nawabali.domain.elasticsearch.UserSearch;
 import com.nawabali.nawabali.domain.image.ProfileImage;
 import com.nawabali.nawabali.dto.KakaoDto;
 import com.nawabali.nawabali.global.tool.redis.RedisTool;
+import com.nawabali.nawabali.repository.ProfileImageRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import com.nawabali.nawabali.repository.elasticsearch.UserSearchRepository;
 import com.nawabali.nawabali.security.Jwt.JwtUtil;
@@ -45,6 +46,7 @@ public class KakaoService {
     private final RedisTool redisTool;
     private final RestTemplate restTemplate;
     private final UserSearchRepository userSearchRepository;
+    private final ProfileImageRepository profileImageRepository;
 
     private final String local= "http://localhost:8080/api/user/kakao/callback";
     private final String frontLocal = "http://localhost:3000/api/user/kakao/callback";
@@ -126,6 +128,8 @@ public class KakaoService {
                     .build();
             kakaoUser = userRepository.save(kakaoUser);
             UserSearch userSearch = new UserSearch(kakaoUser, profileImage.getImgUrl());
+            profileImageRepository.save(profileImage);
+
             userSearchRepository.save(userSearch);
 
         }
