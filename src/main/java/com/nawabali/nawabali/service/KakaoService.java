@@ -125,14 +125,15 @@ public class KakaoService {
                     .rank(UserRankEnum.RESIDENT)
                     .build();
             UserSearch userSearch = new UserSearch(kakaoUser, profileImage.getImgUrl());
+            userRepository.save(kakaoUser);
             userSearchRepository.save(userSearch);
 
         }
         else{
             kakaoUser.updateKakaoId(kakaoId);
+            userRepository.save(kakaoUser);
         }
 
-        userRepository.save(kakaoUser);
 
         return kakaoUser;
     }
