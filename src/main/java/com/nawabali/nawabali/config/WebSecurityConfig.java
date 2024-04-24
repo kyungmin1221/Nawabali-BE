@@ -96,27 +96,18 @@ public class WebSecurityConfig {
                 authorizeHttpRequests
 //                        .anyRequest().permitAll()
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll() // resources 접근 허용 설정
-                        .requestMatchers("/").permitAll() // 메인 페이지 요청 허가
-                        .requestMatchers("/users/logout").permitAll()
-                        .requestMatchers("/main.html").permitAll() // 메인 html페이지 요청 허가
-                        .requestMatchers("/ping", "/profile").permitAll() // 항상 200 OK 반환하는 health check 전용 API
-                        .requestMatchers("/users/signup").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
-                        .requestMatchers("/posts").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/posts/**").permitAll() // 게시글 상세 조회 허가
-                        .requestMatchers("/users/test").permitAll()
-                        .requestMatchers("/users/test1").permitAll()
                         .requestMatchers("/api/user/kakao/callback").permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/swagger/**").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api-test").permitAll()
-                        .requestMatchers("/users/check-nickname").permitAll()
                         .requestMatchers("/email-verification").permitAll()
+                        .requestMatchers("/ping", "/profile").permitAll() // 항상 200 OK 반환하는 health check 전용 API
+                        .requestMatchers(
+                                "/users/logout","/users/signup","/users/check-nickname", "users/info").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
+                        .requestMatchers("/posts","/posts/district/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/posts/**").permitAll() // 게시글 상세 조회 허가
+                        .requestMatchers("/comments/check/posts/**").permitAll()
+                        .requestMatchers("/swagger/**","/swagger-ui/**","/v3/api-docs/**").permitAll()
                         .requestMatchers("/ws-stomp/**").permitAll()
                         .requestMatchers("/chat/**").permitAll()
-                        .requestMatchers("/posts/district/*").permitAll()
-                        .requestMatchers("/comments/check/posts/**").permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청 인증처리
         );
 
