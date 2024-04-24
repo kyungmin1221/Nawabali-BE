@@ -151,8 +151,8 @@ public class PostService {
 
 
     // 유저 닉네임으로 그 유저의 게시물들 조회
-    public Slice<PostDto.ResponseDto> getUserPost(Long userId, Pageable pageable) {
-        Slice<PostDto.ResponseDto> usersPost = postRepository.getUserPost(userId, pageable);
+    public Slice<PostDto.ResponseDto> getUserPost(Long userId, Category category,Pageable pageable) {
+        Slice<PostDto.ResponseDto> usersPost = postRepository.getUserPost(userId, category, pageable);
         List<PostDto.ResponseDto> responseDtos = usersPost.getContent().stream()
                 .map(this::convertToResponseDto)
                 .collect(Collectors.toList());

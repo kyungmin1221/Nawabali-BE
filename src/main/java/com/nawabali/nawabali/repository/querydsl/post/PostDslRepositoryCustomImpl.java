@@ -60,9 +60,9 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
         return new SliceImpl<>(responseDtos, pageable, hasNext);
     }
 
-    // 유저 id로 그 유저의 게시물을 조회
+    // 유저 id로 그 유저의 게시물을 조회 (카테고리로 필터링 가능)
     @Override
-    public Slice<PostDto.ResponseDto> getUserPost(Long userId, Pageable pageable) {
+    public Slice<PostDto.ResponseDto> getUserPost(Long userId, Category category, Pageable pageable) {
         QPost post = QPost.post;
         QUser user = QUser.user;
 
@@ -70,7 +70,8 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
                 .selectFrom(post)
                 .leftJoin(post.user, user).fetchJoin()
                 .where(
-                        userEq(userId)
+                        userEq(userId),
+                        categoryEq(category)
                 )
                 .orderBy(post.createdAt.desc())
                 .offset(pageable.getOffset())
@@ -98,7 +99,8 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
         List<PostDto.SearchDto> searchResults = queryFactory
                 .select(Projections.constructor(PostDto.SearchDto.class,
                         post.id,
-                        post.contents))
+                        post.contents)
+                )
                 .from(post)
                 .where(post.contents.contains(contents))
                 .fetch();
