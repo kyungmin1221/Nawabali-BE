@@ -23,6 +23,6 @@ public interface PostDslRepositoryCustom {
 
     List<PostDto.SortCategoryDto> findCategoryByPost(String district);
 
-    Slice<PostDto.ResponseDto> getUserPost(Long userId, Pageable pageable);
+    Slice<PostDto.ResponseDto> getUserPost(Long userId, Category category, Pageable pageable);
 
 }
