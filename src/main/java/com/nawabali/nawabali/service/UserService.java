@@ -1,6 +1,5 @@
 package com.nawabali.nawabali.service;
 
-import co.elastic.clients.elasticsearch._types.query_dsl.PercolateQuery;
 import com.nawabali.nawabali.constant.*;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.domain.elasticsearch.UserSearch;
@@ -17,9 +16,6 @@ import com.nawabali.nawabali.repository.ProfileImageRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import com.nawabali.nawabali.repository.elasticsearch.UserSearchRepository;
 import com.nawabali.nawabali.security.Jwt.JwtUtil;
-import io.jsonwebtoken.Jwt;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
