@@ -55,25 +55,33 @@ public class ChatRoomController {
     @GetMapping("/rooms")
     @ResponseBody
     public Slice<ChatDto.ChatRoomListDto> room(@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                          @PageableDefault(
+                                                @PageableDefault(
                                                   size = 10,
                                                   sort = "Id",
-                                                  direction = Sort.Direction.DESC)Pageable pageable) {
+                                                  direction = Sort.Direction.DESC)
+                                                Pageable pageable) {
         Slice<ChatDto.ChatRoomListDto> chatRoomDtoSlice = chatRoomService.room(userDetails.getUser().getId(), pageable);
         return chatRoomDtoSlice;
     }
 
-//    @Operation(summary = "특정 채팅방 조회" , description = "채팅방 검색 API")
-//    @GetMapping("/room/found")
-//    @ResponseBody
-//    public List<ChatDto.ChatRoomDto> roomInfo(@RequestParam String roomName, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-//        return chatRoomService.roomInfo(roomName, userDetails.getUser());
-//    }
+    @Operation(summary = "특정 채팅방 조회" , description = "채팅방 검색 API")
+    @GetMapping("/room/found")
+    @ResponseBody
+    public Slice <ChatDto.ChatRoomListDto> roomInfo(@RequestParam String roomName,
+                                              @AuthenticationPrincipal UserDetailsImpl userDetails,
+                                              @PageableDefault(
+                                                      size = 10,
+                                                      sort = "createdAt",
+                                                      direction = Sort.Direction.DESC)
+                                              Pageable pageable) {
+        Slice <ChatDto.ChatRoomListDto> chatRoomListDtos = chatRoomService.roomInfo(roomName, userDetails.getUser(), pageable);
+        return chatRoomListDtos;
+    }
 
     @Operation(summary = "채팅방 대화 내용 조회" , description = "채팅방 전제 대화 내용 조회 API")
     @GetMapping("/room/{roomId}/message")
-    public ResponseEntity<List<ChatDto.ChatMessageDto>> loadMessage (@PathVariable Long roomId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        List<ChatDto.ChatMessageDto> messages = chatRoomService.loadMessage(roomId, userDetails.getUser());
+    public ResponseEntity<List<ChatDto.ChatMessageResponseDto>> loadMessage (@PathVariable Long roomId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List<ChatDto.ChatMessageResponseDto> messages = chatRoomService.loadMessage(roomId, userDetails.getUser());
         return ResponseEntity.ok(messages);
     }
 

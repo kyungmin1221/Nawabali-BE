@@ -2,9 +2,12 @@ package com.nawabali.nawabali.repository.querydsl.chat;
 
 import com.nawabali.nawabali.constant.ChatRoomEnum;
 import com.nawabali.nawabali.domain.Chat;
+import com.nawabali.nawabali.domain.QChat_ChatMessage;
 import com.nawabali.nawabali.domain.QChat_ChatRoom;
 import com.nawabali.nawabali.domain.QUser;
+import com.nawabali.nawabali.domain.image.QProfileImage;
 import com.nawabali.nawabali.dto.ChatDto;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -83,6 +86,53 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
 
         return new SliceImpl<>(chatRoomDtos, pageable, hasNext);
 
+    }
+
+    public Slice <ChatDto.ChatRoomListDto> findChatRoomByRoomName (String roomName, Pageable pageable) {
+
+        QChat_ChatRoom chatRoom = QChat_ChatRoom.chatRoom;
+        QUser user = QUser.user;
+        QChat_ChatMessage chatMessage = QChat_ChatMessage.chatMessage;
+        QProfileImage profileImage = QProfileImage.profileImage;
+
+        // 서브쿼리로 각 채팅방의 최신 메시지를 가져옵니다.
+//        var latestMessage = JPAExpressions
+//                .selectFrom(chatMessage)
+//                .where(chatMessage.chatRoom.eq(chatRoom))
+//                .orderBy(chatMessage.createdMessageAt.desc())
+//                .limit(1);
+
+
+        List <Chat.ChatRoom> chatRooms = queryFactory
+                .selectFrom(chatRoom)
+                .leftJoin(chatRoom.user, user).fetchJoin()
+                .leftJoin(chatRoom.chatMessageList, chatMessage)
+                .where(chatRoom.roomName.contains(roomName)
+                        .or(chatRoom.otherUser.nickname.contains(roomName))
+                        .or(chatRoom.otherUser.isNotNull().and(chatRoom.otherUser.nickname.contains(roomName))))
+//                        .and(chatMessage.in(latestMessage)))
+                .orderBy(chatMessage.createdMessageAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        boolean hasNext = chatRooms.size() > pageable.getPageSize();
+
+        if (hasNext) {
+            chatRooms.remove(chatRooms.size() -1);
+        }
+
+        List <ChatDto.ChatRoomListDto> chatRoomListDtos = chatRooms.stream()
+                .map(newchatroom -> ChatDto.ChatRoomListDto.builder()
+                        .roomId(newchatroom.getId())
+//                        .chatMessage(newchatroom.getChatMessageList().get(0).toString())
+                        .roomName(newchatroom.getOtherUser().getNickname())
+                        .profileImageId(newchatroom.getUser().getProfileImage().getId())
+                        .build())
+                .collect(Collectors.toList());
+
+
+        return new SliceImpl<>(chatRoomListDtos, pageable, hasNext);
     }
 
 

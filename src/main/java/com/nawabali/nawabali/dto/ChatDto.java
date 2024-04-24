@@ -15,8 +15,8 @@ public class ChatDto {
     public static class ChatMessageDto {
         private Long id;
 //        private Long roomId;
-        private Long userId;
-        private String sender;
+//        private Long userId;
+//        private String sender;
         private String message;
         private LocalDateTime createdMessageAt;
     }
@@ -31,6 +31,7 @@ public class ChatDto {
         private String sender;
         private String message;
         private String receiver;
+        private boolean isReceiverRead;
         private boolean isRead;
         private LocalDateTime createdMessageAt;
     }
@@ -61,5 +62,6 @@ public class ChatDto {
         private String roomNumber;
         private ChatRoomEnum chatRoomEnum;
         private String chatMessage;
+        private Long profileImageId;
     }
 }
