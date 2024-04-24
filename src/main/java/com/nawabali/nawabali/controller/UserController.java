@@ -54,7 +54,7 @@ public class UserController {
     }
 
     @Operation(summary = "유저 정보 조회", description = "회원 정보 조회에 사용하는 API")
-    @GetMapping("/user-info")
+    @GetMapping("/info")
     public UserDto.UserInfoResponseDto getUserInfo(@RequestParam(name = "userId") Long userId) {
         return userService.getUserInfo(userId);
     }
