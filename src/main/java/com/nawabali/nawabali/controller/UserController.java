@@ -47,13 +47,19 @@ public class UserController {
         return userService.signup(requestDto);
     }
 
-    @Operation(summary = "회원 정보 조회", description = "회원 정보 조회에 사용하는 API")
+    @Operation(summary = "내 정보 조회", description = "내 정보 조회에 사용하는 API")
     @GetMapping("/my-info")
     public UserDto.UserInfoResponseDto getUserInfo(@AuthenticationPrincipal UserDetailsImpl userDetails){
         return userService.getUserInfo(userDetails.getUser());
     }
 
-    @Operation(summary = "회원 정보 수정", description = "회원 정보 수정에 사용하는 API")
+    @Operation(summary = "유저 정보 조회", description = "회원 정보 조회에 사용하는 API")
+    @GetMapping("/user-info")
+    public UserDto.UserInfoResponseDto getUserInfo(@RequestParam(name = "userId") Long userId) {
+        return userService.getUserInfo(userId);
+    }
+
+    @Operation(summary = "회원 정보 수정", description = "내 정보 수정에 사용하는 API")
     @PatchMapping("/my-info")
     public UserDto.UserInfoResponseDto updateUserInfo(@AuthenticationPrincipal UserDetailsImpl userDetails, @RequestBody UserDto.UserInfoRequestDto userInfoRequestDto){
         return userService.updateUserInfo(userDetails.getUser(), userInfoRequestDto);
@@ -86,7 +92,7 @@ public class UserController {
     {
         return userService.getMyPosts(userDetails.getUser(), pageable, category);
     }
-
+    @Operation(summary = "채팅 할 회원의 닉네임 검색", description = "회원의 닉네임을 검색하면 PK, 프로필, 지역, 등급 반환")
     @GetMapping("/search")
     public List<UserSearch> searchNickname(@RequestParam(name = "nickname", required = false) String nickname){
         return userService.searchNickname(nickname);
