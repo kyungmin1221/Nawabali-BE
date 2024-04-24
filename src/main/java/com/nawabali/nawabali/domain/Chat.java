@@ -54,7 +54,6 @@ public class Chat {
         @JoinColumn (name = "room_id")
         private ChatRoom chatRoom;
 
-
         private ChatMessage (User user) {
             this.sender = user.getNickname();
         }
