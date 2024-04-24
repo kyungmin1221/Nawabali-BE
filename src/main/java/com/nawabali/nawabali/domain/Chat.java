@@ -107,5 +107,10 @@ public class Chat {
                 return Optional.of(chatMessageList.get(chatMessageList.size() - 1));
             }
         }
+
+        // 채팅방에 속한 메시지 리스트 반환
+        public List<ChatMessage> getChatMessageList() {
+            return this.chatMessageList;
+        }
     }
 }

@@ -14,7 +14,7 @@
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="sparta@springboot-database.cbe6ouewo4p0.ap-northeast-2.rds.amazonaws.com" uuid="db4097d1-f291-4898-9e32-88dfe238464c">
+    <data-source source="LOCAL" name="springboot-database" uuid="db4097d1-f291-4898-9e32-88dfe238464c">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <imported>true</imported>
