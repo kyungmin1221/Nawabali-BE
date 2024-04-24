@@ -123,13 +123,31 @@ public class ChatRoomService {
             });
         }
 
+        // 최신 메시지 개수를 제한하고, 해당 메시지에서 검색어를 포함하는 채팅방만 필터링합니다.
+        List<Chat.ChatRoom> filteredChatRooms = chatRooms.stream()
+                .filter(chatRoom -> {
+                    List<Chat.ChatMessage> latestMessages = chatRoom.getChatMessageList().stream()
+                            .sorted(Comparator.comparing(Chat.ChatMessage::getCreatedMessageAt).reversed())
+                            .limit(10)
+                            .collect(Collectors.toList());
+                    return latestMessages.stream()
+                            .anyMatch(message -> message.getMessage().contains(roomName));
+                })
+                .collect(Collectors.toList());
+
+        // 채팅방을 최신 메시지 생성일을 기준으로 내림차순으로 정렬합니다.
+        filteredChatRooms.sort((room1, room2) -> {
+            LocalDateTime latestMessageDate1 = room1.getLatestMessage().map(Chat.ChatMessage::getCreatedMessageAt).orElse(LocalDateTime.MIN);
+            LocalDateTime latestMessageDate2 = room2.getLatestMessage().map(Chat.ChatMessage::getCreatedMessageAt).orElse(LocalDateTime.MIN);
+            return latestMessageDate2.compareTo(latestMessageDate1);
+        });
+
         // ID에 따라 내림차순으로 정렬
         chatRooms.sort(Comparator.comparing(Chat.ChatRoom::getId).reversed());
 
         Slice <ChatDto.ChatRoomListDto> slice = new SliceImpl<>(chatRooms.stream()
                 .map(chatRoom -> ChatDto.ChatRoomListDto.builder()
                         .roomId(chatRoom.getId())
-                        .roomNumber(chatRoom.getRoomNumber())
                         .roomName(chatRoom.getRoomName())
                         .build())
                 .collect(Collectors.toList()));
@@ -166,6 +184,11 @@ public class ChatRoomService {
                         .sender(chatMessage.getSender())
                         .message(chatMessage.getMessage())
                         .createdMessageAt(chatMessage.getCreatedMessageAt())
+                        .roomId(chatMessage.getChatRoom().getId())
+                        .userId(chatMessage.getUser().getId())
+                        .receiver(chatMessage.getReceiver())
+                        .isRead(chatMessage.isRead())
+                        .isReceiverRead(chatMessage.isReceiverRead())
                         .build())
                 .collect(Collectors.toList());
     }

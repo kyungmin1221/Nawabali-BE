@@ -32,6 +32,7 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
         QChat_ChatRoom chatRoom = QChat_ChatRoom.chatRoom;
         QUser user = QUser.user;
         QUser otherUser = new QUser("otherUser");
+        QChat_ChatMessage chatMessage = QChat_ChatMessage.chatMessage;
 
         List <Chat.ChatRoom> chatRooms = queryFactory
                 .selectFrom(chatRoom)
@@ -55,11 +56,27 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
 
                     if (newchatRoom.getChatRoomEnum().equals(ChatRoomEnum.PERSONAL)) {
                         String roomName = "";
+                        Long profileImage = null;
                         if (userId.equals(newchatRoom.getUser().getId())) {
                             roomName = newchatRoom.getOtherUser().getNickname();
+                            profileImage = newchatRoom.getOtherUser().getProfileImage().getId();
                         }
                         if (userId.equals(newchatRoom.getOtherUser().getId())){
                             roomName = newchatRoom.getUser().getNickname();
+                            profileImage = newchatRoom.getUser().getProfileImage().getId();
+                        }
+
+                        // 여기서 가장 최신 메시지를 가져오기
+                        List<Chat.ChatMessage> latestMessages = queryFactory
+                                .selectFrom(chatMessage)
+                                .where(chatMessage.chatRoom.Id.eq(newchatRoom.getId()))
+                                .orderBy(chatMessage.createdMessageAt.desc())
+                                .limit(1)
+                                .fetch();
+
+                        String latestMessageContent = "";
+                        if (!latestMessages.isEmpty()) {
+                            latestMessageContent = latestMessages.get(0).getMessage();
                         }
 
                         return ChatDto.ChatRoomListDto.builder()
@@ -67,6 +84,8 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
                                 .chatRoomEnum(newchatRoom.getChatRoomEnum())
                                 .roomName(roomName)
                                 .roomNumber(newchatRoom.getRoomNumber())
+                                .chatMessage(latestMessageContent)
+                                .profileImageId(profileImage)
                                 .build();
                     }
 
