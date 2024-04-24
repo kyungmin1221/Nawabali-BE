@@ -7,9 +7,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.constant.UserRoleEnum;
 import com.nawabali.nawabali.domain.User;
+import com.nawabali.nawabali.domain.elasticsearch.UserSearch;
+import com.nawabali.nawabali.domain.image.ProfileImage;
 import com.nawabali.nawabali.dto.KakaoDto;
 import com.nawabali.nawabali.global.tool.redis.RedisTool;
 import com.nawabali.nawabali.repository.UserRepository;
+import com.nawabali.nawabali.repository.elasticsearch.UserSearchRepository;
 import com.nawabali.nawabali.security.Jwt.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,6 +43,7 @@ public class KakaoService {
     private final JwtUtil jwtUtil;
     private final RedisTool redisTool;
     private final RestTemplate restTemplate;
+    private final UserSearchRepository userSearchRepository;
 
     private final String local= "http://localhost:8080/api/user/kakao/callback";
     private final String frontLocal = "http://localhost:3000/api/user/kakao/callback";
@@ -121,7 +125,12 @@ public class KakaoService {
         else{
             kakaoUser.updateKakaoId(kakaoId);
         }
+
+        ProfileImage profileImage = new ProfileImage(kakaoUser);
         userRepository.save(kakaoUser);
+        UserSearch userSearch = new UserSearch(kakaoUser, profileImage.getImgUrl());
+        userSearchRepository.save(userSearch);
+
         return kakaoUser;
     }
 
@@ -141,7 +150,8 @@ public class KakaoService {
         log.info("accessCookie value : " + accessCookie.getValue());
         log.info("refreshCookie value : " + refreshCookie.getValue());
         // 6. 헤더 및 쿠키에 저장
-        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+//        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+        response.addCookie(accessCookie);
 
         // 7. refresh 토큰 redis에 저장
         redisTool.setValues(token.substring(7),
