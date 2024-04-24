@@ -67,13 +67,12 @@ public class NotificationService {
 
     // 채팅 알림
     @Transactional
-    public void notifyMessage (String roomNumber, Long receiver, String sender) {
+    public void notifyMessage (String roomNumber, String receiver, String sender) {
 
         Chat.ChatRoom chatRoom = chatRoomRepository.findByRoomNumber(roomNumber);
         log.info("방번호" + chatRoom);
 
-        User user = userRepository.findById(receiver)
-                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+        User user = userRepository.findByNickname(receiver);
         log.info("알림 받는 사람 : " + user);
 
         User userSender = userRepository.findByNickname(sender);
@@ -112,6 +111,7 @@ public class NotificationService {
                         .createdAt(receiveMessage.getCreatedMessageAt())
                         .contents(receiveMessage.getMessage())
                         .chatRoom(receiveMessage.getChatRoom())
+                        .user(userSender)
                         .build();
 
                 notificationRepository.save(notification);
@@ -298,9 +298,9 @@ public class NotificationService {
     }
 
     // 해당 알림 삭제
-    public NotiDeleteResponseDto deleteNotification (Long id) throws IOException {
+    public NotiDeleteResponseDto deleteNotification (Long notificationId) throws IOException {
 
-        Notification notification = notificationRepository.findById(id)
+        Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(()-> new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND));
 
         Long userId = notification.getUser().getId();

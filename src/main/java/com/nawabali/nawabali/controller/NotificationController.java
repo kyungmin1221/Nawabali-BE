@@ -37,9 +37,9 @@ public class NotificationController {
     }
 
     @Operation(summary = "알림 삭제" , description = "해당 알림 삭제 API")
-    @DeleteMapping ("/notification/delete/{id}")
-    public NotiDeleteResponseDto deleteNotification (@PathVariable Long id) throws IOException {
-        return notificationService.deleteNotification(id);
+    @DeleteMapping ("/notification/delete/{notificationId}")
+    public NotiDeleteResponseDto deleteNotification (@PathVariable Long notificationId) throws IOException {
+        return notificationService.deleteNotification(notificationId);
     }
 
 }
