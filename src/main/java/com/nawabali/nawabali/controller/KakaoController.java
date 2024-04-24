@@ -24,9 +24,8 @@ public class KakaoController {
                                                                     HttpServletResponse response)
             throws JsonProcessingException, IOException {
 
-       kakaoService.kakaoLogin(code, response);
-//       return "redirect:/";
-       return "redirect:https://www.dongnaebangnae.com/";
+       String accessToken = kakaoService.kakaoLogin(code, response);
+       return "redirect:https://www.dongnaebangnae.com/?accessToken=" + accessToken;
 
     }
 }

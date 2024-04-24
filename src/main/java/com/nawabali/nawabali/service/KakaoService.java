@@ -57,7 +57,7 @@ public class KakaoService {
     private String clientId;
 
     @Transactional
-    public void kakaoLogin(String code , HttpServletResponse response) throws JsonProcessingException, IOException {
+    public String kakaoLogin(String code , HttpServletResponse response) throws JsonProcessingException, IOException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getAccessToken(code, aws);
 
@@ -67,7 +67,7 @@ public class KakaoService {
         log.info("userinfo : " + kakaoUser.getEmail());
 
         // 3. 로그인 JWT 토큰 발행 및 리프레시 토큰 저장
-        jwtTokenCreate(kakaoUser,response);
+        return jwtTokenCreate(kakaoUser,response);
     }
 
     // 토큰을 요청하고 카카오 서버에서 토큰을 발급 받음- post요청
@@ -144,14 +144,13 @@ public class KakaoService {
 
 
     // JWT 토큰 생성 및 리프레시 토큰 저장(레디스) 로직
-    private void jwtTokenCreate(User kakaoUser , HttpServletResponse response) throws IOException {
+    private String jwtTokenCreate(User kakaoUser , HttpServletResponse response) throws IOException {
         String email = kakaoUser.getEmail();
         UserRoleEnum role = kakaoUser.getRole();
 
         String token = jwtUtil.createAccessToken(email, role);
         log.info("token : " + token);
         Cookie accessCookie = jwtUtil.createAccessCookie(token);
-
         Cookie refreshCookie = jwtUtil.createRefreshCookie(email);
 
         log.info("user email : " + email, role);
@@ -166,6 +165,7 @@ public class KakaoService {
                 refreshCookie.getValue(),
                 Duration.ofMillis(jwtUtil.REFRESH_EXPIRATION_TIME));
 
+        return token;
     }
 
 
