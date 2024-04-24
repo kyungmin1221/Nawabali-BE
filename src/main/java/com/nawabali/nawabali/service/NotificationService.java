@@ -93,19 +93,13 @@ public class NotificationService {
         Long userId = user.getId();
         log.info("유저아이디 잘 들어가?" + userId);
 
+
+
         if (NotificationController.sseEmitters.containsKey(userId)) {
 
             SseEmitter sseEmitter = NotificationController.sseEmitters.get(userId);
 
             try {
-                Map<String,String> eventData = new HashMap<>();
-                eventData.put("message", receiveMessage.getSender() + "님이 메시지를 보냈습니다.");
-                log.info("message", receiveMessage.getSender() + "님이 메시지를 보냈습니다.");
-                eventData.put("createdAt", receiveMessage.getCreatedMessageAt().toString());
-                eventData.put("contents", receiveMessage.getMessage());
-
-                sseEmitter.send(SseEmitter.event().name("addMessage알림").data(eventData));
-
                 Notification notification = Notification.builder()
                         .sender(receiveMessage.getSender())
                         .createdAt(receiveMessage.getCreatedMessageAt())
@@ -115,6 +109,15 @@ public class NotificationService {
                         .build();
 
                 notificationRepository.save(notification);
+
+                Map<String,String> eventData = new HashMap<>();
+                eventData.put("message", receiveMessage.getSender() + "님이 메시지를 보냈습니다.");
+                log.info("message", receiveMessage.getSender() + "님이 메시지를 보냈습니다.");
+                eventData.put("notificationId", notification.getId().toString());
+                eventData.put("createdAt", receiveMessage.getCreatedMessageAt().toString());
+                eventData.put("contents", receiveMessage.getMessage());
+
+                sseEmitter.send(SseEmitter.event().name("addMessage알림").data(eventData));
 
                 notificationCounts.put(userId, notificationCounts.getOrDefault(userId,0) + 1);
 
