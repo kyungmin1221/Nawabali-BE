@@ -22,11 +22,17 @@ public class UserSearch {
     private String nickname;
     @Field(type=FieldType.Text)
     private String imgUrl;
+    @Field(type = FieldType.Text)
+    private String rankName;
+    @Field(type = FieldType.Text)
+    private String district;
 
 
     public UserSearch(User user, String imgUrl) {
         this.id = user.getId().toString();
         this.nickname = user.getNickname();
         this.imgUrl = imgUrl;
+        this.rankName = user.getRank().getName();
+        this.district = user.getAddress().getDistrict();
     }
 }

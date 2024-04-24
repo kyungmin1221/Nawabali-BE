@@ -1,6 +1,5 @@
 package com.nawabali.nawabali.service;
 
-import co.elastic.clients.elasticsearch._types.query_dsl.PercolateQuery;
 import com.nawabali.nawabali.constant.*;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.domain.elasticsearch.UserSearch;
@@ -17,9 +16,6 @@ import com.nawabali.nawabali.repository.ProfileImageRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import com.nawabali.nawabali.repository.elasticsearch.UserSearchRepository;
 import com.nawabali.nawabali.security.Jwt.JwtUtil;
-import io.jsonwebtoken.Jwt;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -130,12 +126,13 @@ public class UserService {
         List<Long> postIds = getMyPostIds(userId);
         System.out.println("postIds = " + postIds);
 
-        // 작성된 postID로 좋아요, 로컬좋아요 카운팅
-        Long totalLikeCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LIKE);
-        Long totalLocalLikeCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LOCAL_LIKE);
+        // 작성된 postID로  게시글, 좋아요, 로컬좋아요 카운팅
+        int totalPostsCount = postIds.size();
+        Long totalLikesCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LIKE);
+        Long totalLocalLikesCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LOCAL_LIKE);
 
-        Long needPosts = Math.max(existUser.getRank().getNeedPosts() - postIds.size(), 0L);
-        Long needLikes = Math.max(existUser.getRank().getNeedLikes() - totalLikeCount, 0L);
+        Long needPosts = Math.max(existUser.getRank().getNeedPosts() - totalPostsCount, 0L);
+        Long needLikes = Math.max(existUser.getRank().getNeedLikes() - totalLikesCount, 0L);
 
         postIds = null;
 
@@ -146,8 +143,42 @@ public class UserService {
                 .rankName(existUser.getRank().getName())
                 .city(existUser.getAddress().getCity())
                 .district(existUser.getAddress().getDistrict())
-                .totalLikesCount(totalLikeCount)
-                .totalLocalLikesCount(totalLocalLikeCount)
+                .totalPostsCount(totalPostsCount)
+                .totalLikesCount(totalLikesCount)
+                .totalLocalLikesCount(totalLocalLikesCount)
+                .profileImageUrl(existUser.getProfileImage().getImgUrl())
+                .needPosts(needPosts)
+                .needLikes(needLikes)
+                .build();
+    }
+
+    public UserDto.UserInfoResponseDto getUserInfo(Long userId){
+        User existUser = getUserId(userId);
+
+        // 유저 아이디로 작성된 postID 모두 검색
+        List<Long> postIds = getMyPostIds(userId);
+        System.out.println("postIds = " + postIds);
+
+        // 작성된 postID로  게시글, 좋아요, 로컬좋아요 카운팅
+        int totalPostsCount = postIds.size();
+        Long totalLikesCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LIKE);
+        Long totalLocalLikesCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LOCAL_LIKE);
+
+        Long needPosts = Math.max(existUser.getRank().getNeedPosts() - totalPostsCount, 0L);
+        Long needLikes = Math.max(existUser.getRank().getNeedLikes() - totalLikesCount, 0L);
+
+        postIds = null;
+
+        return UserDto.UserInfoResponseDto.builder()
+                .id(existUser.getId())
+                .email(existUser.getEmail())
+                .nickname(existUser.getNickname())
+                .rankName(existUser.getRank().getName())
+                .city(existUser.getAddress().getCity())
+                .district(existUser.getAddress().getDistrict())
+                .totalPostsCount(totalPostsCount)
+                .totalLikesCount(totalLikesCount)
+                .totalLocalLikesCount(totalLocalLikesCount)
                 .profileImageUrl(existUser.getProfileImage().getImgUrl())
                 .needPosts(needPosts)
                 .needLikes(needLikes)

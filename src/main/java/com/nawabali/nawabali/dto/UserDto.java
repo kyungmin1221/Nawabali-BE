@@ -27,6 +27,7 @@ public class UserDto {
         String city;
         String district;
         String rankName;
+        int totalPostsCount;
         Long totalLikesCount;
         Long totalLocalLikesCount;
         String profileImageUrl;
@@ -41,18 +42,6 @@ public class UserDto {
             this.district = user.getAddress().getDistrict();
             this.rankName = user.getRank().name();
             this.profileImageUrl = user.getProfileImage().getImgUrl();
-        }
-
-        public UserInfoResponseDto(User user, Long needPosts, Long needLikes) {
-            this.id = user.getId();
-            this.email = user.getEmail();
-            this.nickname = user.getNickname();
-            this.city = user.getAddress().getCity();
-            this.district = user.getAddress().getDistrict();
-            this.rankName = user.getRank().name();
-            this.profileImageUrl = user.getProfileImage().getImgUrl();
-            this.needPosts = needPosts;
-            this.needLikes = needLikes;
         }
     }
 
