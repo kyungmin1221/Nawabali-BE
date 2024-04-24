@@ -4,6 +4,7 @@ package com.nawabali.nawabali.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nawabali.nawabali.constant.Address;
 import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.constant.UserRoleEnum;
 import com.nawabali.nawabali.domain.User;
@@ -11,6 +12,7 @@ import com.nawabali.nawabali.domain.elasticsearch.UserSearch;
 import com.nawabali.nawabali.domain.image.ProfileImage;
 import com.nawabali.nawabali.dto.KakaoDto;
 import com.nawabali.nawabali.global.tool.redis.RedisTool;
+import com.nawabali.nawabali.repository.ProfileImageRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import com.nawabali.nawabali.repository.elasticsearch.UserSearchRepository;
 import com.nawabali.nawabali.security.Jwt.JwtUtil;
@@ -44,6 +46,7 @@ public class KakaoService {
     private final RedisTool redisTool;
     private final RestTemplate restTemplate;
     private final UserSearchRepository userSearchRepository;
+    private final ProfileImageRepository profileImageRepository;
 
     private final String local= "http://localhost:8080/api/user/kakao/callback";
     private final String frontLocal = "http://localhost:3000/api/user/kakao/callback";
@@ -54,7 +57,7 @@ public class KakaoService {
     private String clientId;
 
     @Transactional
-    public void kakaoLogin(String code , HttpServletResponse response) throws JsonProcessingException, IOException {
+    public String kakaoLogin(String code , HttpServletResponse response) throws JsonProcessingException, IOException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
         String accessToken = getAccessToken(code, aws);
 
@@ -62,10 +65,9 @@ public class KakaoService {
         User kakaoUser = registerKakaoUserIfNeeded(accessToken);
         log.info("userinfo : " + kakaoUser.getNickname());
         log.info("userinfo : " + kakaoUser.getEmail());
-        log.info("userinfo : " + kakaoUser.getNickname());
 
         // 3. 로그인 JWT 토큰 발행 및 리프레시 토큰 저장
-        jwtTokenCreate(kakaoUser,response);
+        return jwtTokenCreate(kakaoUser,response);
     }
 
     // 토큰을 요청하고 카카오 서버에서 토큰을 발급 받음- post요청
@@ -108,49 +110,54 @@ public class KakaoService {
         User kakaoUser = userRepository.findByEmail(kakaoEmail).orElse(null);
 
         if (kakaoUser == null) {
+            ProfileImage profileImage = new ProfileImage(kakaoUser);
+
             String kakaoNickname = kakaoUserInfo.getNickname(); // 카카오 사용자 닉네임
             String password = passwordEncoder.encode(UUID.randomUUID().toString());
 
             UserRoleEnum role = UserRoleEnum.USER; // 기본 역할을 ROLE_USER로 설정
-
+            Address address =new Address("수정해주세요", "수정해주세요");
             kakaoUser = User.builder()
                     .kakaoId(kakaoId)
                     .nickname(kakaoNickname)
                     .email(kakaoEmail)
+                    .address(address)
                     .password(password)
                     .role(role)
                     .rank(UserRankEnum.RESIDENT)
                     .build();
+            kakaoUser = userRepository.save(kakaoUser);
+            UserSearch userSearch = new UserSearch(kakaoUser, profileImage.getImgUrl());
+            profileImageRepository.save(profileImage);
+
+            userSearchRepository.save(userSearch);
+
         }
         else{
             kakaoUser.updateKakaoId(kakaoId);
+            userRepository.save(kakaoUser);
         }
 
-        ProfileImage profileImage = new ProfileImage(kakaoUser);
-        userRepository.save(kakaoUser);
-        UserSearch userSearch = new UserSearch(kakaoUser, profileImage.getImgUrl());
-        userSearchRepository.save(userSearch);
 
         return kakaoUser;
     }
 
 
     // JWT 토큰 생성 및 리프레시 토큰 저장(레디스) 로직
-    private void jwtTokenCreate(User kakaoUser , HttpServletResponse response) throws IOException {
+    private String jwtTokenCreate(User kakaoUser , HttpServletResponse response) throws IOException {
         String email = kakaoUser.getEmail();
         UserRoleEnum role = kakaoUser.getRole();
 
         String token = jwtUtil.createAccessToken(email, role);
         log.info("token : " + token);
         Cookie accessCookie = jwtUtil.createAccessCookie(token);
-
         Cookie refreshCookie = jwtUtil.createRefreshCookie(email);
 
         log.info("user email : " + email, role);
         log.info("accessCookie value : " + accessCookie.getValue());
         log.info("refreshCookie value : " + refreshCookie.getValue());
         // 6. 헤더 및 쿠키에 저장
-//        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
         response.addCookie(accessCookie);
 
         // 7. refresh 토큰 redis에 저장
@@ -158,6 +165,7 @@ public class KakaoService {
                 refreshCookie.getValue(),
                 Duration.ofMillis(jwtUtil.REFRESH_EXPIRATION_TIME));
 
+        return token;
     }
 
 
