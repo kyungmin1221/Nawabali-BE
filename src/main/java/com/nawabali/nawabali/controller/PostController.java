@@ -79,7 +79,7 @@ public class PostController {
                     @Parameter(name = "sort", description = "정렬 기준과 방향, 예: createdAt,desc(생성일 내림차순 정렬)", example = "createdAt,desc")
             }
     )
-    @GetMapping("/users")
+    @GetMapping("/users-nick")
     public ResponseEntity<Slice<PostDto.ResponseDto>> getUserPost(
             @RequestParam(required = false) String nickname,
             @PageableDefault(
