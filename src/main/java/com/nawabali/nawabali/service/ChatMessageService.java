@@ -146,7 +146,7 @@ public class ChatMessageService {
                     .createdMessageAt(LocalDateTime.now())
                     .build();
 
-            log.info("현재 채팅방에 {}명이 있는 채팅방에 메세지를 보내셨습니다" + memberInRoom);
+            log.info("현재 채팅방에 " + memberInRoom + "명이 있는 채팅방에 메세지를 보내셨습니다" );
             messagingTemplate.convertAndSendToUser(receiver,"/sub/chat/room/" + chatRoomId, chatMessageResponseDto);
             log.info("정보확인 {} 이 방에서 새로운 메시지가 도착했습니다. 보낸 사람: {}, 메시지 내용: {}, 유저 아이디 : {}, 만든 시간 {}", chatRoomId, chatMessageResponseDto.getSender(), chatMessageResponseDto.getMessage(), chatMessageResponseDto.getUserId(), chatMessageResponseDto.getCreatedMessageAt());
 
