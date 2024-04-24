@@ -62,7 +62,6 @@ public class KakaoService {
         User kakaoUser = registerKakaoUserIfNeeded(accessToken);
         log.info("userinfo : " + kakaoUser.getNickname());
         log.info("userinfo : " + kakaoUser.getEmail());
-        log.info("userinfo : " + kakaoUser.getNickname());
 
         // 3. 로그인 JWT 토큰 발행 및 리프레시 토큰 저장
         jwtTokenCreate(kakaoUser,response);
@@ -150,7 +149,7 @@ public class KakaoService {
         log.info("accessCookie value : " + accessCookie.getValue());
         log.info("refreshCookie value : " + refreshCookie.getValue());
         // 6. 헤더 및 쿠키에 저장
-//        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
         response.addCookie(accessCookie);
 
         // 7. refresh 토큰 redis에 저장
