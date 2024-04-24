@@ -4,6 +4,7 @@ package com.nawabali.nawabali.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nawabali.nawabali.constant.Address;
 import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.constant.UserRoleEnum;
 import com.nawabali.nawabali.domain.User;
@@ -107,28 +108,31 @@ public class KakaoService {
         User kakaoUser = userRepository.findByEmail(kakaoEmail).orElse(null);
 
         if (kakaoUser == null) {
+            ProfileImage profileImage = new ProfileImage(kakaoUser);
+
             String kakaoNickname = kakaoUserInfo.getNickname(); // 카카오 사용자 닉네임
             String password = passwordEncoder.encode(UUID.randomUUID().toString());
 
             UserRoleEnum role = UserRoleEnum.USER; // 기본 역할을 ROLE_USER로 설정
-
+            Address address =new Address("수정해주세요", "수정해주세요");
             kakaoUser = User.builder()
                     .kakaoId(kakaoId)
                     .nickname(kakaoNickname)
                     .email(kakaoEmail)
+                    .address(address)
                     .password(password)
                     .role(role)
                     .rank(UserRankEnum.RESIDENT)
                     .build();
+            UserSearch userSearch = new UserSearch(kakaoUser, profileImage.getImgUrl());
+            userSearchRepository.save(userSearch);
+
         }
         else{
             kakaoUser.updateKakaoId(kakaoId);
         }
 
-        ProfileImage profileImage = new ProfileImage(kakaoUser);
         userRepository.save(kakaoUser);
-        UserSearch userSearch = new UserSearch(kakaoUser, profileImage.getImgUrl());
-        userSearchRepository.save(userSearch);
 
         return kakaoUser;
     }
