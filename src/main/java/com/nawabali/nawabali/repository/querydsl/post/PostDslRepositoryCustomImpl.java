@@ -91,23 +91,6 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
 
 
 
-    // 게시물 contents 로 검색
-    @Override
-    public List<PostDto.SearchDto> findSearchByPosts(String contents)  {
-        QPost post = QPost.post;
-
-        List<PostDto.SearchDto> searchResults = queryFactory
-                .select(Projections.constructor(PostDto.SearchDto.class,
-                        post.id,
-                        post.contents)
-                )
-                .from(post)
-                .where(post.contents.contains(contents))
-                .fetch();
-
-        return searchResults;
-    }
-
     // 카테고리 및 구 를 이용하여 게시물 조회
     @Override
     public Slice<PostDto.ResponseDto> findCategoryByPost(Category category, String district, Pageable pageable) {
@@ -216,6 +199,35 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
         return results;
 
     }
+
+    // es + jpa 검색
+    @Override
+    public Slice<PostDto.ResponseDto> searchAndFilterPosts(List<Long> postIds, Long userId, Category category, Pageable pageable) {
+        QPost post = QPost.post;
+        QUser user = QUser.user;
+
+        List<Post> posts = queryFactory
+                .selectFrom(post)
+                .leftJoin(post.user, user).fetchJoin()
+                .where(
+                        post.id.in(postIds),
+                        userEq(userId),
+                        categoryEq(category)
+                )
+                .orderBy(post.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+
+        boolean hasNext = posts.size() > pageable.getPageSize();
+        if (hasNext) {
+            posts.remove(posts.size() - 1);
+        }
+
+        List<PostDto.ResponseDto> responseDtos = convertPostDto(posts);
+        return new SliceImpl<>(responseDtos, pageable, hasNext);
+    }
+
 
     @Override
     public Slice<PostDto.ResponseDto> getMyPosts(Long userId, Pageable pageable, Category category) {

@@ -90,11 +90,7 @@ public class PostService {
 
 
         Post savedPost = postRepository.save(post);
-        PostSearch postSearch = new PostSearch();
-        postSearch.setId(savedPost.getId().toString());
-        postSearch.setContents(savedPost.getContents());
-        postSearch.setPostId(savedPost.getId());
-
+        PostSearch postSearch = createPostSearch(savedPost, imageUrls, findUser);
         postSearchRepository.save(postSearch);
 
         User userUp = post.getUser();
@@ -238,10 +234,17 @@ public class PostService {
     }
 
 
-    // 게시물 검색 (es)
-    public List<PostSearch> searchByContents(String contents) {
-        return postSearchRepository.findByContentsContaining(contents);
+    // 게시물 검색
+    public Slice<PostDto.ResponseDto> searchAndFilterPosts(String contents, Long userId, Category category, Pageable pageable) {
+        List<PostSearch> searchResults = postSearchRepository.findByContentsContaining(contents);
+        List<Long> postIds = searchResults.stream()
+                .map(PostSearch::getPostId)
+                .collect(Collectors.toList());
+
+        return postRepository.searchAndFilterPosts(postIds, userId, category, pageable);
     }
+
+
 
     // 동네별 점수 조회
     public List<PostDto.DistrictDto> districtMap() {
@@ -299,6 +302,25 @@ public class PostService {
     }
 
 
+    private boolean promoteGrade(User user) {
+
+        List<Post> userPosts = postRepository.findAllByUserId(user.getId());
+
+        List<Long> postIds = userPosts.stream()
+                .map(Post::getId)
+                .collect(Collectors.toList());
+
+        Long totalPosts = (long) userPosts.size();
+
+        Long totalLocalLikesCount = userService.getMyTotalLikesCount(postIds, LikeCategoryEnum.LOCAL_LIKE);
+
+        Long needPosts = Math.max(user.getRank().getNeedPosts() - totalPosts, 0L);
+        Long needLocalLikes = Math.max(user.getRank().getNeedLikes() - totalLocalLikesCount, 0L);
+
+        return needPosts ==0 && needLocalLikes ==0 && user.getRank() != UserRankEnum.LOCAL_ELDER;
+    }
+
+
     private PostDto.ResponseDto convertToResponseDto(PostDto.ResponseDto post) {
         Long likesCount = getLikesCount(post.getPostId(), LIKE);
         Long localLikesCount = getLikesCount(post.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
@@ -327,22 +349,33 @@ public class PostService {
         );
     }
 
-    private boolean promoteGrade(User user) {
 
-        List<Post> userPosts = postRepository.findAllByUserId(user.getId());
-
-        List<Long> postIds = userPosts.stream()
-                .map(Post::getId)
-                .collect(Collectors.toList());
-
-        Long totalPosts = (long) userPosts.size();
-
-        Long totalLocalLikesCount = userService.getMyTotalLikesCount(postIds, LikeCategoryEnum.LOCAL_LIKE);
-
-        Long needPosts = Math.max(user.getRank().getNeedPosts() - totalPosts, 0L);
-        Long needLocalLikes = Math.max(user.getRank().getNeedLikes() - totalLocalLikesCount, 0L);
-
-        return needPosts ==0 && needLocalLikes ==0 && user.getRank() != UserRankEnum.LOCAL_ELDER;
+    private PostSearch createPostSearch(Post post, List<String> imageUrls, User user) {
+        PostSearch postSearch = new PostSearch();
+        postSearch.setId(post.getId().toString());
+        postSearch.setContents(post.getContents());
+        postSearch.setPostId(post.getId());
+        postSearch.setUserId(user.getId());
+        postSearch.setUserRankName(user.getRank().getName());
+        postSearch.setNickname(user.getNickname());
+        postSearch.setCategory(post.getCategory().toString());
+        postSearch.setDistrict(post.getTown().getDistrict());
+        postSearch.setPlaceName(post.getTown().getPlaceName());
+        postSearch.setPlaceAddr(post.getTown().getPlaceAddr());
+        postSearch.setLatitude(post.getTown().getLatitude());
+        postSearch.setLongitude(post.getTown().getLongitude());
+        postSearch.setCreatedAt(LocalDateTime.now());
+        postSearch.setModifiedAt(post.getModifiedAt());
+        postSearch.setMainImageUrl(imageUrls.isEmpty() ? null : imageUrls.get(0));
+        postSearch.setMultiImages(imageUrls.size() > 1);
+        postSearch.setLikesCount(0L);
+        postSearch.setLocalLikesCount(0L);
+        postSearch.setCommentCount(0);
+        postSearch.setProfileImageUrl(user.getProfileImage() != null ? user.getProfileImage().getImgUrl() : null);
+        return postSearch;
     }
+
+
+
 
 }
