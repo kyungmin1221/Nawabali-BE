@@ -11,10 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> , PostDslRepositoryCustom {
@@ -48,4 +45,7 @@ public interface PostRepository extends JpaRepository<Post, Long> , PostDslRepos
 
         return mostFrequentCategories;
     }
+
+
+    List<Post> findAllByUserId(Long id);
 }

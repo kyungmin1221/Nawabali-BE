@@ -1,9 +1,6 @@
 package com.nawabali.nawabali.service;
 
-import com.nawabali.nawabali.constant.Category;
-import com.nawabali.nawabali.constant.LikeCategoryEnum;
-import com.nawabali.nawabali.constant.Period;
-import com.nawabali.nawabali.constant.Town;
+import com.nawabali.nawabali.constant.*;
 import com.nawabali.nawabali.domain.BookMark;
 import com.nawabali.nawabali.domain.Like;
 import com.nawabali.nawabali.domain.Post;
@@ -19,6 +16,7 @@ import com.nawabali.nawabali.repository.elasticsearch.PostSearchRepository;
 import com.nawabali.nawabali.s3.AwsS3Service;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -34,6 +32,7 @@ import static com.nawabali.nawabali.constant.LikeCategoryEnum.LIKE;
 import static com.nawabali.nawabali.constant.LikeCategoryEnum.LOCAL_LIKE;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PostService {
@@ -46,6 +45,7 @@ public class PostService {
     private final PostSearchRepository postSearchRepository;
     private final ProfileImageRepository profileImageRepository;
     private final BookMarkRepository bookMarkRepository;
+    private final UserRepository userRepository;
     private final List <String> seoulDistrictNames = Arrays.asList(
             "강남구", "강동구", "강서구", "강북구", "관악구",
             "광진구", "구로구", "금천구", "노원구", "동대문구",
@@ -96,6 +96,8 @@ public class PostService {
         postSearch.setPostId(savedPost.getId());
 
         postSearchRepository.save(postSearch);
+
+        promoteGrade(findUser);
 
         return new PostDto.ResponseDto(post);
 
@@ -322,5 +324,51 @@ public class PostService {
         );
     }
 
+    private void promoteGrade(User user) {
+
+        List<Post> userPosts = postRepository.findAllByUserId(user.getId());
+
+        List<Long> postIds = userPosts.stream()
+                .map(Post::getId)
+                .collect(Collectors.toList());
+
+        Long totalPosts = (long) userPosts.size();
+
+//        Long totalLikesCount = userService.getMyTotalLikesCount(postIds, LikeCategoryEnum.LIKE);
+        Long totalLocalLikesCount = userService.getMyTotalLikesCount(postIds, LikeCategoryEnum.LOCAL_LIKE);
+
+        UserRankEnum newRank = calculateNewUserRank(totalPosts, totalLocalLikesCount);
+
+        if (newRank != null && newRank.getName().compareTo(user.getRank().getName()) > 0) {
+            user.updateRanks(newRank);
+            log.info("랭크" + newRank);
+            // updateUserRank 메서드가 User 엔티티를 변경하므로, 변경사항을 영속화합니다.
+            userRepository.save(user);
+        }
+    }
+
+    private UserRankEnum calculateNewUserRank(Long totalPosts, Long totalLocalLikes) {
+        UserRankEnum newRank = null;
+
+        if (totalPosts >= UserRankEnum.LOCAL_ELDER.getNeedPosts() && totalLocalLikes >= UserRankEnum.LOCAL_ELDER.getNeedLikes()) {
+            newRank = UserRankEnum.LOCAL_ELDER;
+            log.info("내랭크는 어딜까?" + newRank);
+            return newRank;
+        }
+
+        if (newRank == null && totalPosts >= UserRankEnum.NATIVE_PERSON.getNeedPosts() && totalLocalLikes >= UserRankEnum.NATIVE_PERSON.getNeedLikes()) {
+            newRank = UserRankEnum.NATIVE_PERSON;
+            log.info("내랭크는 어딜까?" + newRank);
+            return newRank;
+        }
+
+        if (newRank == null && totalPosts >= UserRankEnum.RESIDENT.getNeedPosts() && totalLocalLikes >= UserRankEnum.RESIDENT.getNeedLikes()) {
+            newRank = UserRankEnum.RESIDENT;
+            log.info("내랭크는 어딜까?" + newRank);
+        }
+
+
+        return newRank;
+    }
 
 }

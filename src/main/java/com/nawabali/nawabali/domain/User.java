@@ -82,6 +82,10 @@ public class User {
         this.password = requestDto.getPassword();
     }
 
+    public void updateRanks (UserRankEnum rank) {
+        this.rank = rank;
+    }
+
     public void updateRank(UserRankEnum userRankEnum){
         if(userRankEnum == UserRankEnum.RESIDENT){
             this.rank = UserRankEnum.NATIVE_PERSON;
