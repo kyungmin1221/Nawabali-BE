@@ -51,6 +51,7 @@ public class BookmarkDslRepositoryCustomImpl implements BookmarkDslRepositoryCus
                         .postId(bookMark.getPost().getId())
                         .mainImageUrl(bookMark.getPost().getImages().get(0).getImgUrl())
                         .multiImages(bookMark.getPost().getImages().size() > 1)
+                        .createdAt(bookMark.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
     }

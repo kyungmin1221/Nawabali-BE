@@ -48,6 +48,7 @@ public class BookMarkDto {
 
         private boolean multiImages;
 
+        private LocalDateTime createdAt;
 
     }
 }

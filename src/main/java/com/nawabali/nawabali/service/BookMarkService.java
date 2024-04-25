@@ -82,7 +82,8 @@ public class BookMarkService {
                 bookmark.getId(),
                 bookmark.getPostId(),
                 bookmark.getMainImageUrl(),
-                bookmark.isMultiImages()
+                bookmark.isMultiImages(),
+                bookmark.getCreatedAt()
                 );
     }
 
