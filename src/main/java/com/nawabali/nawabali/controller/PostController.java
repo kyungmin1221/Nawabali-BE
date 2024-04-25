@@ -188,8 +188,8 @@ public class PostController {
 
     @Operation(summary = "게시물 내용 기반 검색", description = "게시물의 내용(contents)으로 검색이 가능합니다.")
     @GetMapping("/search")
-    public ResponseEntity<List<PostSearch>> searchPost(@RequestParam("query") String contents) {
-        List<PostSearch> postDslDto = postService.searchByContents(contents);
+    public ResponseEntity<List<PostDto.ResponseDto>> searchPost(@RequestParam("query") String contents) {
+        List<PostDto.ResponseDto> postDslDto = postService.searchByContents(contents);
         return ResponseEntity.ok(postDslDto);
     }
 

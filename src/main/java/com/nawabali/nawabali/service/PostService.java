@@ -234,9 +234,22 @@ public class PostService {
 
 
     // 게시물 검색 (es)
-    public List<PostSearch> searchByContents(String contents) {
-        return postSearchRepository.findByContentsContaining(contents);
+    public List<PostDto.ResponseDto> searchByContents(String contents) {
+       // return postSearchRepository.findByContentsContaining(contents);
+        List<PostSearch> searchResults = postSearchRepository.findByContentsContaining(contents);
+
+        List<Long> postIds = searchResults.stream()
+                .map(PostSearch::getPostId)
+                .collect(Collectors.toList());
+
+        List<Post> posts = postRepository.findAllById(postIds);
+        return posts.stream()
+                .map(this::mapToResponseDto)
+                .collect(Collectors.toList());
+
     }
+
+
 
     // 동네별 점수 조회
     public List<PostDto.DistrictDto> districtMap() {
@@ -320,6 +333,40 @@ public class PostService {
                 post.getCommentCount(),
                 profileImageUrl
         );
+    }
+
+    private PostDto.ResponseDto mapToResponseDto(Post post) {
+
+        PostDto.ResponseDto dto = new PostDto.ResponseDto();
+
+        long likesCount = post.getLikes().stream()
+                .filter(like -> like.getLikeCategoryEnum() == LikeCategoryEnum.LIKE)
+                .count();
+        long localLikesCount = post.getLikes().stream()
+                .filter(like -> like.getLikeCategoryEnum() == LikeCategoryEnum.LOCAL_LIKE)
+                .count();
+
+        dto.setUserId(post.getUser().getId());
+        dto.setUserRankName(post.getUser().getRank().getName());
+        dto.setPostId(post.getId());
+        dto.setNickname(post.getUser().getNickname());
+        dto.setContents(post.getContents());
+        dto.setCategory(post.getCategory().name());
+        dto.setDistrict(post.getTown().getDistrict());
+        dto.setPlaceName(post.getTown().getPlaceName());
+        dto.setPlaceAddr(post.getTown().getPlaceAddr());
+        dto.setLatitude(post.getTown().getLatitude());
+        dto.setLongitude(post.getTown().getLongitude());
+        dto.setCreatedAt(post.getCreatedAt());
+        dto.setModifiedAt(post.getModifiedAt());
+        dto.setMainImageUrl(post.getImages().isEmpty() ? null : post.getImages().get(0).getImgUrl());
+        dto.setMultiImages(post.getImages().size() > 1);
+        dto.setCommentCount(post.getComments().size());
+        dto.setProfileImageUrl(post.getUser().getProfileImage().getImgUrl());
+        dto.setLikesCount(likesCount);
+        dto.setLocalLikesCount(localLikesCount);
+
+        return dto;
     }
 
 
