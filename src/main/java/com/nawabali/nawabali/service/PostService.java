@@ -17,6 +17,7 @@ import com.nawabali.nawabali.s3.AwsS3Service;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -235,15 +236,28 @@ public class PostService {
 
 
     // 게시물 검색
-    public Slice<PostDto.ResponseDto> searchAndFilterPosts(String contents, Pageable pageable) {
-        List<PostSearch> searchResults = postSearchRepository.findByContentsContaining(contents);
+//    public Slice<PostDto.ResponseDto> searchAndFilterPosts(String contents, Pageable pageable) {
+//        List<PostSearch> searchResults = postSearchRepository.findByContentsContaining(contents);
+//
+//        List<Long> postIds = searchResults.stream()
+//                .map(PostSearch::getPostId)
+//                .collect(Collectors.toList());
+//
+//        return postRepository.searchAndFilterPosts(postIds, pageable);
+//    }
 
-        List<Long> postIds = searchResults.stream()
-                .map(PostSearch::getPostId)
+    // 게시물 검색(ES)
+    public Slice<PostDto.ResponseDto> searchAndFilterPosts(String contents, Pageable pageable) {
+
+        Page<PostSearch> searchResultsPage = postSearchRepository.findByContentsContaining(contents, pageable);
+
+        List<PostDto.ResponseDto> responseDtos = searchResultsPage.getContent().stream()
+                .map(this::convertToResponseDtoFromES)
                 .collect(Collectors.toList());
 
-        return postRepository.searchAndFilterPosts(postIds, pageable);
+        return new SliceImpl<>(responseDtos, pageable, searchResultsPage.hasNext());
     }
+
 
 
 
@@ -354,6 +368,7 @@ public class PostService {
 
     private PostSearch createPostSearch(Post post, List<String> imageUrls, User user) {
         PostSearch postSearch = new PostSearch();
+
         postSearch.setId(post.getId().toString());
         postSearch.setContents(post.getContents());
         postSearch.setPostId(post.getId());
@@ -374,9 +389,34 @@ public class PostService {
         postSearch.setLocalLikesCount(0L);
         postSearch.setCommentCount(0);
         postSearch.setProfileImageUrl(user.getProfileImage() != null ? user.getProfileImage().getImgUrl() : null);
+
         return postSearch;
     }
 
+
+    private PostDto.ResponseDto convertToResponseDtoFromES(PostSearch postSearch) {
+        return PostDto.ResponseDto.builder()
+                .userId(postSearch.getUserId())
+                .userRankName(postSearch.getUserRankName())
+                .postId(postSearch.getPostId())
+                .nickname(postSearch.getNickname())
+                .contents(postSearch.getContents())
+                .category(postSearch.getCategory())
+                .district(postSearch.getDistrict())
+                .placeName(postSearch.getPlaceName())
+                .placeAddr(postSearch.getPlaceAddr())
+                .latitude(postSearch.getLatitude())
+                .longitude(postSearch.getLongitude())
+                .createdAt(postSearch.getCreatedAt())
+                .modifiedAt(postSearch.getModifiedAt())
+                .mainImageUrl(postSearch.getMainImageUrl())
+                .multiImages(postSearch.isMultiImages())
+                .likesCount(postSearch.getLikesCount())
+                .localLikesCount(postSearch.getLocalLikesCount())
+                .commentCount(postSearch.getCommentCount())
+                .profileImageUrl(postSearch.getProfileImageUrl())
+                .build();
+    }
 
 
 
