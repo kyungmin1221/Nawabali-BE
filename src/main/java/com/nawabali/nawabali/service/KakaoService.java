@@ -110,7 +110,6 @@ public class KakaoService {
         User kakaoUser = userRepository.findByEmail(kakaoEmail).orElse(null);
 
         if (kakaoUser == null) {
-            ProfileImage profileImage = new ProfileImage(kakaoUser);
 
             String kakaoNickname = kakaoUserInfo.getNickname(); // 카카오 사용자 닉네임
             String password = passwordEncoder.encode(UUID.randomUUID().toString());
@@ -127,6 +126,8 @@ public class KakaoService {
                     .rank(UserRankEnum.RESIDENT)
                     .build();
             kakaoUser = userRepository.save(kakaoUser);
+
+            ProfileImage profileImage = new ProfileImage(kakaoUser);
             UserSearch userSearch = new UserSearch(kakaoUser, profileImage.getImgUrl());
             profileImageRepository.save(profileImage);
 
