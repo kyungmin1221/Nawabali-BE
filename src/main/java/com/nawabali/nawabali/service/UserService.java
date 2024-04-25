@@ -132,7 +132,7 @@ public class UserService {
         Long totalLocalLikesCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LOCAL_LIKE);
 
         Long needPosts = Math.max(existUser.getRank().getNeedPosts() - totalPostsCount, 0L);
-        Long needLikes = Math.max(existUser.getRank().getNeedLikes() - totalLikesCount, 0L);
+        Long needLocalLikes = Math.max(existUser.getRank().getNeedLikes() - totalLocalLikesCount, 0L);
 
         postIds = null;
 
@@ -148,7 +148,7 @@ public class UserService {
                 .totalLocalLikesCount(totalLocalLikesCount)
                 .profileImageUrl(existUser.getProfileImage().getImgUrl())
                 .needPosts(needPosts)
-                .needLikes(needLikes)
+                .needLikes(needLocalLikes)
                 .build();
     }
 

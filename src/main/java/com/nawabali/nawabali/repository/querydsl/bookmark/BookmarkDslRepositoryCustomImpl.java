@@ -47,17 +47,11 @@ public class BookmarkDslRepositoryCustomImpl implements BookmarkDslRepositoryCus
     private  List<BookMarkDto.UserBookmarkDto> convertBookmarkDto(List<BookMark> bookMarks) {
         return bookMarks.stream()
                 .map(bookMark -> BookMarkDto.UserBookmarkDto.builder()
-                        .userId(bookMark.getUser().getId())
+                        .id(bookMark.getId())
                         .postId(bookMark.getPost().getId())
-                        .nickname(bookMark.getUser().getNickname())
-                        .contents(bookMark.getPost().getContents())
-                        .category(bookMark.getPost().getCategory().name())
-                        .district(bookMark.getPost().getTown().getDistrict())
-                        .latitude(bookMark.getPost().getTown().getLatitude())
-                        .longitude(bookMark.getPost().getTown().getLongitude())
+                        .mainImageUrl(bookMark.getPost().getImages().get(0).getImgUrl())
+                        .multiImages(bookMark.getPost().getImages().size() > 1)
                         .createdAt(bookMark.getCreatedAt())
-                        .imageUrls(bookMark.getPost().getImages().stream().map(PostImage::getImgUrl).collect(Collectors.toList()))
-                        .commentCount(bookMark.getPost().getComments().size())
                         .build())
                 .collect(Collectors.toList());
     }

@@ -1,10 +1,12 @@
 package com.nawabali.nawabali.service;
 
 import com.nawabali.nawabali.constant.LikeCategoryEnum;
+import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.domain.Like;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.LikeDto;
+import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.LikeRepository;
@@ -14,6 +16,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -27,6 +31,7 @@ public class LikeService {
     private final NotificationService notificationService;
 
     // 좋아요 수정
+    @Transactional
     public LikeDto.responseDto toggleLike(Long postId, String username) {
 
         // 본인 인증
@@ -76,7 +81,6 @@ public class LikeService {
                 .message("좋아요 되었습니다.")
                 .build();
     }
-
     public LikeDto.responseDto toggleLocalLike(Long postId, String username) {
         // 본인 인증
         User user = userRepository.findByEmail(username)
@@ -118,6 +122,12 @@ public class LikeService {
 
             likeRepository.save(findLocalLike);
 
+            User writer = post.getUser();
+            if (promoteGrade(writer)){
+                log.info(writer.getRank().getName());
+                writer.updateRank(writer.getRank());
+            }
+
             notificationService.notifyLocalLike(postId, user.getId());
 
             return LikeDto.responseDto.builder()
@@ -136,6 +146,36 @@ public class LikeService {
         String postAddress = post.getTown().getDistrict();
 
         return userAddress.equals(postAddress);
+    }
+
+    public boolean promoteGrade(User writer){
+        Long writerId = writer.getId();
+        User existUser = userRepository.findById(writerId).orElseThrow(()->
+                new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // 유저 아이디로 작성된 postID 모두 검색
+        List<Long> postIds = getMyPostIds(writerId);
+        System.out.println("postIds = " + postIds);
+
+        // 작성된 postID로  게시글, 좋아요, 로컬좋아요 카운팅
+        int totalPostsCount = postIds.size();
+        Long totalLocalLikesCount = getMyTotalLikesCount(postIds, LikeCategoryEnum.LOCAL_LIKE);
+
+        Long needPosts = Math.max(existUser.getRank().getNeedPosts() - totalPostsCount, 0L);
+        Long needLocalLikes = Math.max(existUser.getRank().getNeedLikes() - totalLocalLikesCount, 0L);
+        log.info("남은 동네 좋아요 수 : " + needLocalLikes);
+        log.info("남은 게시글 수 :" + needPosts);
+        return needPosts ==0 && needLocalLikes ==0 && existUser.getRank() != UserRankEnum.LOCAL_ELDER;
+    }
+
+    public Long getMyTotalLikesCount(List<Long> postIds, LikeCategoryEnum likeCategoryEnum) {
+        return likeRepository.countByPostIdInAndLikeCategoryEnum(postIds, likeCategoryEnum);
+    }
+
+    public List<Long> getMyPostIds(Long userId) {
+        return postRepository.findByUserId(userId).stream()
+                .map(PostDto.getMyPostsResponseDto::getId)
+                .toList();
     }
 
 }
