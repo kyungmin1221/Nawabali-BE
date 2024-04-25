@@ -89,30 +89,7 @@ public class PostService {
 
 
         Post savedPost = postRepository.save(post);
-        PostSearch postSearch = new PostSearch();
-        postSearch.setId(savedPost.getId().toString());
-        postSearch.setContents(savedPost.getContents());
-        postSearch.setPostId(savedPost.getId());
-        postSearch.setUserId(savedPost.getUser().getId());
-        postSearch.setUserRankName(savedPost.getUser().getRank().getName());
-        postSearch.setNickname(savedPost.getUser().getNickname());
-        postSearch.setCategory(savedPost.getCategory().toString());
-        postSearch.setDistrict(savedPost.getTown().getDistrict());
-        postSearch.setPlaceName(savedPost.getTown().getPlaceName());
-        postSearch.setPlaceAddr(savedPost.getTown().getPlaceAddr());
-        postSearch.setLatitude(savedPost.getTown().getLatitude());
-        postSearch.setLongitude(savedPost.getTown().getLongitude());
-        postSearch.setCreatedAt(LocalDateTime.now());
-        postSearch.setModifiedAt(savedPost.getModifiedAt());
-        postSearch.setMainImageUrl(imageUrls.isEmpty() ? null : imageUrls.get(0));
-        postSearch.setMultiImages(imageUrls.size() > 1);
-        postSearch.setLikesCount(0L);
-        postSearch.setLocalLikesCount(0L);
-        postSearch.setCommentCount(0);
-        postSearch.setProfileImageUrl(findUser.getProfileImage().getImgUrl());
-
-        System.out.println(savedPost.getUser().getRank().getName());
-
+        PostSearch postSearch = createPostSearch(savedPost, imageUrls, findUser);
         postSearchRepository.save(postSearch);
 
         return new PostDto.ResponseDto(post);
@@ -347,38 +324,29 @@ public class PostService {
         );
     }
 
-    private PostDto.ResponseDto mapToResponseDto(Post post) {
-
-        PostDto.ResponseDto dto = new PostDto.ResponseDto();
-
-        long likesCount = post.getLikes().stream()
-                .filter(like -> like.getLikeCategoryEnum() == LikeCategoryEnum.LIKE)
-                .count();
-        long localLikesCount = post.getLikes().stream()
-                .filter(like -> like.getLikeCategoryEnum() == LikeCategoryEnum.LOCAL_LIKE)
-                .count();
-
-        dto.setUserId(post.getUser().getId());
-        dto.setUserRankName(post.getUser().getRank().getName());
-        dto.setPostId(post.getId());
-        dto.setNickname(post.getUser().getNickname());
-        dto.setContents(post.getContents());
-        dto.setCategory(post.getCategory().name());
-        dto.setDistrict(post.getTown().getDistrict());
-        dto.setPlaceName(post.getTown().getPlaceName());
-        dto.setPlaceAddr(post.getTown().getPlaceAddr());
-        dto.setLatitude(post.getTown().getLatitude());
-        dto.setLongitude(post.getTown().getLongitude());
-        dto.setCreatedAt(post.getCreatedAt());
-        dto.setModifiedAt(post.getModifiedAt());
-        dto.setMainImageUrl(post.getImages().isEmpty() ? null : post.getImages().get(0).getImgUrl());
-        dto.setMultiImages(post.getImages().size() > 1);
-        dto.setCommentCount(post.getComments().size());
-        dto.setProfileImageUrl(post.getUser().getProfileImage().getImgUrl());
-        dto.setLikesCount(likesCount);
-        dto.setLocalLikesCount(localLikesCount);
-
-        return dto;
+    private PostSearch createPostSearch(Post post, List<String> imageUrls, User user) {
+        PostSearch postSearch = new PostSearch();
+        postSearch.setId(post.getId().toString());
+        postSearch.setContents(post.getContents());
+        postSearch.setPostId(post.getId());
+        postSearch.setUserId(user.getId());
+        postSearch.setUserRankName(user.getRank().getName());
+        postSearch.setNickname(user.getNickname());
+        postSearch.setCategory(post.getCategory().toString());
+        postSearch.setDistrict(post.getTown().getDistrict());
+        postSearch.setPlaceName(post.getTown().getPlaceName());
+        postSearch.setPlaceAddr(post.getTown().getPlaceAddr());
+        postSearch.setLatitude(post.getTown().getLatitude());
+        postSearch.setLongitude(post.getTown().getLongitude());
+        postSearch.setCreatedAt(LocalDateTime.now());
+        postSearch.setModifiedAt(post.getModifiedAt());
+        postSearch.setMainImageUrl(imageUrls.isEmpty() ? null : imageUrls.get(0));
+        postSearch.setMultiImages(imageUrls.size() > 1);
+        postSearch.setLikesCount(0L);
+        postSearch.setLocalLikesCount(0L);
+        postSearch.setCommentCount(0);
+        postSearch.setProfileImageUrl(user.getProfileImage() != null ? user.getProfileImage().getImgUrl() : null);
+        return postSearch;
     }
 
 
