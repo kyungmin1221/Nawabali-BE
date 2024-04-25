@@ -97,7 +97,10 @@ public class PostService {
 
         postSearchRepository.save(postSearch);
 
-        promoteGrade(findUser);
+        User userUp = post.getUser();
+        if (promoteGrade(userUp)){
+            userUp.updateRank(userUp.getRank());
+        }
 
         return new PostDto.ResponseDto(post);
 
@@ -324,7 +327,7 @@ public class PostService {
         );
     }
 
-    private void promoteGrade(User user) {
+    private boolean promoteGrade(User user) {
 
         List<Post> userPosts = postRepository.findAllByUserId(user.getId());
 
@@ -334,41 +337,12 @@ public class PostService {
 
         Long totalPosts = (long) userPosts.size();
 
-//        Long totalLikesCount = userService.getMyTotalLikesCount(postIds, LikeCategoryEnum.LIKE);
         Long totalLocalLikesCount = userService.getMyTotalLikesCount(postIds, LikeCategoryEnum.LOCAL_LIKE);
 
-        UserRankEnum newRank = calculateNewUserRank(totalPosts, totalLocalLikesCount);
+        Long needPosts = Math.max(user.getRank().getNeedPosts() - totalPosts, 0L);
+        Long needLocalLikes = Math.max(user.getRank().getNeedLikes() - totalLocalLikesCount, 0L);
 
-        if (newRank != null && newRank.getName().compareTo(user.getRank().getName()) > 0) {
-            user.updateRanks(newRank);
-            log.info("랭크" + newRank);
-            // updateUserRank 메서드가 User 엔티티를 변경하므로, 변경사항을 영속화합니다.
-            userRepository.save(user);
-        }
-    }
-
-    private UserRankEnum calculateNewUserRank(Long totalPosts, Long totalLocalLikes) {
-        UserRankEnum newRank = null;
-
-        if (totalPosts >= UserRankEnum.LOCAL_ELDER.getNeedPosts() && totalLocalLikes >= UserRankEnum.LOCAL_ELDER.getNeedLikes()) {
-            newRank = UserRankEnum.LOCAL_ELDER;
-            log.info("내랭크는 어딜까?" + newRank);
-            return newRank;
-        }
-
-        if (newRank == null && totalPosts >= UserRankEnum.NATIVE_PERSON.getNeedPosts() && totalLocalLikes >= UserRankEnum.NATIVE_PERSON.getNeedLikes()) {
-            newRank = UserRankEnum.NATIVE_PERSON;
-            log.info("내랭크는 어딜까?" + newRank);
-            return newRank;
-        }
-
-        if (newRank == null && totalPosts >= UserRankEnum.RESIDENT.getNeedPosts() && totalLocalLikes >= UserRankEnum.RESIDENT.getNeedLikes()) {
-            newRank = UserRankEnum.RESIDENT;
-            log.info("내랭크는 어딜까?" + newRank);
-        }
-
-
-        return newRank;
+        return needPosts ==0 && needLocalLikes ==0 && user.getRank() != UserRankEnum.LOCAL_ELDER;
     }
 
 }
