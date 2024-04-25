@@ -1,7 +1,6 @@
 package com.nawabali.nawabali.dto;
 
 import com.nawabali.nawabali.constant.Category;
-import com.nawabali.nawabali.constant.UserRankEnum;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.image.PostImage;
 import jakarta.validation.constraints.NotBlank;
