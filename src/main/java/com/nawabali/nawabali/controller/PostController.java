@@ -186,12 +186,22 @@ public class PostController {
         return ResponseEntity.ok(deleteDto);
     }
 
-    @Operation(summary = "게시물 내용 기반 검색", description = "게시물의 내용(contents)으로 검색이 가능합니다.")
+//    @Operation(summary = "게시물 내용 기반 검색", description = "게시물의 내용(contents)으로 검색이 가능합니다.")
+//    @GetMapping("/search")
+//    public ResponseEntity<List<PostDto.ResponseDto>> searchPost(@RequestParam("query") String contents) {
+//        List<PostDto.ResponseDto> postDslDto = postService.searchByContents(contents);
+//        return ResponseEntity.ok(postDslDto);
+//    }
     @GetMapping("/search")
-    public ResponseEntity<List<PostDto.ResponseDto>> searchPost(@RequestParam("query") String contents) {
-        List<PostDto.ResponseDto> postDslDto = postService.searchByContents(contents);
-        return ResponseEntity.ok(postDslDto);
+    public ResponseEntity<Slice<PostDto.ResponseDto>> searchPosts(
+            @RequestParam String contents,
+            @RequestParam Long userId,
+            @RequestParam(required = false) Category category,
+            Pageable pageable) {
+        Slice<PostDto.ResponseDto> postDtos = postService.searchAndFilterPosts(contents, userId, category, pageable);
+        return ResponseEntity.ok(postDtos);
     }
+
 
     @Operation(summary = "동네별 점수 전체 조회", description = "동네(구)를 넣으면 총 게시물 수 / 좋아요 수 / 동네인증 수 조회 가능합니다")
     @GetMapping("/district")

@@ -1,9 +1,6 @@
 package com.nawabali.nawabali.service;
 
-import com.nawabali.nawabali.constant.Category;
-import com.nawabali.nawabali.constant.LikeCategoryEnum;
-import com.nawabali.nawabali.constant.Period;
-import com.nawabali.nawabali.constant.Town;
+import com.nawabali.nawabali.constant.*;
 import com.nawabali.nawabali.domain.BookMark;
 import com.nawabali.nawabali.domain.Like;
 import com.nawabali.nawabali.domain.Post;
@@ -19,6 +16,7 @@ import com.nawabali.nawabali.repository.elasticsearch.PostSearchRepository;
 import com.nawabali.nawabali.s3.AwsS3Service;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
@@ -36,6 +34,7 @@ import static com.nawabali.nawabali.constant.LikeCategoryEnum.LOCAL_LIKE;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class PostService {
 
     private final PostRepository postRepository;
@@ -94,6 +93,25 @@ public class PostService {
         postSearch.setId(savedPost.getId().toString());
         postSearch.setContents(savedPost.getContents());
         postSearch.setPostId(savedPost.getId());
+        postSearch.setUserId(savedPost.getUser().getId());
+        postSearch.setUserRankName(savedPost.getUser().getRank().getName());
+        postSearch.setNickname(savedPost.getUser().getNickname());
+        postSearch.setCategory(savedPost.getCategory().toString());
+        postSearch.setDistrict(savedPost.getTown().getDistrict());
+        postSearch.setPlaceName(savedPost.getTown().getPlaceName());
+        postSearch.setPlaceAddr(savedPost.getTown().getPlaceAddr());
+        postSearch.setLatitude(savedPost.getTown().getLatitude());
+        postSearch.setLongitude(savedPost.getTown().getLongitude());
+        postSearch.setCreatedAt(LocalDateTime.now());
+        postSearch.setModifiedAt(savedPost.getModifiedAt());
+        postSearch.setMainImageUrl(imageUrls.isEmpty() ? null : imageUrls.get(0));
+        postSearch.setMultiImages(imageUrls.size() > 1);
+        postSearch.setLikesCount(0L);
+        postSearch.setLocalLikesCount(0L);
+        postSearch.setCommentCount(0);
+        postSearch.setProfileImageUrl(findUser.getProfileImage().getImgUrl());
+
+        System.out.println(savedPost.getUser().getRank().getName());
 
         postSearchRepository.save(postSearch);
 
@@ -233,20 +251,44 @@ public class PostService {
     }
 
 
-    // 게시물 검색 (es)
-    public List<PostDto.ResponseDto> searchByContents(String contents) {
-       // return postSearchRepository.findByContentsContaining(contents);
+//    // 게시물 검색 (es)
+//    public List<PostDto.ResponseDto> searchByContents(String contents) {
+//       // return postSearchRepository.findByContentsContaining(contents);
+//        List<PostSearch> searchResults = postSearchRepository.findByContentsContaining(contents);
+//        searchResults.forEach(result -> log.info("Search Result: " + result));
+//        // 검색 결과를 PostDto.ResponseDto로 매핑
+//        return searchResults.stream().map(searchResult -> {
+//            return PostDto.ResponseDto.builder()
+//                    .userId(searchResult.getUserId())
+//                    .userRankName(searchResult.getUserRankName())
+//                    .postId(searchResult.getPostId())
+//                    .nickname(searchResult.getNickname())
+//                    .contents(searchResult.getContents())
+//                    .category(searchResult.getCategory())
+//                    .district(searchResult.getDistrict())
+//                    .placeName(searchResult.getPlaceName())
+//                    .placeAddr(searchResult.getPlaceAddr())
+//                    .latitude(searchResult.getLatitude())
+//                    .longitude(searchResult.getLongitude())
+//                    .createdAt(searchResult.getCreatedAt())
+//                    .modifiedAt(searchResult.getModifiedAt())
+//                    .mainImageUrl(searchResult.getMainImageUrl())
+//                    .multiImages(searchResult.isMultiImages())
+//                    .likesCount(searchResult.getLikesCount())
+//                    .localLikesCount(searchResult.getLocalLikesCount())
+//                    .commentCount(searchResult.getCommentCount())
+//                    .profileImageUrl(searchResult.getProfileImageUrl())
+//                    .build();
+//        }).collect(Collectors.toList());
+//
+//    }
+    public Slice<PostDto.ResponseDto> searchAndFilterPosts(String contents, Long userId, Category category, Pageable pageable) {
         List<PostSearch> searchResults = postSearchRepository.findByContentsContaining(contents);
-
         List<Long> postIds = searchResults.stream()
                 .map(PostSearch::getPostId)
                 .collect(Collectors.toList());
 
-        List<Post> posts = postRepository.findAllById(postIds);
-        return posts.stream()
-                .map(this::mapToResponseDto)
-                .collect(Collectors.toList());
-
+        return postRepository.searchAndFilterPosts(postIds, userId, category, pageable);
     }
 
 
