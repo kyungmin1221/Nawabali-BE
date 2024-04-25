@@ -251,37 +251,7 @@ public class PostService {
     }
 
 
-//    // 게시물 검색 (es)
-//    public List<PostDto.ResponseDto> searchByContents(String contents) {
-//       // return postSearchRepository.findByContentsContaining(contents);
-//        List<PostSearch> searchResults = postSearchRepository.findByContentsContaining(contents);
-//        searchResults.forEach(result -> log.info("Search Result: " + result));
-//        // 검색 결과를 PostDto.ResponseDto로 매핑
-//        return searchResults.stream().map(searchResult -> {
-//            return PostDto.ResponseDto.builder()
-//                    .userId(searchResult.getUserId())
-//                    .userRankName(searchResult.getUserRankName())
-//                    .postId(searchResult.getPostId())
-//                    .nickname(searchResult.getNickname())
-//                    .contents(searchResult.getContents())
-//                    .category(searchResult.getCategory())
-//                    .district(searchResult.getDistrict())
-//                    .placeName(searchResult.getPlaceName())
-//                    .placeAddr(searchResult.getPlaceAddr())
-//                    .latitude(searchResult.getLatitude())
-//                    .longitude(searchResult.getLongitude())
-//                    .createdAt(searchResult.getCreatedAt())
-//                    .modifiedAt(searchResult.getModifiedAt())
-//                    .mainImageUrl(searchResult.getMainImageUrl())
-//                    .multiImages(searchResult.isMultiImages())
-//                    .likesCount(searchResult.getLikesCount())
-//                    .localLikesCount(searchResult.getLocalLikesCount())
-//                    .commentCount(searchResult.getCommentCount())
-//                    .profileImageUrl(searchResult.getProfileImageUrl())
-//                    .build();
-//        }).collect(Collectors.toList());
-//
-//    }
+    // 게시물 검색
     public Slice<PostDto.ResponseDto> searchAndFilterPosts(String contents, Long userId, Category category, Pageable pageable) {
         List<PostSearch> searchResults = postSearchRepository.findByContentsContaining(contents);
         List<Long> postIds = searchResults.stream()

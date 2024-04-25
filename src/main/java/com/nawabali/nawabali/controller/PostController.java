@@ -186,12 +186,15 @@ public class PostController {
         return ResponseEntity.ok(deleteDto);
     }
 
-//    @Operation(summary = "게시물 내용 기반 검색", description = "게시물의 내용(contents)으로 검색이 가능합니다.")
-//    @GetMapping("/search")
-//    public ResponseEntity<List<PostDto.ResponseDto>> searchPost(@RequestParam("query") String contents) {
-//        List<PostDto.ResponseDto> postDslDto = postService.searchByContents(contents);
-//        return ResponseEntity.ok(postDslDto);
-//    }
+
+
+    @Operation(summary = "게시물 내용기반 검색",
+            description = "category 또는 userId 를 이용한 게시물 조회 , 카테고리가 null이어도 상관없지만 contents 와 userId 는 필수",
+            parameters = {
+                    @Parameter(name = "contents", description = "게시물의 내용(contents) 입력", example = "contents"),
+                    @Parameter(name = "category", description = "FOOD,PHOTOZONE,CAFE 3가지의 카테고리를 입력", example = "FOOD"),
+                    @Parameter(name = "userId", description = "찾고자 하는 유저의 pk(ID) 값 입력", example = "1")
+            })
     @GetMapping("/search")
     public ResponseEntity<Slice<PostDto.ResponseDto>> searchPosts(
             @RequestParam String contents,
