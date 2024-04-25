@@ -81,4 +81,13 @@ public class User {
         this.address = new Address(requestDto.getCity(), requestDto.getDistrict());
         this.password = requestDto.getPassword();
     }
+
+    public void updateRank(UserRankEnum userRankEnum){
+        if(userRankEnum == UserRankEnum.RESIDENT){
+            this.rank = UserRankEnum.NATIVE_PERSON;
+        }
+        else if(userRankEnum == UserRankEnum.NATIVE_PERSON){
+            this.rank = UserRankEnum.LOCAL_ELDER;
+        }
+    }
 }
