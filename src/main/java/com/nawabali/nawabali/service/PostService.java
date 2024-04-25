@@ -235,14 +235,16 @@ public class PostService {
 
 
     // 게시물 검색
-    public Slice<PostDto.ResponseDto> searchAndFilterPosts(String contents, Long userId, Category category, Pageable pageable) {
+    public Slice<PostDto.ResponseDto> searchAndFilterPosts(String contents, Pageable pageable) {
         List<PostSearch> searchResults = postSearchRepository.findByContentsContaining(contents);
+
         List<Long> postIds = searchResults.stream()
                 .map(PostSearch::getPostId)
                 .collect(Collectors.toList());
 
-        return postRepository.searchAndFilterPosts(postIds, userId, category, pageable);
+        return postRepository.searchAndFilterPosts(postIds, pageable);
     }
+
 
 
 

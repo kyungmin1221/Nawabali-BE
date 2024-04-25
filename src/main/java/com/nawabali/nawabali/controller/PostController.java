@@ -189,19 +189,18 @@ public class PostController {
 
 
     @Operation(summary = "게시물 내용기반 검색",
-            description = "category 또는 userId 를 이용한 게시물 조회 , 카테고리가 null이어도 상관없지만 contents 와 userId 는 필수",
+            description = "contents 를 이용한 게시물 조회 - 결과를 무한스크롤로 조회",
             parameters = {
-                    @Parameter(name = "contents", description = "게시물의 내용(contents) 입력", example = "contents"),
-                    @Parameter(name = "category", description = "FOOD,PHOTOZONE,CAFE 3가지의 카테고리를 입력", example = "FOOD"),
-                    @Parameter(name = "userId", description = "찾고자 하는 유저의 pk(ID) 값 입력", example = "1")
+                    @Parameter(name = "contents", description = "게시물의 내용(contents) 입력", example = "contents")
             })
     @GetMapping("/search")
     public ResponseEntity<Slice<PostDto.ResponseDto>> searchPosts(
             @RequestParam String contents,
-            @RequestParam Long userId,
-            @RequestParam(required = false) Category category,
-            Pageable pageable) {
-        Slice<PostDto.ResponseDto> postDtos = postService.searchAndFilterPosts(contents, userId, category, pageable);
+            @PageableDefault(
+                    size = 10,
+                    sort = "createdAt",
+                    direction = Sort.Direction.DESC) Pageable pageable) {
+        Slice<PostDto.ResponseDto> postDtos = postService.searchAndFilterPosts(contents, pageable);
         return ResponseEntity.ok(postDtos);
     }
 

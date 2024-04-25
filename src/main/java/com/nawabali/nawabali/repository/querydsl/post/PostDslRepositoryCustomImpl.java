@@ -202,18 +202,14 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
 
     // es + jpa 검색
     @Override
-    public Slice<PostDto.ResponseDto> searchAndFilterPosts(List<Long> postIds, Long userId, Category category, Pageable pageable) {
+    public Slice<PostDto.ResponseDto> searchAndFilterPosts(List<Long> postIds, Pageable pageable) {
         QPost post = QPost.post;
         QUser user = QUser.user;
 
         List<Post> posts = queryFactory
                 .selectFrom(post)
                 .leftJoin(post.user, user).fetchJoin()
-                .where(
-                        post.id.in(postIds),
-                        userEq(userId),
-                        categoryEq(category)
-                )
+                .where(post.id.in(postIds))
                 .orderBy(post.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
@@ -258,6 +254,10 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
     // District 조건
     private BooleanExpression districtEq(String district) {
         return hasText(district) ? post.town.district.eq(district) : null;
+    }
+
+    private BooleanExpression contentEq(String contents) {
+        return hasText(contents) ? post.contents.eq(contents) : null;
     }
 
     // Category 조건
