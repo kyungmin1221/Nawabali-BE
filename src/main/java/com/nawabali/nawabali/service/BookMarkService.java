@@ -78,24 +78,12 @@ public class BookMarkService {
     }
 
     public BookMarkDto.UserBookmarkDto createBookmarkDto(BookMarkDto.UserBookmarkDto bookmark) {
-        Long likesCount = postService.getLikesCount(bookmark.getPostId(), LikeCategoryEnum.LIKE);
-        Long localLikesCount = postService.getLikesCount(bookmark.getPostId(), LikeCategoryEnum.LOCAL_LIKE);
-
         return new BookMarkDto.UserBookmarkDto(
-                bookmark.getUserId(),
+                bookmark.getId(),
                 bookmark.getPostId(),
-                bookmark.getNickname(),
-                bookmark.getContents(),
-                bookmark.getCategory(),
-                bookmark.getDistrict(),
-                bookmark.getLatitude(),
-                bookmark.getLongitude(),
-                bookmark.getCreatedAt(),
-                bookmark.getImageUrls(),
-                likesCount,
-                localLikesCount,
-                bookmark.getCommentCount()
-        );
+                bookmark.getMainImageUrl(),
+                bookmark.isMultiImages()
+                );
     }
 
 }

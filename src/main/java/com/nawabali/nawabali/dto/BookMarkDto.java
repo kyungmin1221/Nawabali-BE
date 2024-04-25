@@ -40,32 +40,14 @@ public class BookMarkDto {
     @NoArgsConstructor
     @Builder
     public static class UserBookmarkDto  {
-
-        private Long userId;
+        private Long id;
 
         private Long postId;
 
-        private String nickname;
+        private String mainImageUrl;
 
-        private String contents;
+        private boolean multiImages;
 
-        private String category;
-
-        private String district;
-
-        private Double latitude;
-
-        private Double longitude;
-
-        private LocalDateTime createdAt;
-
-        private List<String> imageUrls;
-
-        private Long likesCount;
-
-        private Long localLikesCount;
-
-        private int commentCount;
 
     }
 }
