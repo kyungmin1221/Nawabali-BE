@@ -102,6 +102,7 @@ public class NotificationService {
             try {
                 Notification notification = Notification.builder()
                         .sender(receiveMessage.getSender())
+                        .receiver(receiveMessage.getReceiver())
                         .createdAt(receiveMessage.getCreatedMessageAt())
                         .contents(receiveMessage.getMessage())
                         .chatRoom(receiveMessage.getChatRoom())
