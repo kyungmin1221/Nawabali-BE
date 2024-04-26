@@ -13,7 +13,6 @@ public interface PostDslRepositoryCustom {
     Slice<PostDto.ResponseDto> findPostsByLatest(Pageable pageable);
 
     Slice<PostDto.ResponseDto> findCategoryByPost(Category category, String district, Pageable pageable);
-    List<PostDto.SearchDto> findSearchByPosts(String contents);
 
     List<PostDto.ResponseDto> topLikeByPosts(Category category, String district, Period period);
 
@@ -22,6 +21,8 @@ public interface PostDslRepositoryCustom {
     PostDto.SortDistrictDto findDistrictByPost(Category category, Period period);
 
     List<PostDto.SortCategoryDto> findCategoryByPost(String district);
+
+//    Slice<PostDto.ResponseDto> searchAndFilterPosts(List<Long> postIds, Pageable pageable);
 
     Slice<PostDto.ResponseDto> getUserPost(Long userId, Category category, Pageable pageable);
 

@@ -2,7 +2,6 @@ package com.nawabali.nawabali.controller;
 
 import com.nawabali.nawabali.constant.Category;
 import com.nawabali.nawabali.constant.Period;
-import com.nawabali.nawabali.domain.elasticsearch.PostSearch;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.PostService;
@@ -186,12 +185,24 @@ public class PostController {
         return ResponseEntity.ok(deleteDto);
     }
 
-    @Operation(summary = "게시물 내용 기반 검색", description = "게시물의 내용(contents)으로 검색이 가능합니다.")
+
+
+    @Operation(summary = "게시물 내용기반 검색",
+            description = "contents 를 이용한 게시물 조회 - 결과를 무한스크롤로 조회",
+            parameters = {
+                    @Parameter(name = "contents", description = "게시물의 내용(contents) 입력", example = "contents")
+            })
     @GetMapping("/search")
-    public ResponseEntity<List<PostSearch>> searchPost(@RequestParam("query") String contents) {
-        List<PostSearch> postDslDto = postService.searchByContents(contents);
-        return ResponseEntity.ok(postDslDto);
+    public ResponseEntity<Slice<PostDto.ResponseDto>> searchPosts(
+            @RequestParam String contents,
+            @PageableDefault(
+                    size = 10,
+                    sort = "createdAt",
+                    direction = Sort.Direction.DESC) Pageable pageable) {
+        Slice<PostDto.ResponseDto> postDtos = postService.searchAndFilterPosts(contents, pageable);
+        return ResponseEntity.ok(postDtos);
     }
+
 
     @Operation(summary = "동네별 점수 전체 조회", description = "동네(구)를 넣으면 총 게시물 수 / 좋아요 수 / 동네인증 수 조회 가능합니다")
     @GetMapping("/district")

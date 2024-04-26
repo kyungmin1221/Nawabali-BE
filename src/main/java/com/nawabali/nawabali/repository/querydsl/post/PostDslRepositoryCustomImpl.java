@@ -6,11 +6,9 @@ import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.QLike;
 import com.nawabali.nawabali.domain.QPost;
 import com.nawabali.nawabali.domain.QUser;
-import com.nawabali.nawabali.domain.image.PostImage;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -24,9 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.nawabali.nawabali.constant.LikeCategoryEnum.LIKE;
 import static com.nawabali.nawabali.domain.QPost.post;
-import static com.nawabali.nawabali.domain.QUser.user;
 import static org.springframework.util.StringUtils.hasText;
 
 @Repository
@@ -90,23 +86,6 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
     }
 
 
-
-    // 게시물 contents 로 검색
-    @Override
-    public List<PostDto.SearchDto> findSearchByPosts(String contents)  {
-        QPost post = QPost.post;
-
-        List<PostDto.SearchDto> searchResults = queryFactory
-                .select(Projections.constructor(PostDto.SearchDto.class,
-                        post.id,
-                        post.contents)
-                )
-                .from(post)
-                .where(post.contents.contains(contents))
-                .fetch();
-
-        return searchResults;
-    }
 
     // 카테고리 및 구 를 이용하여 게시물 조회
     @Override
@@ -217,6 +196,31 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
 
     }
 
+    // es + jpa 검색
+//    @Override
+//    public Slice<PostDto.ResponseDto> searchAndFilterPosts(List<Long> postIds, Pageable pageable) {
+//        QPost post = QPost.post;
+//        QUser user = QUser.user;
+//
+//        List<Post> posts = queryFactory
+//                .selectFrom(post)
+//                .leftJoin(post.user, user).fetchJoin()
+//                .where(post.id.in(postIds))
+//                .orderBy(post.createdAt.desc())
+//                .offset(pageable.getOffset())
+//                .limit(pageable.getPageSize() + 1)
+//                .fetch();
+//
+//        boolean hasNext = posts.size() > pageable.getPageSize();
+//        if (hasNext) {
+//            posts.remove(posts.size() - 1);
+//        }
+//
+//        List<PostDto.ResponseDto> responseDtos = convertPostDto(posts);
+//        return new SliceImpl<>(responseDtos, pageable, hasNext);
+//    }
+
+
     @Override
     public Slice<PostDto.ResponseDto> getMyPosts(Long userId, Pageable pageable, Category category) {
         QPost post = QPost.post;
@@ -246,6 +250,10 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
     // District 조건
     private BooleanExpression districtEq(String district) {
         return hasText(district) ? post.town.district.eq(district) : null;
+    }
+
+    private BooleanExpression contentEq(String contents) {
+        return hasText(contents) ? post.contents.eq(contents) : null;
     }
 
     // Category 조건
