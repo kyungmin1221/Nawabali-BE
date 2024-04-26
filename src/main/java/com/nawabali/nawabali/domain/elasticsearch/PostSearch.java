@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(indexName = "post")
+@Document(indexName = "postsearch")
 @Getter @Setter
 public class PostSearch {
 

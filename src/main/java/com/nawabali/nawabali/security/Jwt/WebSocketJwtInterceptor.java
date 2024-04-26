@@ -1,7 +1,6 @@
 package com.nawabali.nawabali.security.Jwt;
 
-import co.elastic.clients.elasticsearch.security.get_token.AuthenticatedUser;
-import com.amazonaws.auth.WebIdentityTokenCredentialsProvider;
+
 import com.nawabali.nawabali.security.UserDetailsServiceImpl;
 import io.jsonwebtoken.Claims;
 import jakarta.security.auth.message.AuthException;
