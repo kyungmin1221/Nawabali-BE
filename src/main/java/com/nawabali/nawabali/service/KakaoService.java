@@ -131,7 +131,7 @@ public class KakaoService {
 
             kakaoUser = userRepository.save(kakaoUser);
             profileImageRepository.save(profileImage);
-
+            kakaoUser.updateProfileImage(profileImage);
             UserSearch userSearch = new UserSearch(kakaoUser, profileImage.getImgUrl());
 
             userSearchRepository.save(userSearch);
