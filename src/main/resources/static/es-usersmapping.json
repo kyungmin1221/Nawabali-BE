@@ -1,0 +1,19 @@
+{
+  "properties": {
+    "id": {
+      "type": "keyword"
+    },
+    "nickname": {
+      "type": "text"
+    },
+    "imgUrl": {
+      "type": "keyword"
+    },
+    "rankName": {
+      "type": "text"
+    },
+    "district": {
+      "type": "text"
+    }
+  }
+}
