@@ -22,7 +22,7 @@ public interface PostDslRepositoryCustom {
 
     List<PostDto.SortCategoryDto> findCategoryByPost(String district);
 
-    Slice<PostDto.ResponseDto> searchAndFilterPosts(List<Long> postIds, Pageable pageable);
+//    Slice<PostDto.ResponseDto> searchAndFilterPosts(List<Long> postIds, Pageable pageable);
 
     Slice<PostDto.ResponseDto> getUserPost(Long userId, Category category, Pageable pageable);
 
