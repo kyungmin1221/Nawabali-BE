@@ -22,7 +22,6 @@ public class PostDto {
     public static class RequestDto {
 
         @NotBlank
-        @Size(max = 500)
         private String contents;
 
         @NotNull
