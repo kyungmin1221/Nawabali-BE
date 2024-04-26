@@ -25,7 +25,9 @@ public class KakaoController {
             throws JsonProcessingException, IOException {
 
        String accessToken = kakaoService.kakaoLogin(code, response);
-       return "redirect:https://www.dongnaebangnae.com/?accessToken=" + accessToken;
+//       return "redirect:https://www.dongnaebangnae.com/?accessToken=" + accessToken;
+        return "redirect:https://www.dongnaebangnae.com";
+
 
     }
 }
