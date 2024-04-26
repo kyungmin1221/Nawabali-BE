@@ -1,0 +1,63 @@
+{
+  "properties": {
+    "id": {
+      "type": "keyword"
+    },
+    "contents": {
+      "type": "text"
+    },
+    "post_id": {
+      "type": "long"
+    },
+    "user_id": {
+      "type": "long"
+    },
+    "userRankName": {
+      "type": "keyword"
+    },
+    "nickname": {
+      "type": "keyword"
+    },
+    "category": {
+      "type": "keyword"
+    },
+    "district": {
+      "type": "keyword"
+    },
+    "placeName": {
+      "type": "keyword"
+    },
+    "placeAddr": {
+      "type": "keyword"
+    },
+    "latitude" : {
+      "type" : "double"
+    },
+    "longitude" : {
+      "type" : "double"
+    },
+    "created_at": {
+      "type": "date",
+      "format": "yyyy-MM-dd'T'HH:mm:ss"
+    },
+    "modified_at": {
+      "type": "date",
+      "format": "yyyy-MM-dd'T'HH:mm:ss"
+    },
+    "mainImageUrl": {
+      "type": "keyword"
+    },
+    "multiImages": {
+      "type": "boolean"
+    },
+    "localLikesCount": {
+      "type": "long"
+    },
+    "commentCount": {
+      "type": "int"
+    },
+    "profileImageUrl" : {
+      "type" : "keyword"
+    }
+  }
+}
