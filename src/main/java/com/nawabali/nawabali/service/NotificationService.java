@@ -37,8 +37,8 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
-    private static Map<Long, Integer> notificationCounts = new HashMap<>();
 
+    private static Map<Long, Integer> notificationCounts = new HashMap<>();
     private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
 
     // sseEmitter 연결하기
@@ -46,9 +46,20 @@ public class NotificationService {
 
         // 현재 클라이언트를 위한 sseEmitter 생성
         SseEmitter sseEmitter = new SseEmitter(Long.MAX_VALUE);
+        Map<String,String> eventData = new HashMap<>();
 
         try {
-            sseEmitter.send(SseEmitter.event().name("연결 되었습니다."));
+
+            eventData.put("contents", "연결 되었습니다.");
+            Integer notificationCount = notificationCounts.get(userId);
+            if (notificationCount != null) {
+                eventData.put("counts", String.valueOf(notificationCount));
+            } else {
+                eventData.put("counts", "0");
+            }
+
+            sseEmitter.send(SseEmitter.event().data(eventData));
+
         } catch (IOException e) {
             log.error("SSE 연결 에러", e);
             try {
@@ -76,15 +87,6 @@ public class NotificationService {
 
         return sseEmitter;
     }
-//    public SseEmitter subscribe(Long userId) {
-//        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-//        this.emitters.put(userId, emitter);
-//
-//        emitter.onCompletion(() -> this.emitters.remove(userId));
-//        emitter.onTimeout(() -> this.emitters.remove(userId));
-//
-//        return emitter;
-//    }
 
 
     @Scheduled(fixedRate = 30000) // 매 30초마다 실행
@@ -153,6 +155,9 @@ public class NotificationService {
                 eventData.put("notificationId", notification.getId().toString());
                 eventData.put("createdAt", receiveMessage.getCreatedMessageAt().toString());
                 eventData.put("contents", receiveMessage.getMessage());
+
+                // JSON 형식의 데이터를 직접 전달
+                sseEmitter.send(SseEmitter.event().data(eventData));
 
                 sseEmitter.send(SseEmitter.event().name("addMessage").data(eventData));
 
