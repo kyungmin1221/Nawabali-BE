@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -57,8 +58,53 @@ public class PostService {
 
 
     // 게시물 생성
+//    @Transactional
+//    public PostDto.ResponseDto createPost(User user, PostDto.RequestDto requestDto, List<MultipartFile> files) {
+//        User findUser = userService.getUserId(user.getId());
+//
+//        Town town = new Town(
+//                requestDto.getLatitude(),
+//                requestDto.getLongitude(),
+//                requestDto.getDistrict(),
+//                requestDto.getPlaceName(),
+//                requestDto.getPlaceAddr()
+//        );
+//
+//        Post post = Post.builder()
+//                .contents(requestDto.getContents())
+//                .category(requestDto.getCategory())
+//                .createdAt(LocalDateTime.now())
+//                .modifiedAt(LocalDateTime.now())
+//                .town(town)
+//                .user(findUser)
+//                .build();
+//
+//        List<String> imageUrls = awsS3Service.uploadFile(files, "postImages");
+//
+//        imageUrls.forEach(url -> {
+//            PostImage image = PostImage.builder()
+//                    .fileName(url)
+//                    .imgUrl(url)
+//                    .post(post)
+//                    .build();
+//            post.getImages().add(image);
+//        });
+//
+//
+//        Post savedPost = postRepository.save(post);
+//        PostSearch postSearch = createPostSearch(savedPost, imageUrls, findUser);
+//        postSearchRepository.save(postSearch);
+//
+//        User userUp = post.getUser();
+//        if (promoteGrade(userUp)){
+//            userUp.updateRank(userUp.getRank());
+//        }
+//
+//        return new PostDto.ResponseDto(post);
+//
+//    }
     @Transactional
-    public PostDto.ResponseDto createPost(User user, PostDto.RequestDto requestDto, List<MultipartFile> files) {
+    public PostDto.ResponseDto createPost(User user, PostDto.RequestDto requestDto, List<MultipartFile> files) throws IOException {
         User findUser = userService.getUserId(user.getId());
 
         Town town = new Town(
@@ -78,9 +124,21 @@ public class PostService {
                 .user(findUser)
                 .build();
 
-        List<String> imageUrls = awsS3Service.uploadFile(files, "postImages");
+        // AwsS3Service 변경에 따라 이 부분 수정
+        Map<String, Object> uploadResults = awsS3Service.uploadFile(files, "postImages");
+        String mainImageUrl = (String) uploadResults.get("mainUrl");
+        List<String> originalUrls = (List<String>) uploadResults.get("originalUrls");
 
-        imageUrls.forEach(url -> {
+        // 메인 이미지 (리사이즈된 이미지) 추가
+        PostImage mainImage = PostImage.builder()
+                .fileName(mainImageUrl)
+                .imgUrl(mainImageUrl)
+                .post(post)
+                .build();
+        post.getImages().add(mainImage);
+
+        // 원본 이미지 URL들을 각각 처리
+        originalUrls.forEach(url -> {
             PostImage image = PostImage.builder()
                     .fileName(url)
                     .imgUrl(url)
@@ -89,9 +147,8 @@ public class PostService {
             post.getImages().add(image);
         });
 
-
         Post savedPost = postRepository.save(post);
-        PostSearch postSearch = createPostSearch(savedPost, imageUrls, findUser);
+        PostSearch postSearch = createPostSearch(savedPost, originalUrls, findUser);
         postSearchRepository.save(postSearch);
 
         User userUp = post.getUser();
@@ -99,9 +156,9 @@ public class PostService {
             userUp.updateRank(userUp.getRank());
         }
 
-        return new PostDto.ResponseDto(post);
-
+        return new PostDto.ResponseDto(savedPost);
     }
+
 
     // 전체 게시물 조회
     public Slice<PostDto.ResponseDto> getPostsByLatest(Pageable pageable) {
@@ -357,6 +414,7 @@ public class PostService {
                 post.getCreatedAt(),
                 post.getModifiedAt(),
                 post.getMainImageUrl(),
+                post.getResizedImageUrl(),
                 post.isMultiImages(),
                 likesCount,
                 localLikesCount,

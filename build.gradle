@@ -23,6 +23,9 @@ repositories {
 
 dependencies {
 
+	// thumbnailator
+	implementation 'net.coobird:thumbnailator:0.4.14'
+
 	//cache
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
 
