@@ -63,7 +63,7 @@ public class CommentService {
                 .build();
         commentRepository.save(comment);
 
-        notificationService.notifyComment(postId);
+//        notificationService.notifyComment(postId);
 
         // 유저, 게시물, 댓글 관련 자료를 response로 보내기
         return new CommentDto.ResponseDto(comment);
