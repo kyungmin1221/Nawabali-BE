@@ -5,6 +5,7 @@ import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.image.PostImage;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ public class PostDto {
     public static class RequestDto {
 
         @NotBlank
+        @Size(max = 500)
         private String contents;
 
         @NotNull

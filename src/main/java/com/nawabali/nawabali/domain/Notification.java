@@ -26,6 +26,9 @@ public class Notification {
     @Column (nullable = false)
     private String sender;
 
+    @Column (nullable = false)
+    private String receiver;
+
     @Column
     private String contents;
 

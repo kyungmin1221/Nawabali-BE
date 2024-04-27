@@ -82,7 +82,7 @@ public class ChatMessageService {
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
         log.info("받은 메세지" + chatMessageList);
 
-        List <Chat.ChatMessage> chatMessageList1 = chatMessageRepository.findByChatRoomIdAndUserId(chatRoom.getId(), userOptional.getId())
+        List <Chat.ChatMessage> chatMessageList1 = chatMessageRepository.findByChatRoomIdOrderByIdDesc(chatRoom.getId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
         log.debug("메세지 리스트" + chatMessageList);
 
@@ -147,7 +147,7 @@ public class ChatMessageService {
                     .build();
 
             log.info("현재 채팅방에 " + memberInRoom + "명이 있는 채팅방에 메세지를 보내셨습니다" );
-            messagingTemplate.convertAndSendToUser(receiver,"/sub/chat/room/" + chatRoomId, chatMessageResponseDto);
+            messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, chatMessageResponseDto);
             log.info("정보확인 {} 이 방에서 새로운 메시지가 도착했습니다. 보낸 사람: {}, 메시지 내용: {}, 유저 아이디 : {}, 만든 시간 {}", chatRoomId, chatMessageResponseDto.getSender(), chatMessageResponseDto.getMessage(), chatMessageResponseDto.getUserId(), chatMessageResponseDto.getCreatedMessageAt());
 
         }
