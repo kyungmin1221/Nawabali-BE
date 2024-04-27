@@ -25,14 +25,11 @@ public class NotificationController {
     private final NotificationService notificationService;
     public static Map<Long, SseEmitter> sseEmitters = new ConcurrentHashMap<>();
 
-    @Operation(summary = "SSE 알림 연결" , description = "연결, 구독 되어 있어야만 알림이 전송됨")
-    @GetMapping ("/notification/subscribe")
-    public SseEmitter subscribe (@AuthenticationPrincipal UserDetailsImpl userDetails) {
-
+    @Operation(summary = "SSE 알림 연결", description = "연결, 구독 되어 있어야만 알림이 전송됨")
+    @GetMapping(value = "/notification/subscribe", produces = "text/event-stream")
+    public SseEmitter subscribe(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         Long userId = userDetails.getUser().getId();
-
         SseEmitter sseEmitter = notificationService.subscribe(userId);
-
         return sseEmitter;
     }
 
