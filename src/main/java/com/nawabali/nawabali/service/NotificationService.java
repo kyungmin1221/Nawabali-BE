@@ -48,26 +48,31 @@ public class NotificationService {
         SseEmitter sseEmitter = new SseEmitter(Long.MAX_VALUE);
 
         try {
-            // 연결하기
             sseEmitter.send(SseEmitter.event().name("연결 되었습니다."));
         } catch (IOException e) {
-            e.printStackTrace();
-        /*
-        여기서 catch 블록은 IOException이 발생했을 때 실행되는 부분입니다.
-        e.printStackTrace()는 예외의 추적(trace) 정보를 출력하는 메서드입니다.
-        이렇게 하면 예외가 발생했을 때 해당 예외의 발생 경로를 확인할 수 있습니다.
-        하지만 이는 단순히 예외를 처리하고, 해당 예외를 더 이상 상위로 전파하지 않고 그대로 종료시키는 방식입니다.
-         */
+            log.error("SSE 연결 에러", e);
+            try {
+                // 에러 정보를 담은 이벤트 전송
+                sseEmitter.send(SseEmitter.event().name("error").data("연결 중 문제가 발생했습니다."));
+            } catch (IOException ex) {
+                log.error("SSE 에러 메시지 전송 실패", ex);
+            } finally {
+                sseEmitter.completeWithError(e);
+            }
+            return sseEmitter; // 에러 상태를 반영하고 SSE Emitter 반환
         }
+
         // user의 pk값을 key값으로 해서 sseEmitter를 저장
         // 이걸 컨트롤러에 저장하는게 맞는건가...?
         NotificationController.sseEmitters.put(userId, sseEmitter);
+        log.info("메세지 알림 연결");
         // user의 pk값을 key값으로 해서 sseEmitter를 저장
         emitters.put(userId, sseEmitter);
+        log.info("하트비트 연결");
 
         sseEmitter.onCompletion(()-> {NotificationController.sseEmitters.remove(userId);  log.info("연결이 종료되었습니다.");});
         sseEmitter.onTimeout(()-> {NotificationController.sseEmitters.remove(userId);  log.info("연결이 타임아웃 되었습니다.");});
-        sseEmitter.onError((e)-> {NotificationController.sseEmitters.remove(userId);  log.info("연결이 에러났어요");});
+        sseEmitter.onError((e)-> {NotificationController.sseEmitters.remove(userId);  log.info("연결이 에러났어요",e);});
 
         return sseEmitter;
     }
@@ -149,7 +154,7 @@ public class NotificationService {
                 eventData.put("createdAt", receiveMessage.getCreatedMessageAt().toString());
                 eventData.put("contents", receiveMessage.getMessage());
 
-                sseEmitter.send(SseEmitter.event().name("addMessage알림").data(eventData));
+                sseEmitter.send(SseEmitter.event().name("addMessage").data(eventData));
 
                 notificationCounts.put(userId, notificationCounts.getOrDefault(userId,0) + 1);
 
