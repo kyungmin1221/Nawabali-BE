@@ -67,14 +67,9 @@ public class ChatRoomController {
     @Operation(summary = "특정 채팅방 조회" , description = "채팅방 검색 API")
     @GetMapping("/room/found")
     @ResponseBody
-    public Slice <ChatDto.ChatRoomListDto> roomInfo(@RequestParam String roomName,
-                                              @AuthenticationPrincipal UserDetailsImpl userDetails,
-                                              @PageableDefault(
-                                                      size = 10,
-                                                      sort = "createdAt",
-                                                      direction = Sort.Direction.DESC)
-                                              Pageable pageable) {
-        Slice <ChatDto.ChatRoomListDto> chatRoomListDtos = chatRoomService.roomInfo(roomName, userDetails.getUser(), pageable);
+    public List <ChatDto.ChatRoomListDto> roomInfo(@RequestParam String roomName,
+                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List <ChatDto.ChatRoomListDto> chatRoomListDtos = chatRoomService.roomInfo(roomName, userDetails.getUser());
         return chatRoomListDtos;
     }
 

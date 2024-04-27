@@ -10,7 +10,9 @@ public interface ChatDslRepositoryCustom {
 
     Slice<ChatDto.ChatRoomListDto> findAllByUserId(Long userId, Pageable pageable);
 
-    Slice <ChatDto.ChatRoomListDto> findChatRoomByRoomName (String roomName, Pageable pageable);
+    List<ChatDto.ChatRoomListDto> queryRoomsByName(String roomName, Long userId);
+
+    List<ChatDto.ChatRoomListDto> queryRoomsByMessage(String roomName, Long userId);
 
     Long getUnreadMessageCountsForUser (String userName);
 

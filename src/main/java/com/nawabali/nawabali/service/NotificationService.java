@@ -44,19 +44,24 @@ public class NotificationService {
     // sseEmitter 연결하기
     public SseEmitter subscribe(Long userId) {
 
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(()-> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
         // 현재 클라이언트를 위한 sseEmitter 생성
         SseEmitter sseEmitter = new SseEmitter(Long.MAX_VALUE);
         Map<String,String> eventData = new HashMap<>();
 
+//        notifyAllMyMessage(user.getNickname());
         try {
 
             eventData.put("contents", "연결 되었습니다.");
-            Integer notificationCount = notificationCounts.get(userId);
-            if (notificationCount != null) {
-                eventData.put("counts", String.valueOf(notificationCount));
-            } else {
-                eventData.put("counts", "0");
-            }
+
+//            Integer notificationCount = notificationCounts.get(userId);
+//            if (notificationCount != null) {
+//                eventData.put("counts", String.valueOf(notificationCount));
+//            } else {
+//                eventData.put("counts", "0");
+//            }
 
             sseEmitter.send(SseEmitter.event().data(eventData));
 
@@ -155,6 +160,7 @@ public class NotificationService {
                 eventData.put("notificationId", notification.getId().toString());
                 eventData.put("createdAt", receiveMessage.getCreatedMessageAt().toString());
                 eventData.put("contents", receiveMessage.getMessage());
+                eventData.put("notificationCount", String.valueOf(notificationCounts.get(userId)));
 
                 // JSON 형식의 데이터를 직접 전달
                 sseEmitter.send(SseEmitter.event().data(eventData));

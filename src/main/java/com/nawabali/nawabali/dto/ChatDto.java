@@ -62,6 +62,7 @@ public class ChatDto {
         private String roomNumber;
         private ChatRoomEnum chatRoomEnum;
         private String chatMessage;
+        private Long messageId;
         private String profileImageUrl;
         private Long unreadCount;
     }
