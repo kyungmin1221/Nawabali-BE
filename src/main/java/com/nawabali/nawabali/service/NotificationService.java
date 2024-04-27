@@ -8,6 +8,7 @@ import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ import static com.nawabali.nawabali.constant.LikeCategoryEnum.LOCAL_LIKE;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@EnableScheduling
 public class NotificationService {
 
     private final ChatRoomRepository chatRoomRepository;
@@ -60,22 +62,36 @@ public class NotificationService {
         // user의 pk값을 key값으로 해서 sseEmitter를 저장
         // 이걸 컨트롤러에 저장하는게 맞는건가...?
         NotificationController.sseEmitters.put(userId, sseEmitter);
+        // user의 pk값을 key값으로 해서 sseEmitter를 저장
+        emitters.put(userId, sseEmitter);
 
-        sseEmitter.onCompletion(()-> NotificationController.sseEmitters.remove(userId));
-        sseEmitter.onTimeout(()-> NotificationController.sseEmitters.remove(userId));
-        sseEmitter.onError((e)-> NotificationController.sseEmitters.remove(userId));
+        sseEmitter.onCompletion(()-> {NotificationController.sseEmitters.remove(userId);  log.info("연결이 종료되었습니다.");});
+        sseEmitter.onTimeout(()-> {NotificationController.sseEmitters.remove(userId);  log.info("연결이 타임아웃 되었습니다.");});
+        sseEmitter.onError((e)-> {NotificationController.sseEmitters.remove(userId);  log.info("연결이 에러났어요");});
 
         return sseEmitter;
     }
+//    public SseEmitter subscribe(Long userId) {
+//        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
+//        this.emitters.put(userId, emitter);
+//
+//        emitter.onCompletion(() -> this.emitters.remove(userId));
+//        emitter.onTimeout(() -> this.emitters.remove(userId));
+//
+//        return emitter;
+//    }
+
 
     @Scheduled(fixedRate = 30000) // 매 30초마다 실행
     public void sendHeartbeat() {
         emitters.forEach((userId, emitter) -> {
             try {
                 emitter.send(SseEmitter.event().comment("heartbeat")); // 빈 코멘트 이벤트를 보냅니다.
+                log.info("하트비트 보내기");
             } catch (IOException e) {
                 emitter.completeWithError(e);
                 emitters.remove(userId);
+                log.info ("연결안되서 삭제");
             }
         });
     }
