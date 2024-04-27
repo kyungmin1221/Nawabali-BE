@@ -68,7 +68,7 @@ public class LikeService {
 
             likeRepository.save(findLike);
 
-            notificationService.notifyLike(postId,user.getId());
+//            notificationService.notifyLike(postId,user.getId());
 
         }
         // response 보내기
@@ -128,7 +128,7 @@ public class LikeService {
                 writer.updateRank(writer.getRank());
             }
 
-            notificationService.notifyLocalLike(postId, user.getId());
+//            notificationService.notifyLocalLike(postId, user.getId());
 
             return LikeDto.responseDto.builder()
                     .likeId(findLocalLike.getId())
