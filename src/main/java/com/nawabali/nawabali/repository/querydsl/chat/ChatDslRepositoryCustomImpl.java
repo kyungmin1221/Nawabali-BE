@@ -57,13 +57,29 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
                     if (newchatRoom.getChatRoomEnum().equals(ChatRoomEnum.PERSONAL)) {
                         String roomName = "";
                         Long profileImage = null;
+                        Long unreadcount = 0L;
+                        // receiver 일때
                         if (userId.equals(newchatRoom.getUser().getId())) {
                             roomName = newchatRoom.getOtherUser().getNickname();
                             profileImage = newchatRoom.getOtherUser().getProfileImage().getId();
-                        }
+                            unreadcount = queryFactory
+                                    .select(chatMessage.count())
+                                    .from(chatMessage)
+                                    .where(chatMessage.chatRoom.Id.eq(newchatRoom.getId())
+                                            .and(chatMessage.isReceiverRead.eq(false))
+                                            .and(chatMessage.receiver.eq(newchatRoom.getUser().getNickname())))
+                                    .fetchOne();
+                        } // sender일때
                         if (userId.equals(newchatRoom.getOtherUser().getId())){
                             roomName = newchatRoom.getUser().getNickname();
                             profileImage = newchatRoom.getUser().getProfileImage().getId();
+                            unreadcount = queryFactory
+                                    .select(chatMessage.count())
+                                    .from(chatMessage)
+                                    .where(chatMessage.chatRoom.Id.eq(newchatRoom.getId())
+                                            .and(chatMessage.isReceiverRead.eq(false))
+                                            .and(chatMessage.receiver.eq(newchatRoom.getOtherUser().getNickname())))
+                                    .fetchOne();
                         }
 
                         // 여기서 가장 최신 메시지를 가져오기
@@ -81,11 +97,12 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
 
                         return ChatDto.ChatRoomListDto.builder()
                                 .roomId(newchatRoom.getId())
-                                .chatRoomEnum(newchatRoom.getChatRoomEnum())
+//                                .chatRoomEnum(newchatRoom.getChatRoomEnum())
                                 .roomName(roomName)
-                                .roomNumber(newchatRoom.getRoomNumber())
+//                                .roomNumber(newchatRoom.getRoomNumber())
                                 .chatMessage(latestMessageContent)
                                 .profileImageId(profileImage)
+                                .unreadCount(unreadcount)
                                 .build();
                     }
 
