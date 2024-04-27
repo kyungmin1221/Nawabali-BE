@@ -94,4 +94,8 @@ public class User {
             this.rank = UserRankEnum.LOCAL_ELDER;
         }
     }
+
+    public void updateProfileImage(ProfileImage profileImage) {
+        this.profileImage = profileImage;
+    }
 }
