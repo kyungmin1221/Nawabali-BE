@@ -82,7 +82,7 @@ public class ChatMessageService {
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
         log.info("받은 메세지" + chatMessageList);
 
-        List <Chat.ChatMessage> chatMessageList1 = chatMessageRepository.findByChatRoomIdAndUserId(chatRoom.getId(), userOptional.getId())
+        List <Chat.ChatMessage> chatMessageList1 = chatMessageRepository.findByChatRoomIdOrderByIdDesc(chatRoom.getId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
         log.debug("메세지 리스트" + chatMessageList);
 
