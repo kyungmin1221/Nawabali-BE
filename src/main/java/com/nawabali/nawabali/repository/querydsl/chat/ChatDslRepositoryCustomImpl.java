@@ -56,12 +56,12 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
 
                     if (newchatRoom.getChatRoomEnum().equals(ChatRoomEnum.PERSONAL)) {
                         String roomName = "";
-                        Long profileImage = null;
+                        String profileImage = "";
                         Long unreadcount = 0L;
                         // receiver 일때
                         if (userId.equals(newchatRoom.getUser().getId())) {
                             roomName = newchatRoom.getOtherUser().getNickname();
-                            profileImage = newchatRoom.getOtherUser().getProfileImage().getId();
+                            profileImage = newchatRoom.getOtherUser().getProfileImage().getImgUrl();
                             unreadcount = queryFactory
                                     .select(chatMessage.count())
                                     .from(chatMessage)
@@ -72,7 +72,7 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
                         } // sender일때
                         if (userId.equals(newchatRoom.getOtherUser().getId())){
                             roomName = newchatRoom.getUser().getNickname();
-                            profileImage = newchatRoom.getUser().getProfileImage().getId();
+                            profileImage = newchatRoom.getUser().getProfileImage().getImgUrl();
                             unreadcount = queryFactory
                                     .select(chatMessage.count())
                                     .from(chatMessage)
@@ -101,7 +101,7 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
                                 .roomName(roomName)
 //                                .roomNumber(newchatRoom.getRoomNumber())
                                 .chatMessage(latestMessageContent)
-                                .profileImageId(profileImage)
+                                .profileImageUrl(profileImage)
                                 .unreadCount(unreadcount)
                                 .build();
                     }
@@ -164,13 +164,16 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
                         .roomId(newchatroom.getId())
 //                        .chatMessage(newchatroom.getChatMessageList().get(0).toString())
                         .roomName(newchatroom.getOtherUser().getNickname())
-                        .profileImageId(newchatroom.getUser().getProfileImage().getId())
+                        .profileImageUrl(newchatroom.getUser().getProfileImage().getImgUrl())
                         .build())
                 .collect(Collectors.toList());
 
 
         return new SliceImpl<>(chatRoomListDtos, pageable, hasNext);
     }
+
+//    public
+
 
 
 }

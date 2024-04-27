@@ -87,7 +87,7 @@ public class ChatRoomService {
                 .roomName(roomName)
                 .userId(user.getId())
                 .otherUserId(otherUser.getId())
-                .profileImageId(otherUser.getProfileImage().getId()) // 상대방 프로필 사진
+                .profileImageUrl(otherUser.getProfileImage().getImgUrl()) // 상대방 프로필 사진
                 .roomNumber(chatRoom.getRoomNumber())
                 .build();
 
@@ -165,13 +165,13 @@ public class ChatRoomService {
         List<Chat.ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdOrderByIdDesc(chatRoom.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
 
-        if (chatMessages.isEmpty()) {
-            return Collections.singletonList(
-                    ChatDto.ChatMessageResponseDto.builder()
-                            .message("채팅방에 메세지가 존재하지 않습니다.")
-                            .build()
-            );
-        }
+//        if (chatMessages.isEmpty()) {
+//            return Collections.singletonList(
+//                    ChatDto.ChatMessageResponseDto.builder()
+//                            .message("채팅방에 메세지가 존재하지 않습니다.")
+//                            .build()
+//            );
+//        }
 
         // ChatMessage를 ChatDto.ChatMessage로 변환하여 반환
         return chatMessages.stream()
