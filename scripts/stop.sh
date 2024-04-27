@@ -1,19 +1,23 @@
 #!/usr/bin/env bash
 
-PROJECT_ROOT="/home/ubuntu/app"
-JAR_FILE="$PROJECT_ROOT/build/libs/nawabali-0.0.1-SNAPSHOT.jar"
+ABSPATH=$(readlink -f $0)
+ABSDIR=$(dirname $ABSPATH)
+source ${ABSDIR}/profile.sh
 
-DEPLOY_LOG="$PROJECT_ROOT/deploy.log"
-
+IDLE_PORT=$(find_idle_port)
 TIME_NOW=$(date +%c)
+DEPLOY_LOG="/home/ubuntu/app/step3/deploy.log"
 
-# 현재 구동 중인 애플리케이션 pid 확인
-CURRENT_PID=$(pgrep -f $JAR_FILE)
+echo "> $IDLE_PORT 에서 구동중인 애플리케이션 pid 확인"
+IDLE_PID=$(lsof -ti tcp:${IDLE_PORT})
 
-# 프로세스가 켜져 있으면 종료
-if [ -z $CURRENT_PID ]; then
+if [ -z ${IDLE_PID} ]
+then
   echo "$TIME_NOW > 현재 실행중인 애플리케이션이 없습니다" >> $DEPLOY_LOG
+  echo "> 현재 구동중인 애플리케이션이 없으므로 종료하지 않습니다."
 else
-  echo "$TIME_NOW > 실행중인 $CURRENT_PID 애플리케이션 종료 " >> $DEPLOY_LOG
-  kill -15 $CURRENT_PID
+  echo "$TIME_NOW > 실행중인 $IDLE_PID 애플리케이션 종료 " >> $DEPLOY_LOG
+  echo "> kill -15 $IDLE_PID"
+  kill -15 ${IDLE_PID}
+  sleep 5
 fi
