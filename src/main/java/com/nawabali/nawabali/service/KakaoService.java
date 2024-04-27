@@ -127,11 +127,11 @@ public class KakaoService {
                     .role(role)
                     .rank(UserRankEnum.RESIDENT)
                     .build();
-            ProfileImage profileImage = new ProfileImage(kakaoUser);
 
             kakaoUser = userRepository.save(kakaoUser);
+            ProfileImage profileImage = new ProfileImage(kakaoUser);
             profileImageRepository.save(profileImage);
-
+            kakaoUser.updateProfileImage(profileImage);
             UserSearch userSearch = new UserSearch(kakaoUser, profileImage.getImgUrl());
 
             userSearchRepository.save(userSearch);
