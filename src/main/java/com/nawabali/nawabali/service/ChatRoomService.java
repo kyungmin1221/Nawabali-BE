@@ -190,4 +190,8 @@ public class ChatRoomService {
                 .collect(Collectors.toList());
     }
 
+//    public String getUnreadMessageCountsForUser(Long userId) {
+//        List<Long> unreadMessageCount = chatRoomRepository.getUnreadMessageCountsForUser(userId);
+//        return "읽지 않은 메세지 수 : " + unreadMessageCount + "개";
+//    }
 }

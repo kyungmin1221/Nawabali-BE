@@ -186,7 +186,12 @@ public class ChatMessageService {
 
         }
 
+
+
         notificationService.notifyMessage(chatRoom.getRoomNumber(), receiver, userOptional.getNickname());
+
+        notificationService.notifyAllMyMessage(userOptional.getNickname());
+        notificationService.notifyAllYourMessage(receiver);
 
     }
 

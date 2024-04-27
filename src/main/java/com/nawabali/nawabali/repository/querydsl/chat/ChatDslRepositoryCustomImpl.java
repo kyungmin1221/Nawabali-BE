@@ -7,19 +7,23 @@ import com.nawabali.nawabali.domain.QChat_ChatRoom;
 import com.nawabali.nawabali.domain.QUser;
 import com.nawabali.nawabali.domain.image.QProfileImage;
 import com.nawabali.nawabali.dto.ChatDto;
+import com.querydsl.core.Tuple;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.nawabali.nawabali.constant.ChatRoomEnum.GROUP;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
@@ -172,7 +176,43 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
         return new SliceImpl<>(chatRoomListDtos, pageable, hasNext);
     }
 
-//    public
+    public Long getUnreadMessageCountsForUser (String userName) {
+        QChat_ChatMessage chatMessage = QChat_ChatMessage.chatMessage;
+        QChat_ChatRoom chatRoom = QChat_ChatRoom.chatRoom;
+
+        long totalUnreadCount = 0;
+
+        // receiver 일 때
+        List<Long> receiverUnreadCounts = queryFactory
+                .select(chatMessage.count())
+                .from(chatMessage)
+                .join(chatMessage.chatRoom, chatRoom)
+                .where(chatMessage.receiver.eq(userName)
+                        .and(chatMessage.isReceiverRead.eq(false)))
+                .fetch();
+
+        for (Long count : receiverUnreadCounts) {
+            totalUnreadCount += count;
+            log.info("receiver일때 " + totalUnreadCount);
+        }
+
+        // sender 일 때
+//        List<Long> senderUnreadCounts = queryFactory
+//                .select(chatMessage.count())
+//                .from(chatMessage)
+//                .join(chatMessage.chatRoom, chatRoom)
+//                .where(chatMessage.sender.eq(userName)
+//                        .and(chatMessage.isReceiverRead.eq(false)))
+//                .fetch();
+//
+//        for (Long count : senderUnreadCounts) {
+//            totalUnreadCount += count;
+//            log.info("sender일때" + totalUnreadCount);
+//        }
+
+        return totalUnreadCount;
+
+    }
 
 
 

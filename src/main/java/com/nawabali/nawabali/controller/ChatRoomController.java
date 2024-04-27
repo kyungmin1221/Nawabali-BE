@@ -85,4 +85,11 @@ public class ChatRoomController {
         return ResponseEntity.ok(messages);
     }
 
+//    @GetMapping("/test/{userId}")
+//    public ResponseEntity<String> getUnreadMessageCountsForUser(@PathVariable Long userId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+//        // 서비스를 통해 읽지 않은 메시지 개수를 조회하고 결과를 클라이언트로 반환
+//        String message = chatRoomService.getUnreadMessageCountsForUser(userId);
+//        return ResponseEntity.ok(message);
+//    }
+
 }

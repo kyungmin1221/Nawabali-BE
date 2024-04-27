@@ -172,6 +172,50 @@ public class NotificationService {
         }
     }
 
+    @Transactional
+    public void notifyAllMyMessage (String userName) {
+
+        User user = userRepository.findByNickname(userName);
+
+        SseEmitter sseEmitter = NotificationController.sseEmitters.get(user.getId());
+        log.info("본인 " + userName);
+
+        Long unreadMessageCount = chatRoomRepository.getUnreadMessageCountsForUser(userName);
+        log.info("본인 " + unreadMessageCount);
+
+        Map<String,String> eventData = new HashMap<>();
+        eventData.put("읽지 않은 메세지 수", unreadMessageCount.toString() + "개");
+
+        // JSON 형식의 데이터를 직접 전달
+        try {
+            sseEmitter.send(SseEmitter.event().data(eventData));
+        } catch (IOException e) {
+            log.error("SSE 메시지 전송 중 오류 발생", e);
+        }
+    }
+
+    @Transactional
+    public  void notifyAllYourMessage (String userName) {
+
+        User user = userRepository.findByNickname(userName);
+        log.info("받는 사람 " + userName);
+
+        SseEmitter sseEmitter = NotificationController.sseEmitters.get(user.getId());
+
+        Long unreadMessageCount = chatRoomRepository.getUnreadMessageCountsForUser(userName);
+        log.info("받는 사람 " + unreadMessageCount);
+
+        Map<String,String> eventData = new HashMap<>();
+        eventData.put("읽지 않은 메세지 수", unreadMessageCount.toString() + "개");
+
+        // JSON 형식의 데이터를 직접 전달
+        try {
+            sseEmitter.send(SseEmitter.event().data(eventData));
+        } catch (IOException e) {
+            log.error("SSE 메시지 전송 중 오류 발생", e);
+        }
+    }
+
 //    // 댓글 알림
 //    @Transactional
 //    public void notifyComment (Long postId) {
