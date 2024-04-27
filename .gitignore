@@ -57,9 +57,9 @@ src/main/resources/application.properties
 
 # CI/CD, 무중단배포 관련 파일
 /appspec.yml
-.github/workflows/cicd_production.yml
-scripts/health.sh
-scripts/profile.sh
-scripts/start.sh
-scripts/stop.sh
-scripts/switch.sh
+/.github/workflows/cicd_production.yml
+/scripts/health.sh
+/scripts/profile.sh
+/scripts/start.sh
+/scripts/stop.sh
+/scripts/switch.sh
