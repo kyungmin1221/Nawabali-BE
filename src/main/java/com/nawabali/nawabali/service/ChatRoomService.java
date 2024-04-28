@@ -94,6 +94,7 @@ public class ChatRoomService {
         return chatRoomDto;
     }
 
+    // 서버에 반영이 왜 안되지?
     // 본인 전체 채팅방 목록 반환
     public Slice<ChatDto.ChatRoomListDto> room(Long userId, Pageable pageable) {
 
