@@ -79,6 +79,8 @@ public class PostDto {
 
         private String mainImageUrl;
 
+        private String resizedImageUrl;
+
         private boolean multiImages;
 
         private Long likesCount;
@@ -105,7 +107,8 @@ public class PostDto {
             this.longitude = post.getTown().getLongitude();
             this.createdAt = post.getCreatedAt();
             this.modifiedAt = post.getModifiedAt();
-            this.mainImageUrl = post.getImages().get(0).getImgUrl();
+            this.mainImageUrl = post.getImages().get(1).getImgUrl();
+            this.resizedImageUrl = post.getImages().get(0).getImgUrl();
             this.multiImages = post.getImages().size() > 1;
             this.commentCount = post.getComments().size();
         }
