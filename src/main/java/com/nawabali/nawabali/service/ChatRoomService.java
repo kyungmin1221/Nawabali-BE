@@ -113,7 +113,7 @@ public class ChatRoomService {
         // 채팅방 이름으로 검색
         List <ChatDto.ChatRoomListDto> chatRoomSlice = chatRoomRepository.queryRoomsByName(roomName,user.getId());
 
-        // 채팅방 메시지로 검색
+        // 채팅 메시지로 검색
         List <ChatDto.ChatRoomListDto> chatRoomMessageSlice = chatRoomRepository.queryRoomsByMessage(roomName,user.getId());
 
         // 두 결과를 합치기
