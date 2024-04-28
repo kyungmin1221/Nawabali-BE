@@ -37,49 +37,61 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
-    private static Map<Long, Integer> notificationCounts = new HashMap<>();
 
+    private static Map<Long, Integer> notificationCounts = new HashMap<>();
     private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
 
     // sseEmitter 연결하기
     public SseEmitter subscribe(Long userId) {
 
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(()-> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+
         // 현재 클라이언트를 위한 sseEmitter 생성
         SseEmitter sseEmitter = new SseEmitter(Long.MAX_VALUE);
+        Map<String,String> eventData = new HashMap<>();
 
+//        notifyAllMyMessage(user.getNickname());
         try {
-            // 연결하기
-            sseEmitter.send(SseEmitter.event().name("연결 되었습니다."));
+
+            eventData.put("contents", "연결 되었습니다.");
+
+//            Integer notificationCount = notificationCounts.get(userId);
+//            if (notificationCount != null) {
+//                eventData.put("counts", String.valueOf(notificationCount));
+//            } else {
+//                eventData.put("counts", "0");
+//            }
+
+            sseEmitter.send(SseEmitter.event().data(eventData));
+
         } catch (IOException e) {
-            e.printStackTrace();
-        /*
-        여기서 catch 블록은 IOException이 발생했을 때 실행되는 부분입니다.
-        e.printStackTrace()는 예외의 추적(trace) 정보를 출력하는 메서드입니다.
-        이렇게 하면 예외가 발생했을 때 해당 예외의 발생 경로를 확인할 수 있습니다.
-        하지만 이는 단순히 예외를 처리하고, 해당 예외를 더 이상 상위로 전파하지 않고 그대로 종료시키는 방식입니다.
-         */
+            log.error("SSE 연결 에러", e);
+            try {
+                // 에러 정보를 담은 이벤트 전송
+                sseEmitter.send(SseEmitter.event().name("error").data("연결 중 문제가 발생했습니다."));
+            } catch (IOException ex) {
+                log.error("SSE 에러 메시지 전송 실패", ex);
+            } finally {
+                sseEmitter.completeWithError(e);
+            }
+            return sseEmitter; // 에러 상태를 반영하고 SSE Emitter 반환
         }
+
         // user의 pk값을 key값으로 해서 sseEmitter를 저장
         // 이걸 컨트롤러에 저장하는게 맞는건가...?
         NotificationController.sseEmitters.put(userId, sseEmitter);
+        log.info("메세지 알림 연결");
         // user의 pk값을 key값으로 해서 sseEmitter를 저장
         emitters.put(userId, sseEmitter);
+        log.info("하트비트 연결");
 
         sseEmitter.onCompletion(()-> {NotificationController.sseEmitters.remove(userId);  log.info("연결이 종료되었습니다.");});
         sseEmitter.onTimeout(()-> {NotificationController.sseEmitters.remove(userId);  log.info("연결이 타임아웃 되었습니다.");});
-        sseEmitter.onError((e)-> {NotificationController.sseEmitters.remove(userId);  log.info("연결이 에러났어요");});
+        sseEmitter.onError((e)-> {NotificationController.sseEmitters.remove(userId);  log.info("연결이 에러났어요",e);});
 
         return sseEmitter;
     }
-//    public SseEmitter subscribe(Long userId) {
-//        SseEmitter emitter = new SseEmitter(Long.MAX_VALUE);
-//        this.emitters.put(userId, emitter);
-//
-//        emitter.onCompletion(() -> this.emitters.remove(userId));
-//        emitter.onTimeout(() -> this.emitters.remove(userId));
-//
-//        return emitter;
-//    }
 
 
     @Scheduled(fixedRate = 30000) // 매 30초마다 실행
@@ -148,8 +160,12 @@ public class NotificationService {
                 eventData.put("notificationId", notification.getId().toString());
                 eventData.put("createdAt", receiveMessage.getCreatedMessageAt().toString());
                 eventData.put("contents", receiveMessage.getMessage());
+                eventData.put("notificationCount", String.valueOf(notificationCounts.get(userId)));
 
-                sseEmitter.send(SseEmitter.event().name("addMessage알림").data(eventData));
+                // JSON 형식의 데이터를 직접 전달
+                sseEmitter.send(SseEmitter.event().data(eventData));
+
+                sseEmitter.send(SseEmitter.event().name("addMessage").data(eventData));
 
                 notificationCounts.put(userId, notificationCounts.getOrDefault(userId,0) + 1);
 
@@ -159,6 +175,50 @@ public class NotificationService {
                 NotificationController.sseEmitters.remove(userId);
                 log.error("Failed to send SSE or save notification", e);
             }
+        }
+    }
+
+    @Transactional
+    public void notifyAllMyMessage (String userName) {
+
+        User user = userRepository.findByNickname(userName);
+
+        SseEmitter sseEmitter = NotificationController.sseEmitters.get(user.getId());
+        log.info("본인 " + userName);
+
+        Long unreadMessageCount = chatRoomRepository.getUnreadMessageCountsForUser(userName);
+        log.info("본인 " + unreadMessageCount);
+
+        Map<String,String> eventData = new HashMap<>();
+        eventData.put("읽지 않은 메세지 수", unreadMessageCount.toString() + "개");
+
+        // JSON 형식의 데이터를 직접 전달
+        try {
+            sseEmitter.send(SseEmitter.event().data(eventData));
+        } catch (IOException e) {
+            log.error("SSE 메시지 전송 중 오류 발생", e);
+        }
+    }
+
+    @Transactional
+    public  void notifyAllYourMessage (String userName) {
+
+        User user = userRepository.findByNickname(userName);
+        log.info("받는 사람 " + userName);
+
+        SseEmitter sseEmitter = NotificationController.sseEmitters.get(user.getId());
+
+        Long unreadMessageCount = chatRoomRepository.getUnreadMessageCountsForUser(userName);
+        log.info("받는 사람 " + unreadMessageCount);
+
+        Map<String,String> eventData = new HashMap<>();
+        eventData.put("읽지 않은 메세지 수", unreadMessageCount.toString() + "개");
+
+        // JSON 형식의 데이터를 직접 전달
+        try {
+            sseEmitter.send(SseEmitter.event().data(eventData));
+        } catch (IOException e) {
+            log.error("SSE 메시지 전송 중 오류 발생", e);
         }
     }
 
