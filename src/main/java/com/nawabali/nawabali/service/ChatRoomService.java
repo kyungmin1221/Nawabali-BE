@@ -106,28 +106,28 @@ public class ChatRoomService {
 
 
     // 특정 채팅방 조회
-    public List <ChatDto.ChatRoomListDto> roomInfo(String roomName, User user) {
+    public Slice <ChatDto.ChatRoomListDto> roomInfo(String roomName, User user, Pageable pageable) {
 
         userService.getUserId(user.getId());
 
         // 채팅방 이름으로 검색
-        List <ChatDto.ChatRoomListDto> chatRoomSlice = chatRoomRepository.queryRoomsByName(roomName,user.getId());
+        Slice <ChatDto.ChatRoomListDto> chatRoomSlice = chatRoomRepository.queryRoomsByName(roomName, user.getId(), pageable);
 
-        // 채팅 메시지로 검색
-        List <ChatDto.ChatRoomListDto> chatRoomMessageSlice = chatRoomRepository.queryRoomsByMessage(roomName,user.getId());
+        // 채팅방 메시지로 검색
+        Slice <ChatDto.ChatRoomListDto> chatRoomMessageSlice = chatRoomRepository.queryRoomsByMessage(roomName, user.getId(), pageable);
 
         // 두 결과를 합치기
-        List<ChatDto.ChatRoomListDto> roomList = new ArrayList<>(chatRoomSlice);
-        roomList.addAll(chatRoomMessageSlice);
+        List<ChatDto.ChatRoomListDto> roomList = new ArrayList<>(chatRoomSlice.getContent());
+        roomList.addAll(chatRoomMessageSlice.getContent());
 
-//        // 페이지네이션 적용
-//        int start = (int) pageable.getOffset();
-//        int end = Math.min((start + pageable.getPageSize()), roomList.size());
-//        List<ChatDto.ChatRoomListDto> pagedRoomList = roomList.subList(start, end);
-//
-//        boolean hasNext = end < roomList.size();
+        // 페이지네이션 적용
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), roomList.size());
+        List<ChatDto.ChatRoomListDto> pagedRoomList = roomList.subList(start, end);
 
-        return roomList;
+        boolean hasNext = end < roomList.size();
+
+        return new SliceImpl<>(pagedRoomList, pageable, hasNext);
     }
 
     // 대화 조회
