@@ -130,7 +130,7 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
 
 
     // 채팅방 이름으로 검색하는 메소드
-    public List<ChatDto.ChatRoomListDto> queryRoomsByName(String roomName, Long userId) {
+    public Slice<ChatDto.ChatRoomListDto> queryRoomsByName(String roomName, Long userId, Pageable pageable) {
 
         QChat_ChatRoom chatRoom = QChat_ChatRoom.chatRoom;
         QChat_ChatMessage chatMessage = QChat_ChatMessage.chatMessage;
@@ -144,15 +144,7 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
                                 .or(chatRoom.user.id.eq(Long.valueOf(userId)).and(chatRoom.otherUser.nickname.contains(roomName)))
                                 .or(chatRoom.otherUser.isNotNull().and(chatRoom.otherUser.id.eq(Long.valueOf(userId))).and(chatRoom.user.nickname.contains(roomName))))
                 .orderBy(chatMessage.createdMessageAt.desc()) // 최신 메시지 순으로 정렬
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize() + 1)
                 .fetch();
-
-//        boolean hasNext = chatRooms.size() > pageable.getPageSize();
-//
-//        if (hasNext) {
-//            chatRooms.remove(chatRooms.size() -1);
-//        }
 
         List<ChatDto.ChatRoomListDto> chatRoomss = new ArrayList<>(); // 수정된 부분: chatRoomss를 초기화합니다.
 
@@ -175,7 +167,7 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
             }
             ChatDto.ChatRoomListDto chatRoomDto = ChatDto.ChatRoomListDto.builder()
                     .roomId(chatRoomEntity.getId())
-//                    .roomNumber("***** 채팅방 검색 결과 *****")
+                    .roomNumber("***** 채팅방 검색 결과 *****")
                     .roomName(roomNameDto)
                     .chatMessage(chatRoomEntity.getLatestMessage().map(Chat.ChatMessage::getMessage).orElse(""))
                     .messageId(messageId)
@@ -185,112 +177,75 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
         }
 
 
-//        if (chatRoomss.isEmpty()) {
-//            // 검색 결과가 없을 때 빈 DTO 반환
-//            return new SliceImpl<>(Collections.singletonList(
-//                    ChatDto.ChatRoomListDto.builder()
-//                            .roomId(null)
-//                            .roomName(null)
-//                            .chatMessage("채팅방 검색결과 없음")
-//                            .messageId(null)
-//                            .profileImageUrl(null)
-//                            .build()), pageable, false);
-//        }
+        if (chatRoomss.isEmpty()) {
+            // 검색 결과가 없을 때 빈 DTO 반환
+            ChatDto.ChatRoomListDto chatRoomDto = ChatDto.ChatRoomListDto.builder()
+                            .roomId(null)
+                            .roomName(null)
+                            .chatMessage("***** 채팅방 검색결과 없음 *****")
+                            .messageId(null)
+                            .profileImageUrl(null)
+                            .build();
+            chatRoomss.add(chatRoomDto);
+        }
 
-        return chatRoomss;
+        return new SliceImpl<>(chatRoomss);
     }
 
     // 채팅방 메시지로 검색하는 메소드
-    public List<ChatDto.ChatRoomListDto> queryRoomsByMessage(String roomName, Long userId) {
+    public Slice<ChatDto.ChatRoomListDto> queryRoomsByMessage(String roomName, Long userId, Pageable pageable) {
+
         QChat_ChatRoom chatRoom = QChat_ChatRoom.chatRoom;
         QChat_ChatMessage chatMessage = QChat_ChatMessage.chatMessage;
-        QProfileImage profileImage = QProfileImage.profileImage;
 
-        List<Chat.ChatRoom> chatRooms = queryFactory.selectFrom(chatRoom)
-                .leftJoin(chatRoom.user.profileImage, profileImage)
-                .leftJoin(chatRoom.chatMessageList, chatMessage)
+        List<Chat.ChatMessage> chatMessageList = queryFactory.selectFrom(chatMessage)
+                .leftJoin(chatMessage.chatRoom, chatRoom)
                 .where(chatMessage.message.contains(roomName)
-                        .and(
-                                chatRoom.user.id.eq(userId)
-                                        .or(chatRoom.otherUser.id.eq(userId))
-                        )
-                )   .orderBy(chatMessage.createdMessageAt.desc()) // 최신 메시지 순으로 정렬
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize() + 1)
+                        .and(chatRoom.user.id.eq(userId)).or(chatRoom.otherUser.id.eq(userId)))
+                .orderBy(chatMessage.createdMessageAt.desc())
                 .fetch();
 
-//        boolean hasNext = chatRooms.size() > pageable.getPageSize();
-//
-//        if (hasNext) {
-//            chatRooms.remove(chatRooms.size() -1);
-//        }
+        List<ChatDto.ChatRoomListDto> chatMessages = new ArrayList<>();
 
-        List <ChatDto.ChatRoomListDto> chatRoomListDtos = chatRooms.stream()
-                .map(newchatroom -> ChatDto.ChatRoomListDto.builder()
-                        .roomId(newchatroom.getId())
-//                        .chatMessage(newchatroom.getChatMessageList().get(0).toString())
-                        .roomName(newchatroom.getOtherUser().getNickname())
-                        .profileImageUrl(newchatroom.getUser().getProfileImage().getImgUrl())
-                        .build())
-                .collect(Collectors.toList());
-        List<ChatDto.ChatRoomListDto> chatRoomsDto = new ArrayList<>();
-        Set<Long> processedRoomIds = new HashSet<>();
+        for (Chat.ChatMessage chatMessageEntity : chatMessageList) {
 
-        for (Chat.ChatRoom chatRoomEntity : chatRooms) {
-            Long roomId = chatRoomEntity.getId();
+            String roomNameDto = "";
+            String profileImageUrl = "";
 
-            if (!processedRoomIds.contains(roomId)) {
-                String roomNameDto;
-                String profileImageUrl;
-                Long latestMessageId;
-                if (userId.equals(chatRoomEntity.getUser().getId())) {
-                    roomNameDto = chatRoomEntity.getOtherUser().getNickname();
-                    profileImageUrl = chatRoomEntity.getOtherUser().getProfileImage().getImgUrl();
-                } else {
-                    roomNameDto = chatRoomEntity.getUser().getNickname();
-                    profileImageUrl = chatRoomEntity.getUser().getProfileImage().getImgUrl();
-                }
-
-                // 채팅방의 메시지들 중에서 검색어를 포함하는 메시지만 필터링하여 ChatMessageDto를 생성합니다.
-                List<ChatDto.ChatMessageDto> chatMessagesDto = chatRoomEntity.getChatMessageList().stream()
-                        .peek(chatMessageEntity -> System.out.println("Filtering message: " + chatMessageEntity.getMessage())) // 각 메시지 출력
-                        .filter(chatMessageEntity -> chatMessageEntity.getMessage().contains(roomName)) // 검색어를 포함하는 메시지만 필터링합니다.
-                        .map(chatMessageEntity -> ChatDto.ChatMessageDto.builder()
-                                .id(chatMessageEntity.getId())
-                                .message(chatMessageEntity.getMessage())
-                                .createdMessageAt(chatMessageEntity.getCreatedMessageAt())
-                                .build())
-                        .collect(Collectors.toList());
-
-                ChatDto.ChatMessageDto latestMessageDto = chatMessagesDto.isEmpty() ? null : chatMessagesDto.get(chatMessagesDto.size() - 1);
-                String latestMessage = latestMessageDto != null ? latestMessageDto.getMessage() : "";
-                latestMessageId = latestMessageDto != null ? latestMessageDto.getId() : null;
-
-                ChatDto.ChatRoomListDto chatRoomDto = ChatDto.ChatRoomListDto.builder()
-                        .roomId(roomId)
-                        .roomName(roomNameDto)
-                        .chatMessage(latestMessage)
-                        .messageId(latestMessageId)
-                        .profileImageUrl(profileImageUrl)
-                        .build();
-
-                chatRoomsDto.add(chatRoomDto);
-                processedRoomIds.add(roomId);
+            if (userId.equals(chatMessageEntity.getChatRoom().getUser().getId())) {
+                roomNameDto = chatMessageEntity.getChatRoom().getOtherUser().getNickname();
+                profileImageUrl = chatMessageEntity.getChatRoom().getOtherUser().getProfileImage().getImgUrl();
             }
-        }
-//        if (chatRoomsDto.isEmpty()) {
-//            // 검색 결과가 없을 때 빈 DTO 반환
-//            return new SliceImpl<>(Collections.singletonList(
-//                    ChatDto.ChatRoomListDto.builder()
-//                            .roomId(null)
-//                            .roomName(null)
-//                            .chatMessage("메세지 검색결과 없음")
-//                            .messageId(null)
-//                            .profileImageUrl(null)
-//                            .build()), pageable, false);
-//        }
 
-        return chatRoomsDto;
+            if (userId.equals(chatMessageEntity.getChatRoom().getOtherUser().getId())){
+                roomNameDto = chatMessageEntity.getUser().getNickname();
+                profileImageUrl = chatMessageEntity.getUser().getProfileImage().getImgUrl();
+            }
+
+            ChatDto.ChatRoomListDto chatRoomDto = ChatDto.ChatRoomListDto.builder()
+                    .roomId(chatMessageEntity.getChatRoom().getId())
+                    .roomNumber("채팅 메세지 검색 결과")
+                    .roomName(roomNameDto)
+                    .chatMessage(chatMessageEntity.getMessage())
+                    .messageId(chatMessageEntity.getId())
+                    .profileImageUrl(profileImageUrl)
+                    .build();
+            chatMessages.add(chatRoomDto);
+        }
+
+        if (chatMessages.isEmpty()){
+            ChatDto.ChatRoomListDto chatRoomListDto = ChatDto.ChatRoomListDto.builder()
+                    .roomId(null)
+                    .roomNumber("채팅 메세지 검색 결과 없음")
+                    .roomName(null)
+                    .chatMessage(null)
+                    .messageId(null)
+                    .profileImageUrl(null)
+                    .build();
+            chatMessages.add(chatRoomListDto);
+        }
+
+        return new SliceImpl<>(chatMessages);
     }
 
     public Long getUnreadMessageCountsForUser (String userName) {

@@ -207,6 +207,8 @@ public class NotificationService {
         log.info("받는 사람 " + userName);
 
         SseEmitter sseEmitter = NotificationController.sseEmitters.get(user.getId());
+        log.info("sseemitter" +sseEmitter);
+
 
         Long unreadMessageCount = chatRoomRepository.getUnreadMessageCountsForUser(userName);
         log.info("받는 사람 " + unreadMessageCount);
