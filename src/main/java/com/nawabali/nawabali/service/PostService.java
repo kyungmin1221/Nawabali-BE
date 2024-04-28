@@ -58,51 +58,6 @@ public class PostService {
 
 
     // 게시물 생성
-//    @Transactional
-//    public PostDto.ResponseDto createPost(User user, PostDto.RequestDto requestDto, List<MultipartFile> files) {
-//        User findUser = userService.getUserId(user.getId());
-//
-//        Town town = new Town(
-//                requestDto.getLatitude(),
-//                requestDto.getLongitude(),
-//                requestDto.getDistrict(),
-//                requestDto.getPlaceName(),
-//                requestDto.getPlaceAddr()
-//        );
-//
-//        Post post = Post.builder()
-//                .contents(requestDto.getContents())
-//                .category(requestDto.getCategory())
-//                .createdAt(LocalDateTime.now())
-//                .modifiedAt(LocalDateTime.now())
-//                .town(town)
-//                .user(findUser)
-//                .build();
-//
-//        List<String> imageUrls = awsS3Service.uploadFile(files, "postImages");
-//
-//        imageUrls.forEach(url -> {
-//            PostImage image = PostImage.builder()
-//                    .fileName(url)
-//                    .imgUrl(url)
-//                    .post(post)
-//                    .build();
-//            post.getImages().add(image);
-//        });
-//
-//
-//        Post savedPost = postRepository.save(post);
-//        PostSearch postSearch = createPostSearch(savedPost, imageUrls, findUser);
-//        postSearchRepository.save(postSearch);
-//
-//        User userUp = post.getUser();
-//        if (promoteGrade(userUp)){
-//            userUp.updateRank(userUp.getRank());
-//        }
-//
-//        return new PostDto.ResponseDto(post);
-//
-//    }
     @Transactional
     public PostDto.ResponseDto createPost(User user, PostDto.RequestDto requestDto, List<MultipartFile> files) throws IOException {
         User findUser = userService.getUserId(user.getId());
@@ -292,16 +247,6 @@ public class PostService {
     }
 
 
-    // 게시물 검색
-//    public Slice<PostDto.ResponseDto> searchAndFilterPosts(String contents, Pageable pageable) {
-//        List<PostSearch> searchResults = postSearchRepository.findByContentsContaining(contents);
-//
-//        List<Long> postIds = searchResults.stream()
-//                .map(PostSearch::getPostId)
-//                .collect(Collectors.toList());
-//
-//        return postRepository.searchAndFilterPosts(postIds, pageable);
-//    }
 
     // 게시물 검색(ES)
     public Slice<PostDto.ResponseDto> searchAndFilterPosts(String contents, Pageable pageable) {
@@ -314,8 +259,6 @@ public class PostService {
 
         return new SliceImpl<>(responseDtos, pageable, searchResultsPage.hasNext());
     }
-
-
 
 
 
