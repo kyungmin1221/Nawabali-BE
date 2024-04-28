@@ -67,14 +67,9 @@ public class ChatRoomController {
     @Operation(summary = "특정 채팅방 조회" , description = "채팅방 검색 API")
     @GetMapping("/room/found")
     @ResponseBody
-    public Slice <ChatDto.ChatRoomListDto> roomInfo(@RequestParam String roomName,
-                                              @AuthenticationPrincipal UserDetailsImpl userDetails,
-                                              @PageableDefault(
-                                                      size = 10,
-                                                      sort = "createdAt",
-                                                      direction = Sort.Direction.DESC)
-                                              Pageable pageable) {
-        Slice <ChatDto.ChatRoomListDto> chatRoomListDtos = chatRoomService.roomInfo(roomName, userDetails.getUser(), pageable);
+    public List <ChatDto.ChatRoomListDto> roomInfo(@RequestParam String roomName,
+                                              @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        List <ChatDto.ChatRoomListDto> chatRoomListDtos = chatRoomService.roomInfo(roomName, userDetails.getUser());
         return chatRoomListDtos;
     }
 
@@ -84,5 +79,12 @@ public class ChatRoomController {
         List<ChatDto.ChatMessageResponseDto> messages = chatRoomService.loadMessage(roomId, userDetails.getUser());
         return ResponseEntity.ok(messages);
     }
+
+//    @GetMapping("/test/{userId}")
+//    public ResponseEntity<String> getUnreadMessageCountsForUser(@PathVariable Long userId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+//        // 서비스를 통해 읽지 않은 메시지 개수를 조회하고 결과를 클라이언트로 반환
+//        String message = chatRoomService.getUnreadMessageCountsForUser(userId);
+//        return ResponseEntity.ok(message);
+//    }
 
 }

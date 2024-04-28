@@ -184,9 +184,16 @@ public class ChatMessageService {
             messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, chatMessageResponseDto);
             log.info("정보확인 {} 이 방에서 새로운 메시지가 도착했습니다. 보낸 사람: {}, 메시지 내용: {}, 유저 아이디 : {}, 만든 시간 {}", chatRoomId, chatMessageResponseDto.getSender(), chatMessageResponseDto.getMessage(), chatMessageResponseDto.getUserId(), chatMessageResponseDto.getCreatedMessageAt());
 
+            notificationService.notifyMessage(chatRoom.getRoomNumber(), receiver, userOptional.getNickname());
+
         }
 
-        notificationService.notifyMessage(chatRoom.getRoomNumber(), receiver, userOptional.getNickname());
+
+
+//        notificationService.notifyMessage(chatRoom.getRoomNumber(), receiver, userOptional.getNickname());
+
+        notificationService.notifyAllMyMessage(userOptional.getNickname());
+        notificationService.notifyAllYourMessage(receiver);
 
     }
 
