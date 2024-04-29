@@ -8,6 +8,8 @@ import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -19,7 +21,10 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import static com.nawabali.nawabali.constant.LikeCategoryEnum.LIKE;
 import static com.nawabali.nawabali.constant.LikeCategoryEnum.LOCAL_LIKE;
@@ -42,8 +47,11 @@ public class NotificationService {
     private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
 
     // sseEmitter 연결하기
-    public SseEmitter subscribe(Long userId) {
+    public CompletableFuture<SseEmitter> subscribe(Long userId) {
+        // 사용할 Executor 정의
+        Executor executor = Executors.newCachedThreadPool();
 
+        return CompletableFuture.supplyAsync(() -> {
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
@@ -85,6 +93,7 @@ public class NotificationService {
         sseEmitter.onError((e)-> {NotificationController.sseEmitters.remove(userId);  log.info("연결이 에러났어요",e);});
 
         return sseEmitter;
+        }, executor);
     }
 
 
