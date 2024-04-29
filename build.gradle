@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.nawabali'
-version = '1.0.1-SNAPSHOT-' + new Date().format("yyyy-MM-dd-HHmmss")
+version = '0.0.1-SNAPSHOT'
 
 java {
 	sourceCompatibility = '17'
@@ -22,6 +22,9 @@ repositories {
 }
 
 dependencies {
+
+	// thumbnailator
+	implementation 'net.coobird:thumbnailator:0.4.14'
 
 	//cache
 	implementation 'org.springframework.boot:spring-boot-starter-cache'

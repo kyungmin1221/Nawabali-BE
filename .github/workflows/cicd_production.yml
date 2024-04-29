@@ -2,13 +2,13 @@ name: Deploy to Amazon EC2
 
 on:
   push:
-    branches: ["release"]
+    branches: ["develop"]
 
 env:
   AWS_REGION: ap-northeast-2
   S3_BUCKET_NAME: sparta-project-build
   CODE_DEPLOY_APPLICATION_NAME: codedeploy
-  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: deployment-group-dongnaebangnae
+  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: codedeploy-deployment-group-production
 
 permissions:
   contents: read
@@ -35,7 +35,7 @@ jobs:
       - name: Make an application.properties
         run: |
           mkdir -p ./src/main/resources 
-          echo "${{ secrets.APPLICATION_PROD }}" > ./src/main/resources/application.properties 
+          echo "${{ secrets.APPLICATION }}" > ./src/main/resources/application.properties 
           cat ./src/main/resources/application.properties
 
       # (4) Gradle build (Test 제외)
@@ -55,15 +55,6 @@ jobs:
           gradle-version: 8.7
           arguments: clean build -x test
 
-      # 실제 필요한 파일(Jar, appspect.yml, 배포 스크립트)만 담기
-      - name: zip 파일 생성
-        run: |
-          mkdir -p deploy/scripts
-          cp scripts/*.sh deploy/scripts
-          cp appspec.yml deploy/
-          cp build/libs/*.jar deploy/
-          cd deploy && zip -r ./$GITHUB_SHA.zip *
-        shell: bash
 
       # (5) AWS 인증 (IAM 사용자 Access Key, Secret Key 활용)
       - name: Configure AWS credentials
@@ -77,8 +68,11 @@ jobs:
       # (6) 빌드 결과물을 S3 버킷에 업로드
       - name: Upload to AWS S3
         run: |
-          aws s3 cp deploy/$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip
-
+          aws deploy push \
+            --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
+            --ignore-hidden-files \
+            --s3-location s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip \
+            --source .
 
       # (7) S3 버킷에 있는 파일을 대상으로 CodeDeploy 실행
       - name: Deploy to AWS EC2 from S3

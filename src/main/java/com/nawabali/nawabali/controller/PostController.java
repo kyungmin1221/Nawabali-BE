@@ -21,6 +21,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Tag(name = "게시물 API", description = "게시물 관련 API 입니다.")
@@ -42,7 +43,7 @@ public class PostController {
     public ResponseEntity<PostDto.ResponseDto> createPost(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @RequestPart("requestDto") PostDto.RequestDto requestDto,
-            @RequestPart("files") List<MultipartFile> files) {
+            @RequestPart("files") List<MultipartFile> files) throws IOException {
         PostDto.ResponseDto responseDto = postService.createPost(userDetails.getUser(), requestDto, files);
         return ResponseEntity.ok(responseDto);
     }

@@ -4,7 +4,6 @@ import com.nawabali.nawabali.domain.Comment;
 import com.nawabali.nawabali.domain.Post;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.dto.CommentDto;
-import com.nawabali.nawabali.dto.querydsl.CommentDslDto;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.repository.CommentRepository;
@@ -120,16 +119,16 @@ public class CommentService {
 
     // 댓글 조회(무한 스크롤)
     @Transactional(readOnly = true)
-    public Slice<CommentDslDto.ResponseDto> getComments(Long postId, Pageable pageable) {
+    public Slice<CommentDto.GetResponseDto> getComments(Long postId, Pageable pageable) {
         postRepository.findById(postId).orElseThrow(()-> new CustomException(ErrorCode.POST_NOT_FOUND));
         return convertNestedStructure(commentRepository.findCommentsByPostId(postId, pageable));
     }
 
-    private Slice<CommentDslDto.ResponseDto> convertNestedStructure(Slice<CommentDslDto.ResponseDto> comments) {
+    private Slice<CommentDto.GetResponseDto> convertNestedStructure(Slice<CommentDto.GetResponseDto> comments) {
         // 중첩 구조로 변환된 댓글 목록을 저장할 리스트입니다.
-        List<CommentDslDto.ResponseDto> result = new ArrayList<>();
+        List<CommentDto.GetResponseDto> result = new ArrayList<>();
         // 댓글을 부모-자식 구조로 변환하는 데 사용할 맵 : 키는 댓글의 식별자(commentId)이고, 값은 실제 댓글 객체입니다.
-        Map<Long, CommentDslDto.ResponseDto> map = new HashMap<>();
+        Map<Long, CommentDto.GetResponseDto> map = new HashMap<>();
         // 댓글을 parent comment를 기준으로 순회하여 부모-자식 관계를 형성합니다.
         comments.forEach(dto -> {
             // 현재 댓글을 맵에 추가합니다.
@@ -138,7 +137,7 @@ public class CommentService {
                 // 부모 댓글인 경우, 결과 목록에 추가합니다.
                 if (dto.getParentId() != null) {
                     // 부모 댓글을 찾아 해당 자식 댓글을 추가합니다.
-                    map.computeIfAbsent(dto.getParentId(), k -> new CommentDslDto.ResponseDto()).getChildren().add(dto);
+                    map.computeIfAbsent(dto.getParentId(), k -> new CommentDto.GetResponseDto()).getChildren().add(dto);
                 } else {
                     // 부모 댓글이 없는 경우: 결과 목록에 바로 추가합니다.
                     result.add(dto);
