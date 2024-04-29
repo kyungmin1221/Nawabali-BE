@@ -44,24 +44,18 @@ public class NotificationService {
     // sseEmitter 연결하기
     public SseEmitter subscribe(Long userId) {
 
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(()-> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
 
         // 현재 클라이언트를 위한 sseEmitter 생성
         SseEmitter sseEmitter = new SseEmitter(Long.MAX_VALUE);
+        Long unreadMessageCount = chatRoomRepository.getUnreadMessageCountsForUser(user.getNickname());
         Map<String,String> eventData = new HashMap<>();
 
-//        notifyAllMyMessage(user.getNickname());
         try {
 
             eventData.put("contents", "연결 되었습니다.");
-
-//            Integer notificationCount = notificationCounts.get(userId);
-//            if (notificationCount != null) {
-//                eventData.put("counts", String.valueOf(notificationCount));
-//            } else {
-//                eventData.put("counts", "0");
-//            }
+            eventData.put("읽지 않은 메세지 수", String.valueOf(unreadMessageCount));
 
             sseEmitter.send(SseEmitter.event().data(eventData));
 
@@ -165,7 +159,7 @@ public class NotificationService {
                 // JSON 형식의 데이터를 직접 전달
                 sseEmitter.send(SseEmitter.event().data(eventData));
 
-                sseEmitter.send(SseEmitter.event().name("addMessage").data(eventData));
+//                sseEmitter.send(SseEmitter.event().name("addMessage").data(eventData));
 
                 notificationCounts.put(userId, notificationCounts.getOrDefault(userId,0) + 1);
 
@@ -190,7 +184,7 @@ public class NotificationService {
         log.info("본인 " + unreadMessageCount);
 
         Map<String,String> eventData = new HashMap<>();
-        eventData.put("읽지 않은 메세지 수", unreadMessageCount.toString() + "개");
+        eventData.put("읽지 않은 메세지 수", unreadMessageCount.toString());
 
         // JSON 형식의 데이터를 직접 전달
         try {
@@ -214,7 +208,7 @@ public class NotificationService {
         log.info("받는 사람 " + unreadMessageCount);
 
         Map<String,String> eventData = new HashMap<>();
-        eventData.put("읽지 않은 메세지 수", unreadMessageCount.toString() + "개");
+        eventData.put("읽지 않은 메세지 수", unreadMessageCount.toString());
 
         // JSON 형식의 데이터를 직접 전달
         try {

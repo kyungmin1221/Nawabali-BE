@@ -68,4 +68,15 @@ public class ChatDto {
         private String profileImageUrl;
         private Long unreadCount;
     }
+
+    @Getter
+    @Builder
+    @Component
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class chatRoomSearchListDto {
+        private String roomName;
+        private String chatMessage;
+        private String notice;
+    }
 }

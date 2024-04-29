@@ -74,17 +74,28 @@ public class WebSocketEventListener {
         String email = authentication.getName();
         log.info("이메일" + email);
 
-        String chatRoomId = null;
-        String destination = accessor.getDestination();
-        if (destination != null) {
-            // 정규 표현식을 사용하여 "/sub/chat/room/" 다음의 숫자 부분을 추출합니다.
-            Pattern pattern = Pattern.compile("/sub/chat/room/(\\d+)");
-            Matcher matcher = pattern.matcher(destination);
-            if (matcher.find()) {
-                chatRoomId = matcher.group(1);
-                log.info("제발 방 아이디: " + chatRoomId);
-            }
+//        Long chatRoomId = Long.valueOf(Objects.requireNonNull(accessor.getFirstNativeHeader("chatRoomId")));
+//        log.info("구독 취소 할때 id 취소 잘 되는지!!!" + chatRoomId);
+
+        Long chatRoomId = null;
+        List<String> chatRoomIdList = accessor.getNativeHeader("chatRoomId");
+        if (chatRoomIdList != null && !chatRoomIdList.isEmpty()) {
+            String chatRoomIdString = chatRoomIdList.get(0);
+            chatRoomId = Long.valueOf(chatRoomIdString);
         }
+        log.info("***********구독 해제할때 방번호************" + chatRoomId);
+
+//        String chatRoomId = null;
+//        String destination = accessor.getDestination();
+//        if (destination != null) {
+//            // 정규 표현식을 사용하여 "/sub/chat/room/" 다음의 숫자 부분을 추출합니다.
+//            Pattern pattern = Pattern.compile("/sub/chat/room/(\\d+)");
+//            Matcher matcher = pattern.matcher(destination);
+//            if (matcher.find()) {
+//                chatRoomId = matcher.group(1);
+//                log.info("제발 방 아이디: " + chatRoomId);
+//            }
+//        }
 
        chatRoomCount.outUser(Long.valueOf(chatRoomId),email);
     }

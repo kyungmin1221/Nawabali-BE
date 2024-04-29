@@ -124,6 +124,8 @@ public class ChatMessageService {
                     chatMessageRepository.save(chatMessages);
                 }
             }
+
+            return;
         }
 
         if (message.getType().equals(Chat.ChatMessage.MessageType.TALK)) {
