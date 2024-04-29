@@ -47,7 +47,6 @@ public class PostService {
     private final PostSearchRepository postSearchRepository;
     private final ProfileImageRepository profileImageRepository;
     private final BookMarkRepository bookMarkRepository;
-    private final UserRepository userRepository;
     private final List <String> seoulDistrictNames = Arrays.asList(
             "강남구", "강동구", "강서구", "강북구", "관악구",
             "광진구", "구로구", "금천구", "노원구", "동대문구",
@@ -418,7 +417,5 @@ public class PostService {
                 .profileImageUrl(postSearch.getProfileImageUrl())
                 .build();
     }
-
-
 
 }

@@ -168,7 +168,8 @@ public class PostDto {
             this.createdAt = post.getCreatedAt();
             this.modifiedAt = post.getModifiedAt();
             this.imageUrls = post.getImages().stream()
-                    .map(PostImage::getImgUrl)
+                    .map(PostImage::getImgUrl) // 리사이즈된 이미지 URL 제외
+                    .filter(imgUrl -> !imgUrl.contains("/compressed_postImages/"))
                     .collect(Collectors.toList());
             this.commentCount = post.getComments().size();
             this.likesCount = likesCount;
