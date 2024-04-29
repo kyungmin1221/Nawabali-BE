@@ -184,7 +184,7 @@ public class NotificationService {
         log.info("본인 " + unreadMessageCount);
 
         Map<String,String> eventData = new HashMap<>();
-        eventData.put("읽지 않은 메세지 수", unreadMessageCount.toString() + "개");
+        eventData.put("읽지 않은 메세지 수", unreadMessageCount.toString());
 
         // JSON 형식의 데이터를 직접 전달
         try {
@@ -208,7 +208,7 @@ public class NotificationService {
         log.info("받는 사람 " + unreadMessageCount);
 
         Map<String,String> eventData = new HashMap<>();
-        eventData.put("읽지 않은 메세지 수", unreadMessageCount.toString() + "개");
+        eventData.put("읽지 않은 메세지 수", unreadMessageCount.toString());
 
         // JSON 형식의 데이터를 직접 전달
         try {
