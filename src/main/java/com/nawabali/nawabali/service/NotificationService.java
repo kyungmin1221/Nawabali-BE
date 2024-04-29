@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -58,14 +59,15 @@ public class NotificationService {
         // 현재 클라이언트를 위한 sseEmitter 생성
         SseEmitter sseEmitter = new SseEmitter(Long.MAX_VALUE);
         Long unreadMessageCount = chatRoomRepository.getUnreadMessageCountsForUser(user.getNickname());
-        Map<String,String> eventData = new HashMap<>();
+//        Map<String,String> eventData = new HashMap<>();
 
         try {
 
-            eventData.put("contents", "연결 되었습니다.");
-            eventData.put("읽지 않은 메세지 수", String.valueOf(unreadMessageCount));
+//            eventData.put("contents", "연결 되었습니다.");
+//            eventData.put("읽지 않은 메세지 수", String.valueOf(unreadMessageCount));
+            sseEmitter.send(SseEmitter.event().name("unreadMessageCount").data(unreadMessageCount));
 
-            sseEmitter.send(SseEmitter.event().data(eventData));
+//            sseEmitter.send(SseEmitter.event().data(eventData));
 
         } catch (IOException e) {
             log.error("SSE 연결 에러", e);
@@ -99,16 +101,32 @@ public class NotificationService {
 
     @Scheduled(fixedRate = 30000) // 매 30초마다 실행
     public void sendHeartbeat() {
-        emitters.forEach((userId, emitter) -> {
+
+        Iterator<Map.Entry<Long, SseEmitter>> iterator = emitters.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Long, SseEmitter> entry = iterator.next();
+            Long userId = entry.getKey();
+            SseEmitter emitter = entry.getValue();
             try {
                 emitter.send(SseEmitter.event().comment("heartbeat")); // 빈 코멘트 이벤트를 보냅니다.
                 log.info("하트비트 보내기");
             } catch (IOException e) {
                 emitter.completeWithError(e);
-                emitters.remove(userId);
-                log.info ("연결안되서 삭제");
+                iterator.remove(); // 안전하게 제거
+                log.info("연결이 끊어져 삭제됨: userId = {}", userId);
             }
-        });
+        }
+
+//        emitters.forEach((userId, emitter) -> {
+//            try {
+//                emitter.send(SseEmitter.event().comment("heartbeat")); // 빈 코멘트 이벤트를 보냅니다.
+//                log.info("하트비트 보내기");
+//            } catch (IOException e) {
+//                emitter.completeWithError(e);
+//                emitters.remove(userId);
+//                log.info ("연결안되서 삭제");
+//            }
+//        });
     }
 
     // 채팅 알림
@@ -157,22 +175,22 @@ public class NotificationService {
 
                 notificationRepository.save(notification);
 
-                Map<String,String> eventData = new HashMap<>();
-                eventData.put("message", receiveMessage.getSender() + "님이 메시지를 보냈습니다.");
-                log.info("message", receiveMessage.getSender() + "님이 메시지를 보냈습니다.");
-                eventData.put("notificationId", notification.getId().toString());
-                eventData.put("createdAt", receiveMessage.getCreatedMessageAt().toString());
-                eventData.put("contents", receiveMessage.getMessage());
-                eventData.put("notificationCount", String.valueOf(notificationCounts.get(userId)));
+//                Map<String,String> eventData = new HashMap<>();
+//                eventData.put("message", receiveMessage.getSender() + "님이 메시지를 보냈습니다.");
+//                log.info("message", receiveMessage.getSender() + "님이 메시지를 보냈습니다.");
+//                eventData.put("notificationId", notification.getId().toString());
+//                eventData.put("createdAt", receiveMessage.getCreatedMessageAt().toString());
+//                eventData.put("contents", receiveMessage.getMessage());
+//                eventData.put("notificationCount", String.valueOf(notificationCounts.get(userId)));
 
                 // JSON 형식의 데이터를 직접 전달
-                sseEmitter.send(SseEmitter.event().data(eventData));
+//                sseEmitter.send(SseEmitter.event().data(eventData));
 
 //                sseEmitter.send(SseEmitter.event().name("addMessage").data(eventData));
 
                 notificationCounts.put(userId, notificationCounts.getOrDefault(userId,0) + 1);
 
-                sseEmitter.send(SseEmitter.event().name("notificationCount").data(notificationCounts.get(userId)));
+//                sseEmitter.send(SseEmitter.event().name("notificationCount").data(notificationCounts.get(userId)));
 
             } catch (Exception e) {
                 NotificationController.sseEmitters.remove(userId);
@@ -192,12 +210,13 @@ public class NotificationService {
         Long unreadMessageCount = chatRoomRepository.getUnreadMessageCountsForUser(userName);
         log.info("본인 " + unreadMessageCount);
 
-        Map<String,String> eventData = new HashMap<>();
-        eventData.put("읽지 않은 메세지 수", unreadMessageCount.toString());
+//        Map<String,String> eventData = new HashMap<>();
+//        eventData.put("읽지 않은 메세지 수", unreadMessageCount.toString());
 
         // JSON 형식의 데이터를 직접 전달
         try {
-            sseEmitter.send(SseEmitter.event().data(eventData));
+//            sseEmitter.send(SseEmitter.event().data(eventData));
+            sseEmitter.send(SseEmitter.event().name("unreadMessageCount").data(unreadMessageCount));
         } catch (IOException e) {
             log.error("SSE 메시지 전송 중 오류 발생", e);
         }
@@ -216,12 +235,13 @@ public class NotificationService {
         Long unreadMessageCount = chatRoomRepository.getUnreadMessageCountsForUser(userName);
         log.info("받는 사람 " + unreadMessageCount);
 
-        Map<String,String> eventData = new HashMap<>();
-        eventData.put("읽지 않은 메세지 수", unreadMessageCount.toString());
+//        Map<String,String> eventData = new HashMap<>();
+//        eventData.put("읽지 않은 메세지 수", unreadMessageCount.toString());
 
         // JSON 형식의 데이터를 직접 전달
         try {
-            sseEmitter.send(SseEmitter.event().data(eventData));
+//            sseEmitter.send(SseEmitter.event().data(eventData));
+            sseEmitter.send(SseEmitter.event().name("unreadMessageCount").data(unreadMessageCount));
         } catch (IOException e) {
             log.error("SSE 메시지 전송 중 오류 발생", e);
         }
