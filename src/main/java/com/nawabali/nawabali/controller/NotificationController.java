@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Tag(name = "알림 관련 API", description = "알림 관련 API 입니다.")
@@ -27,11 +28,11 @@ public class NotificationController {
 
     @Operation(summary = "SSE 알림 연결" , description = "연결, 구독 되어 있어야만 알림이 전송됨")
     @GetMapping(value = "/notification/subscribe", produces = "text/event-stream")
-    public SseEmitter subscribe (@AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public CompletableFuture<SseEmitter> subscribe (@AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         Long userId = userDetails.getUser().getId();
 
-        SseEmitter sseEmitter = notificationService.subscribe(userId);
+        CompletableFuture<SseEmitter> sseEmitter = notificationService.subscribe(userId);
 
         return sseEmitter;
     }
