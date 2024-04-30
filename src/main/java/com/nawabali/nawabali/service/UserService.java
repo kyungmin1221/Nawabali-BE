@@ -104,6 +104,7 @@ public class UserService {
                 .role(role)
                 .address(address)
                 .rank(UserRankEnum.RESIDENT)
+                .oauthStatus(false)
                 .build();
 
         ProfileImage profileImage = new ProfileImage(user);

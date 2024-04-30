@@ -44,8 +44,8 @@ public class User {
     @Column
     private Long kakaoId;
 
-    @Column
-    private boolean oauthStatus =false;
+    @Column(columnDefinition = "boolean default false")
+    private boolean oauthStatus;
 
     @Column(nullable = false, name = "user_rank")
     @Enumerated(EnumType.STRING)
@@ -68,7 +68,7 @@ public class User {
         this.address = address;
         this.rank = rank;
         this.profileImage = profileImage;
-        this.oauthStatus = true;
+        this.oauthStatus = oauthStatus;
 
 
         if (profileImage != null) {
