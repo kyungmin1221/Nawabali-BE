@@ -71,18 +71,17 @@ public class PostService {
                 .user(findUser)
                 .build();
 
-        // AwsS3Service 변경에 따라 이 부분 수정
         Map<String, Object> uploadResults = awsS3Service.uploadFile(files, "postImages");
-        String mainImageUrl = (String) uploadResults.get("mainUrl");
+        String resizedImageUrl = (String) uploadResults.get("resizedUrl");
         List<String> originalUrls = (List<String>) uploadResults.get("originalUrls");
 
-        // 메인 이미지 (리사이즈된 이미지) 추가
-        PostImage mainImage = PostImage.builder()
-                .fileName(mainImageUrl)
-                .imgUrl(mainImageUrl)
+        // 리사이즈된 이미지
+        PostImage resizeImage = PostImage.builder()
+                .fileName(resizedImageUrl)
+                .imgUrl(resizedImageUrl)
                 .post(post)
                 .build();
-        post.getImages().add(mainImage);
+        post.getImages().add(resizeImage);
 
         // 원본 이미지 URL들을 각각 처리
         originalUrls.forEach(url -> {
@@ -348,8 +347,8 @@ public class PostService {
                 post.getLongitude(),
                 post.getCreatedAt(),
                 post.getModifiedAt(),
-                post.getMainImageUrl(),
                 post.getResizedImageUrl(),
+                post.getMainImageUrl(),
                 post.isMultiImages(),
                 likesCount,
                 localLikesCount,
