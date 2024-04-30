@@ -2,11 +2,9 @@ package com.nawabali.nawabali.config;
 
 import com.nawabali.nawabali.global.tool.redis.RedisTool;
 import com.nawabali.nawabali.repository.UserRepository;
-import com.nawabali.nawabali.security.Jwt.JwtAuthenticationFilter;
-import com.nawabali.nawabali.security.Jwt.JwtAuthorizationFilter;
-import com.nawabali.nawabali.security.Jwt.JwtLogoutHandler;
-import com.nawabali.nawabali.security.Jwt.JwtUtil;
+import com.nawabali.nawabali.security.Jwt.*;
 import com.nawabali.nawabali.security.UserDetailsServiceImpl;
+import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -52,6 +50,10 @@ public class WebSecurityConfig {
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
         return new JwtAuthorizationFilter(jwtUtil, userDetailsService, redisTool,userRepository);
+    }
+    @Bean
+    public JwtExceptionHandlerFilter jwtExceptionHandlerFilter(){
+        return new JwtExceptionHandlerFilter();
     }
 
     @Bean
@@ -119,11 +121,11 @@ public class WebSecurityConfig {
 //                .addLogoutHandler(jwtLogoutHandler));
 
         // 필터 관리
+        http.addFilterBefore(jwtExceptionHandlerFilter(), JwtAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
 
     }
-
 }
