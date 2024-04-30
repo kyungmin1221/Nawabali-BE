@@ -67,6 +67,7 @@ public class UserService {
                 }
             }
         }
+
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, null);
         return ResponseEntity.ok(accessToken);
     }
