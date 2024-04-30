@@ -26,8 +26,9 @@ public class KakaoController {
 
        String accessToken = kakaoService.kakaoLogin(code, response);
 
-       return "redirect:https://www.dongnaebangnae.com/?accessToken=" + accessToken;
-//       return "redirect:https://www.dongnaebangnae.com";
+//       return "redirect:https://www.dongnaebangnae.com/?accessToken=" + accessToken;
+        return "https://dongnaebangnae.vercel.app/?accessToken=" + accessToken;
+//        return "redirect: /";
 
     }
 }

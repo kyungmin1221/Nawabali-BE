@@ -61,7 +61,7 @@ public class KakaoService {
     @Transactional
     public String kakaoLogin(String code , HttpServletResponse response) throws JsonProcessingException, IOException {
         // 1. "인가 코드"로 "액세스 토큰" 요청
-        String accessToken = getAccessToken(code, release);
+        String accessToken = getAccessToken(code, develop);
 
         // 2. 필요시에 회원가입 및 위치 정보(address 값) 저장
         User kakaoUser = registerKakaoUserIfNeeded(accessToken);
@@ -126,6 +126,7 @@ public class KakaoService {
                     .password(password)
                     .role(role)
                     .rank(UserRankEnum.RESIDENT)
+                    .oauthStatus(true)
                     .build();
 
             kakaoUser = userRepository.save(kakaoUser);

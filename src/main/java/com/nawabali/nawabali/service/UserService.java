@@ -16,6 +16,7 @@ import com.nawabali.nawabali.repository.ProfileImageRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import com.nawabali.nawabali.repository.elasticsearch.UserSearchRepository;
 import com.nawabali.nawabali.security.Jwt.JwtUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -47,9 +48,9 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final RedisTool redisTool;
 
-    public ResponseEntity<String> logout(String accessToken) {
+    public ResponseEntity<String> logout(String accessToken, HttpServletResponse response) {
         if (StringUtils.hasText(accessToken)) {
-            log.info("accessToken : " + accessToken );
+            log.info("accessToken : " + accessToken);
             accessToken = accessToken.substring(7);
             String refreshToken = redisTool.getValues(accessToken);
             if (!refreshToken.equals("false")) {
@@ -66,6 +67,7 @@ public class UserService {
                 }
             }
         }
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, null);
         return ResponseEntity.ok(accessToken);
     }
 
@@ -102,6 +104,7 @@ public class UserService {
                 .role(role)
                 .address(address)
                 .rank(UserRankEnum.RESIDENT)
+                .oauthStatus(false)
                 .build();
 
         ProfileImage profileImage = new ProfileImage(user);
@@ -149,16 +152,30 @@ public class UserService {
                 .profileImageUrl(existUser.getProfileImage().getImgUrl())
                 .needPosts(needPosts)
                 .needLikes(needLocalLikes)
+                .oauthStatus(existUser.isOauthStatus())
                 .build();
     }
 
     @Transactional
     public UserDto.UserInfoResponseDto updateUserInfo(User user, UserDto.UserInfoRequestDto requestDto) {
         User existUser = getUserId(user.getId());
-        if(StringUtils.hasText(requestDto.getPassword())) {
+
+        // 도시, 구 검증
+        String cityName = requestDto.getCity();
+        String districtName = requestDto.getDistrict();
+        if (!CityEnum.checkCorrectAddress(cityName, districtName)) {
+            throw new CustomException(ErrorCode.INVALID_DISTRICT_NAME);
+        }
+
+        if (StringUtils.hasText(requestDto.getPassword())) {
+            // 비밀번호 일치 검증
+            if (!requestDto.getPassword().equals(requestDto.getConfirmPassword())) {
+                throw new CustomException(ErrorCode.MISMATCH_PASSWORD);
+            }
             String password = passwordEncoder.encode(requestDto.getPassword());
             requestDto.setPassword(password);
-        }else{
+
+        } else {
             requestDto.setPassword(existUser.getPassword());
         }
         existUser.update(requestDto);
@@ -197,7 +214,7 @@ public class UserService {
     }
 
     public List<UserSearch> searchNickname(String nickname) {
-        if(!StringUtils.hasText(nickname)){
+        if (!StringUtils.hasText(nickname)) {
             return null;
         }
         return userSearchRepository.findByNicknameContaining(nickname);
