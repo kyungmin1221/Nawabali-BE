@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="nawabali@localhost" uuid="32a8ba5b-8af3-455e-937f-c7013eec3dad">
-    <data-source source="LOCAL" name="nawabali@localhost" uuid="0f743641-d84e-4645-bf85-1413ed7f6265">
+    <data-source source="LOCAL" name="sparta@springboot-database.cbe6ouewo4p0.ap-northeast-2.rds.amazonaws.com" uuid="c3e730b3-e5dc-46bd-8c43-3890def7de2e">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
+      <imported>true</imported>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://localhost:3306/nawabali</jdbc-url>
+      <jdbc-url>jdbc:mysql://springboot-database.cbe6ouewo4p0.ap-northeast-2.rds.amazonaws.com:3306/sparta</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
         <property name="com.intellij.clouds.kubernetes.db.container.port" />
       </jdbc-additional-properties>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
