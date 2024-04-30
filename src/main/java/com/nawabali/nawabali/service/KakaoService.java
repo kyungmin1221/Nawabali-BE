@@ -126,6 +126,7 @@ public class KakaoService {
                     .password(password)
                     .role(role)
                     .rank(UserRankEnum.RESIDENT)
+                    .oauthStatus(true)
                     .build();
 
             kakaoUser = userRepository.save(kakaoUser);
