@@ -44,6 +44,9 @@ public class User {
     @Column
     private Long kakaoId;
 
+    @Column
+    private boolean oauthStatus =false;
+
     @Column(nullable = false, name = "user_rank")
     @Enumerated(EnumType.STRING)
     private UserRankEnum rank;
@@ -56,7 +59,7 @@ public class User {
 
     @Builder
     public User(Long kakaoId, String nickname, String email, String password,
-                UserRoleEnum role, Address address, UserRankEnum rank, ProfileImage profileImage) {
+                UserRoleEnum role, Address address, UserRankEnum rank, ProfileImage profileImage, boolean oauthStatus) {
         this.kakaoId = kakaoId;
         this.nickname = nickname;
         this.email = email;
@@ -65,6 +68,7 @@ public class User {
         this.address = address;
         this.rank = rank;
         this.profileImage = profileImage;
+        this.oauthStatus = true;
 
 
         if (profileImage != null) {

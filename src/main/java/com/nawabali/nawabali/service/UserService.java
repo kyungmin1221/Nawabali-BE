@@ -151,6 +151,7 @@ public class UserService {
                 .profileImageUrl(existUser.getProfileImage().getImgUrl())
                 .needPosts(needPosts)
                 .needLikes(needLocalLikes)
+                .oauthStatus(existUser.isOauthStatus())
                 .build();
     }
 
