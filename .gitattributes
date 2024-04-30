@@ -1,0 +1,7 @@
+.github/workflows/cicd_production.yml merge=ours
+appspec.yml merge=ours
+scripts/health.sh merge=ours
+scripts/profile.sh merge=ours
+scripts/start.sh merge=ours
+scripts/stop.sh merge=ours
+scripts/switch.sh merge=ours
