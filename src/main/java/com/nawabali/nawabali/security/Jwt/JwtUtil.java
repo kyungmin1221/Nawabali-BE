@@ -108,6 +108,7 @@ public class JwtUtil {
         var accessTokenCookie = URLEncoder.encode(token, UTF_8);
         Cookie cookie = new Cookie(AUTHORIZATION_HEADER, accessTokenCookie);
         cookie.setPath("/");
+        cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setMaxAge(ACCESS_EXPIRATION_TIME);
         return cookie;
