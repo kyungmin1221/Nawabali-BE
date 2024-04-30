@@ -113,7 +113,7 @@ public class ChatMessageService {
 
         if (message.getType().equals(Chat.ChatMessage.MessageType.ENTER)) {
 
-            List<Chat.ChatMessage> chatMessageList = chatMessageRepository.findByChatRoomId(chatRoom.getId())
+            List<Chat.ChatMessage> chatMessageList = chatMessageRepository.findByChatRoomIdAndIsReceiverReadFalse(chatRoom.getId())
                     .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
             log.info("받은 메세지" + chatMessageList);
 
