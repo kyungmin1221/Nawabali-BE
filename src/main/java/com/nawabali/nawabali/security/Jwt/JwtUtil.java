@@ -111,7 +111,7 @@ public class JwtUtil {
         cookie.setSecure(true);
         cookie.setHttpOnly(true);
         cookie.setMaxAge(ACCESS_EXPIRATION_TIME);
-        cookie.setDomain(".dongnaebangnae.com"); // 도메인 설정 추가
+//        cookie.setDomain("/"); // 도메인 설정 추가
         return cookie;
     }
 
