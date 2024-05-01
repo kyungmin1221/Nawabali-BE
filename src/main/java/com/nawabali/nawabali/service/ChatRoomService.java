@@ -110,9 +110,7 @@ public class ChatRoomService {
 
         userRepository.findById(user.getId())
                 .orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
-//        log.info("아이디" + user.getId());
-//        Slice <ChatDto.ChatRoomListDto> chatRoomListDtoSlice = chatRoomRepository.findChatRoomByRoomName(roomName, pageable);
-//        log.info("결과?" + chatRoomListDtoSlice);
+
         List<Chat.ChatRoom> chatRooms = chatRoomRepository.findByRoomNameContainingIgnoreCase(roomName)
                 .orElseThrow(()-> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
 
@@ -153,7 +151,6 @@ public class ChatRoomService {
                 .collect(Collectors.toList()));
 
         return slice;
-//        return new SliceImpl<>(chatRoomListDtoSlice.getContent(), pageable, chatRoomListDtoSlice.hasNext());
     }
 
     // 대화 조회
@@ -165,7 +162,7 @@ public class ChatRoomService {
         Chat.ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
 
-        List<Chat.ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdAndUserId(chatRoom.getId(), user.getId())
+        List<Chat.ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdOrderByIdDesc(chatRoom.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
 
         if (chatMessages.isEmpty()) {

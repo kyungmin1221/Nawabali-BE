@@ -16,14 +16,19 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 @NoArgsConstructor
 @Document(indexName = "users")
 public class UserSearch {
+
     @Id
     private String id;
+
     @Field(type = FieldType.Text)
     private String nickname;
+
     @Field(type=FieldType.Text)
     private String imgUrl;
+
     @Field(type = FieldType.Text)
     private String rankName;
+
     @Field(type = FieldType.Text)
     private String district;
 

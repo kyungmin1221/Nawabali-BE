@@ -26,7 +26,7 @@ public class NotificationController {
     public static Map<Long, SseEmitter> sseEmitters = new ConcurrentHashMap<>();
 
     @Operation(summary = "SSE 알림 연결" , description = "연결, 구독 되어 있어야만 알림이 전송됨")
-    @GetMapping ("/notification/subscribe")
+    @GetMapping(value = "/notification/subscribe", produces = "text/event-stream")
     public SseEmitter subscribe (@AuthenticationPrincipal UserDetailsImpl userDetails) {
 
         Long userId = userDetails.getUser().getId();
@@ -42,4 +42,9 @@ public class NotificationController {
         return notificationService.deleteNotification(notificationId);
     }
 
+    @Operation(summary = "알림 전체 삭제" , description = "해당 알림 전체 삭제 API")
+    @DeleteMapping ("/notification/deleteAll")
+    public NotiDeleteResponseDto deleteAllNotification (@AuthenticationPrincipal UserDetailsImpl userDetails) throws IOException {
+        return notificationService.deleteAllNotification(userDetails.getUser());
+    }
 }
