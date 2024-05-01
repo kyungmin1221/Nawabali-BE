@@ -109,6 +109,7 @@ public class JwtUtil {
         Cookie cookie = new Cookie(AUTHORIZATION_HEADER, accessTokenCookie);
         cookie.setPath("/");
         cookie.setSecure(true);
+        cookie.setHttpOnly(true);
         cookie.setMaxAge(ACCESS_EXPIRATION_TIME);
         return cookie;
     }
