@@ -106,7 +106,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/posts","/posts/district/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/posts/**").permitAll() // 게시글 상세 조회 허가
                         .requestMatchers("/comments/check/posts/**").permitAll()
-                        .requestMatchers("/swagger/**","/swagger-ui/**","/v3/api-docs/**").permitAll()
+//                        .requestMatchers("/swagger/**","/swagger-ui/**","/v3/api-docs/**").permitAll()
                         .requestMatchers("/ws-stomp/**").permitAll()
                         .requestMatchers("/chat/**").permitAll()
                         .requestMatchers("/notification/**").permitAll()
