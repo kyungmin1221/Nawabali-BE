@@ -68,10 +68,15 @@ public class PostController {
         Slice<PostDto.ResponseDto> postsSlice = postService.getPostsByLatest(pageable);
         return ResponseEntity.ok(postsSlice);
     }
-
+    // 전체 게시물 조회(지도용)
     @GetMapping("/searchAll")
     public List<PostSearch> searchAll(){
         return postService.searchAllPosts();
+    }
+
+    @PatchMapping("/updateAll")
+    public void updateAll() throws IOException {
+        postService.updateAll();
     }
 
 

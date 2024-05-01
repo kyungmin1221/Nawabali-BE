@@ -1,5 +1,7 @@
 package com.nawabali.nawabali.service;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.*;
 import com.nawabali.nawabali.constant.*;
 import com.nawabali.nawabali.domain.BookMark;
 import com.nawabali.nawabali.domain.Like;
@@ -17,12 +19,18 @@ import com.nawabali.nawabali.s3.AwsS3Service;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,7 +40,7 @@ import static com.nawabali.nawabali.constant.LikeCategoryEnum.LIKE;
 import static com.nawabali.nawabali.constant.LikeCategoryEnum.LOCAL_LIKE;
 
 @Service
-@Slf4j
+@Slf4j(topic = "PostService")
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PostService {
@@ -45,6 +53,9 @@ public class PostService {
     private final PostSearchRepository postSearchRepository;
     private final ProfileImageRepository profileImageRepository;
     private final BookMarkRepository bookMarkRepository;
+    private final AmazonS3 amazonS3;
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
 
     // 게시물 생성
@@ -202,6 +213,91 @@ public class PostService {
     // 구 와 한달기준 각 카테고리의 게시글 개수
     public List<PostDto.SortCategoryDto> getCategoryByPost(String district) {
         return postRepository.findCategoryByPost(district);
+    }
+
+    @Transactional
+    public void updateAll() throws IOException{
+        Sort sort = Sort.by(Sort.Direction.ASC, "createdAt");
+        List<Post> allPosts = postRepository.findAll(sort);
+
+        for(Post post : allPosts){
+            Long postId = post.getId();
+            List<PostImage> existImages = post.getImages();
+            log.info("기존 이미지 사진 갯수 :" + existImages.size());
+            PostImage firstPostImage = existImages.get(0);
+            String firstImageUrl = firstPostImage.getImgUrl();
+            //URL 파싱하여 S3의 이미지 로드
+            String dirName = "postImages/";
+            String objectKey = getObjectKeyFromUrl(dirName, firstImageUrl);
+            log.info("objectKey : " + objectKey);
+            String contentType = awsS3Service.getContentType(objectKey);
+            log.info(contentType);
+
+            S3Object s3Object = awsS3Service.getS3Object(objectKey);
+            try(S3ObjectInputStream inputStream = s3Object.getObjectContent()){
+                //로드된 이미지 리사이즈 로직 통과 s3저장 후 빌더로 PostImage 객체 생성
+                //1.로드된 이미지 리사이징
+                log.info("게시글 번호 : " + postId + " 리사이징 진행");
+
+                ByteArrayOutputStream resizedOs = new ByteArrayOutputStream();
+                Thumbnails.of(inputStream)
+                        .size(60,60)
+                        .outputQuality(0.75)
+                        .toOutputStream(resizedOs);
+//                log.info("ByteArrayOutputStream : " + resizedOs);
+                log.info("게시글 번호 : " + postId + " 리사이징 완료");
+
+                //2.s3저장
+                log.info("게시글 번호 : " +postId + " s3 저장 시작");
+                byte[] resizedImageBytes = resizedOs.toByteArray();
+                log.info("resizedImageBytes : "+ resizedImageBytes.length);
+                long contentLength = resizedImageBytes.length;
+                String resizedFilePath = "compressed_postImages/" + firstImageUrl;
+                log.info("resizedFilePath : " + resizedFilePath);
+                ObjectMetadata resizedMetadata = new ObjectMetadata();
+                resizedMetadata.setContentLength(contentLength);
+                resizedMetadata.setContentType(contentType);
+                log.info("이미지 저장시작");
+                amazonS3.putObject(new PutObjectRequest(bucket, resizedFilePath, inputStream, resizedMetadata)
+                        .withCannedAcl(CannedAccessControlList.PublicRead));
+
+
+                String resizedImageUrl = awsS3Service.saveAndGetUrl(resizedFilePath, inputStream, resizedMetadata);
+                log.info("S3저장완료. 저장된 이미지 주소 : " + resizedImageUrl);
+
+
+                //3.PostImage 객체 생성 후 리스트에 추가
+                PostImage resizedImage = PostImage.builder()
+                        .fileName(resizedImageUrl)
+                        .imgUrl(resizedImageUrl)
+                        .post(post)
+                        .build();
+
+                existImages.add(0, resizedImage);
+                post.updateImages(existImages);
+                log.info("추가 후 이미지 사진 갯수 : " + existImages.size());
+
+                //4.ES에 저장
+                User writer = post.getUser();
+                List<String> existImagesUrls = existImages.stream().map(PostImage::getImgUrl).toList();
+                PostSearch postSearch = createPostSearch(post, existImagesUrls, writer);
+                postSearchRepository.save(postSearch);
+                log.info("Document PK : "  + postSearch.getId());
+                log.info("게시글 PK : "+ postSearch.getPostId());
+
+            }
+
+        }
+    }
+
+    private String getObjectKeyFromUrl(String dirName, String imageUrl) {
+        // URL에서 마지막 슬래시('/') 이후의 부분을 객체 키로 반환합니다.
+        int lastSlashIndex = imageUrl.lastIndexOf('/');
+        if (lastSlashIndex != -1 && lastSlashIndex < imageUrl.length() - 1) {
+            return dirName + imageUrl.substring(lastSlashIndex + 1);
+        } else {
+            throw new IllegalArgumentException("Invalid S3 URL: " + imageUrl);
+        }
     }
 
     // 게시물 수정 - 사용자 신원 확인

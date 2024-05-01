@@ -135,7 +135,7 @@ public class GlobalExceptionAdvice {
     @Value("${error.detailed-messages}")
     private boolean detailedMessages;
 
-    // CustomException: Error Code에 정의된 비즈니스 로직 오류
+//     CustomException: Error Code에 정의된 비즈니스 로직 오류
 //    @ExceptionHandler(CustomException.class)
 //    public ResponseEntity<ErrorResponse> handleCustomException(CustomException e) {
 //
