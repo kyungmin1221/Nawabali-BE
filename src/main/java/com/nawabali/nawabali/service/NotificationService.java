@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @EnableScheduling
@@ -111,37 +112,54 @@ public class NotificationService {
     }
 
     @Transactional
-    public void notifyAllMyMessage (String userName) throws IOException {
+    public void notifyAllMyMessage (String userName) {
 
         User user = getUserNickName(userName);
         SseEmitter sseEmitter = sseEmitter(user.getId());
         Long unreadMessageCount = chatRoomRepository.getUnreadMessageCountsForUser(userName);
 
-        sseEmitter.send(SseEmitter.event().name("unreadMessageCount").data(unreadMessageCount));
+        try {
+            sseEmitter.send(SseEmitter.event().name("unreadMessageCount").data(unreadMessageCount));
+        } catch (IOException e) {
+            log.error("SSE 메시지 전송 중 오류 발생", e);
+        }
     }
 
     @Transactional
-    public  void notifyAllYourMessage (String userName) throws IOException {
+    public  void notifyAllYourMessage (String userName) {
 
         User user = getUserNickName(userName);
         SseEmitter sseEmitter = sseEmitter(user.getId());
         Long unreadMessageCount = chatRoomRepository.getUnreadMessageCountsForUser(userName);
-
-        sseEmitter.send(SseEmitter.event().name("unreadMessageCount").data(unreadMessageCount));
+        if (sseEmitter != null) {
+            try {
+                sseEmitter.send(SseEmitter.event().name("unreadMessageCount").data(unreadMessageCount));
+            } catch (IOException e) {
+                log.error("SSE 메시지 전송 중 오류 발생", e);
+            }
+        }
     }
 
-    public void deleteAllNotification(User user, Long chatRoomId) throws IOException {
+    public void deleteAllNotification(User user, Long chatRoomId){
 
         User users = getUserId(user.getId());
         SseEmitter sseEmitter = sseEmitter(users.getId());
 
-        List<Notification> notifications = notificationRepository.findAllByReceiverAndChatRoomId(user.getNickname(), chatRoomId).orElseThrow(()-> new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND));
+        List<Notification> notifications = notificationRepository.findAllByReceiverAndChatRoomId(user.getNickname(), chatRoomId);
         notificationRepository.deleteAll(notifications);
 
         if (notificationCounts.containsKey(users.getId())) {notificationCounts.put(users.getId(), 0);}
 
         if (sseEmitter != null) {
-            sseEmitter.send(SseEmitter.event().name("notificationCount").data(notificationCounts.get(users.getId())));}
+            Integer count = notificationCounts.get(users.getId());
+            if (count != null) {
+                try {
+                    sseEmitter.send(SseEmitter.event().name("notificationCount").data(notificationCounts.get(users.getId())));
+                } catch (IOException e) {
+
+                }
+            }
+        }
     }
 
     public User getUserId (Long userId) {

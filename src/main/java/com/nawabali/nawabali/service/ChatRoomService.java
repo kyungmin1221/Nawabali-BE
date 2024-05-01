@@ -16,9 +16,9 @@ import com.nawabali.nawabali.repository.ChatRoomRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,6 +28,7 @@ import java.util.Optional;
 import static com.nawabali.nawabali.constant.ChatRoomEnum.PERSONAL;
 
 @Service
+@Slf4j
 @AllArgsConstructor
 @Transactional
 public class ChatRoomService {
@@ -94,13 +95,15 @@ public class ChatRoomService {
 
     public Slice<ChatMessageResponseDto> loadMessage (Long roomId, User user, Pageable pageable) {
 
-        getUserId(user.getId());
+        User users = getUserId(user.getId());
 
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+        log.info("채팅방" + chatRoom);
 
-        Slice<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdOrderByIdDesc(chatRoom.getId(), pageable)
+        Slice<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdAndUserIdOrderByIdDesc(chatRoom.getId(), users.getId(), pageable)
                 .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+        log.info("메세지" + chatMessages);
 
         return chatMessages.map(chatMessage -> ChatMessageResponseDto.builder()
                         .id(chatMessage.getId())

@@ -13,15 +13,16 @@ import com.nawabali.nawabali.repository.ChatRoomRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@Slf4j
 @Transactional
 @AllArgsConstructor
 public class ChatMessageService {
@@ -33,7 +34,7 @@ public class ChatMessageService {
     private final WebSocketChatRoomCount chatRoomCount;
     private final SimpMessageSendingOperations messagingTemplate;
 
-    public void message(Long chatRoomId, ChatDto.ChatMessageDto message, Principal principal) throws IOException {
+    public void message(Long chatRoomId, ChatDto.ChatMessageDto message, Principal principal) {
 
         User userOptional = userRepository.findByEmail(principal.getName())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -107,6 +108,7 @@ public class ChatMessageService {
                         .isReceiverRead(false)
                         .build();
                 chatMessageRepository.save(sendMessage);
+                log.info("저장확인" + sendMessage);
 
                 ChatMessageResponseDto chatMessageResponseDto = ChatMessageResponseDto.builder()
                         .id(sendMessage.getId())
