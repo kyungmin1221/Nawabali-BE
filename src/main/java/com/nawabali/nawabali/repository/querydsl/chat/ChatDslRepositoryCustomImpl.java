@@ -104,6 +104,7 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
             String roomNameDto = messageInfo.getRoomName();
 
             ChatDto.ChatRoomSearchListDto chatRoomDto = ChatDto.ChatRoomSearchListDto.builder()
+                    .roomId(chatRoomEntity.getId())
                     .profileImageUrl(messageInfo.getProfileImageUrl())
                     .roomName(roomNameDto)
                     .chatMessage(chatRoomEntity.getLatestMessage().map(Chat.ChatMessage::getMessage).orElse(""))
@@ -135,6 +136,7 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
             String roomNameDto = messageInfo.getRoomName();
 
             ChatDto.ChatRoomSearchListDto chatRoomDto = ChatDto.ChatRoomSearchListDto.builder()
+                    .roomId(chatMessageEntity.getChatRoom().getId())
                     .profileImageUrl(messageInfo.getProfileImageUrl())
                     .roomName(roomNameDto)
                     .chatMessage(chatMessageEntity.getMessage())

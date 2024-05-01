@@ -37,7 +37,6 @@ public class ChatMessageService {
 
         User userOptional = userRepository.findByEmail(principal.getName())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
-
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
 
@@ -120,6 +119,7 @@ public class ChatMessageService {
                         .receiver(sendMessage.getReceiver())
                         .isReceiverRead(sendMessage.isReceiverRead())
                         .build();
+
                 messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, chatMessageResponseDto);
                 notificationService.notifyMessage(chatRoom.getId(), receiver, userOptional.getNickname());
             }
