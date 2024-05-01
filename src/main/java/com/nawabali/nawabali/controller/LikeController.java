@@ -6,7 +6,6 @@ import com.nawabali.nawabali.service.LikeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -18,12 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/posts")
-@Slf4j (topic = "LikeController 로그")
 public class LikeController {
 
     public final LikeService likeService;
 
-    // 좋아요 추가 및 취소
     @Operation(summary = "게시물 좋아요 생성 및 삭제", description = "postId 를 이용하여 토클 형태의 좋아요 클릭")
     @PatchMapping("/{postId}/likes")
     public LikeDto.responseDto toggleLike(@PathVariable("postId") Long postId,
@@ -37,5 +34,4 @@ public class LikeController {
                                                @AuthenticationPrincipal UserDetails userDetails) {
         return likeService.toggleLocalLike(postId, userDetails.getUsername());
     }
-
 }

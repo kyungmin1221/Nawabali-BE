@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -17,11 +16,10 @@ import java.util.List;
 
 @Entity
 @Getter
-@Builder (toBuilder = true)
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table (name = "comment")
-@Slf4j(topic = "CommentDomain 로그")
 public class Comment extends TimeStamp {
 
     @Id

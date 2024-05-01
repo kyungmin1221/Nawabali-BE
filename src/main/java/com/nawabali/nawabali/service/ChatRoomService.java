@@ -95,13 +95,13 @@ public class ChatRoomService {
 
     public Slice<ChatMessageResponseDto> loadMessage (Long roomId, User user, Pageable pageable) {
 
-        User users = getUserId(user.getId());
+        getUserId(user.getId());
 
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
         log.info("채팅방" + chatRoom);
 
-        Slice<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdAndUserIdOrderByIdDesc(chatRoom.getId(), users.getId(), pageable)
+        Slice<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdOrderByIdDesc(chatRoom.getId(), pageable)
                 .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
         log.info("메세지" + chatMessages);
 
