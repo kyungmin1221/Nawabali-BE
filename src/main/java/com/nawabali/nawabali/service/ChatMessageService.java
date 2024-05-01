@@ -119,9 +119,11 @@ public class ChatMessageService {
                         .receiver(sendMessage.getReceiver())
                         .isReceiverRead(sendMessage.isReceiverRead())
                         .build();
+
                 messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, chatMessageResponseDto);
                 notificationService.notifyMessage(chatRoom.getId(), receiver, userOptional.getNickname());
             }
+
             notificationService.notifyAllMyMessage(userOptional.getNickname());
             notificationService.notifyAllYourMessage(receiver);
         }
