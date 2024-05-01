@@ -119,7 +119,7 @@ public class JwtUtil {
 
     public String createResponseCookie(String token) {
         String accessToken = URLEncoder.encode(token, UTF_8);
-        ResponseCookie cookie = ResponseCookie.from(AUTHORIZATION_HEADER, token)
+        ResponseCookie cookie = ResponseCookie.from(AUTHORIZATION_HEADER, accessToken)
                 .path("/")
                 .secure(true)
                 .httpOnly(true)
