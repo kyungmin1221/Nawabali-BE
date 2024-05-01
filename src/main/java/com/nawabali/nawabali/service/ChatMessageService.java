@@ -14,6 +14,7 @@ import com.nawabali.nawabali.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
@@ -109,6 +110,7 @@ public class ChatMessageService {
                         .build();
                 chatMessageRepository.save(sendMessage);
                 log.info("저장확인" + sendMessage);
+                log.info("현재시간" + LocalDateTime.now());
 
                 ChatMessageResponseDto chatMessageResponseDto = ChatMessageResponseDto.builder()
                         .id(sendMessage.getId())
