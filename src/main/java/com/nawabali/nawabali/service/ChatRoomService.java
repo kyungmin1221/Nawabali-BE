@@ -99,7 +99,7 @@ public class ChatRoomService {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
 
-        Slice<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdOrderByIdDesc(chatRoom.getId())
+        Slice<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdOrderByIdDesc(chatRoom.getId(), pageable)
                 .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
 
         return chatMessages.map(chatMessage -> ChatMessageResponseDto.builder()
