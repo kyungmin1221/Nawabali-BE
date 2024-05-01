@@ -1,11 +1,11 @@
 package com.nawabali.nawabali.domain;
 
 import com.nawabali.nawabali.constant.ChatRoomEnum;
-import com.nawabali.nawabali.dto.ChatDto;
-//import com.nawabali.nawabali.constant.MessageType;
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.extern.slf4j.Slf4j;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,35 +16,32 @@ public class Chat {
 
     @Entity
     @Getter
-    @Setter
-    @Builder(toBuilder = true)
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     @Table(name = "chatMessage")
-    @Slf4j(topic = "chat 로그")
     public static class ChatMessage {
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long Id;
 
-        @Column (nullable = false)
-        private String sender; // 메시지 보낸사람
+        public enum MessageType { ENTER, TALK }
 
         @Column (nullable = false)
-        private String message; // 메시지
+        private String sender;
 
-//        @Column (nullable = false)
-//        private MessageType type;
+        @Column (nullable = false)
+        private boolean isRead;
+
+        @Column (nullable = false)
+        private String message;
 
         @Column (nullable = false)
         private LocalDateTime createdMessageAt;
 
         @Column (nullable = false)
         private String receiver;
-
-        @Column (nullable = false)
-        private boolean isRead;
 
         @Column (nullable = false)
         private boolean isReceiverRead;
@@ -57,42 +54,29 @@ public class Chat {
         @JoinColumn (name = "room_id")
         private ChatRoom chatRoom;
 
-        public enum MessageType {
-            ENTER, TALK
+        public void receiverRead (boolean isReceiverRead) {
+            this.isReceiverRead = isReceiverRead;
         }
-
-        private ChatMessage (User user) {
-            this.sender = user.getNickname();
-        }
-
-        public void update(boolean read) {
-            this.isRead = read;
-        }
-
     }
 
     @Entity
     @Getter
-    @Builder(toBuilder = true)
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     @Table(name = "chatRoom")
-    @Slf4j(topic = "chat 로그")
     public static class ChatRoom {
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long Id;
 
-        @Column(nullable = false)
-        private String roomNumber;
-
-        @Column (nullable = false)
-        private String roomName;
-
         @Column (nullable = false)
         @Enumerated (EnumType.STRING)
         private ChatRoomEnum chatRoomEnum;
+
+        @Column (nullable = false)
+        private String roomName;
 
         @ManyToOne (fetch = FetchType.LAZY)
         @JoinColumn (name = "user_id")
@@ -106,18 +90,8 @@ public class Chat {
         private List<ChatMessage> chatMessageList = new ArrayList<>();
 
         public Optional<ChatMessage> getLatestMessage() {
-            // chatMessageList가 비어있는지 확인
-            if (chatMessageList.isEmpty()) {
-                return Optional.empty(); // chatMessageList가 비어있으면 빈 Optional 반환
-            } else {
-                // chatMessageList가 비어있지 않으면 가장 최근의 메시지를 반환
-                return Optional.of(chatMessageList.get(chatMessageList.size() - 1));
-            }
-        }
-
-        // 채팅방에 속한 메시지 리스트 반환
-        public List<ChatMessage> getChatMessageList() {
-            return this.chatMessageList;
+            if (chatMessageList.isEmpty()) { return Optional.empty();
+            } else { return Optional.of(chatMessageList.get(chatMessageList.size() - 1));}
         }
     }
 }

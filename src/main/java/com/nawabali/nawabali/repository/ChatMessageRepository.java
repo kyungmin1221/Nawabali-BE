@@ -1,6 +1,7 @@
 package com.nawabali.nawabali.repository;
 
 import com.nawabali.nawabali.domain.Chat;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -8,13 +9,7 @@ import java.util.Optional;
 
 public interface ChatMessageRepository extends JpaRepository<Chat.ChatMessage, Long> {
 
-    Optional<List<Chat.ChatMessage>> findByChatRoomIdOrderByIdDesc(Long roomId);
-
-    Optional<Object> findFirstBySenderOrderByCreatedMessageAtDesc(String nickname);
-
-    Optional<Chat.ChatMessage> findByIdAndUserId(Long id, Long id1);
-
-    Optional<List<Chat.ChatMessage>> findByChatRoomId(Long chatRoomId);
+    Optional<Slice<Chat.ChatMessage>> findByChatRoomIdOrderByIdDesc(Long roomId);
 
     List<Chat.ChatMessage> findByChatRoomIdOrderByCreatedMessageAtDesc(Long roomId);
 

@@ -131,9 +131,10 @@ public class NotificationService {
 
     // 채팅 알림
     @Transactional
-    public void notifyMessage (String roomNumber, String receiver, String sender) {
+    public void notifyMessage (Long roomId, String receiver, String sender) {
 
-        Chat.ChatRoom chatRoom = chatRoomRepository.findByRoomNumber(roomNumber);
+        Chat.ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                        .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
         log.info("방번호" + chatRoom);
 
         User user = userRepository.findByNickname(receiver);
@@ -205,7 +206,7 @@ public class NotificationService {
         User user = userRepository.findByNickname(userName);
 
         SseEmitter sseEmitter = NotificationController.sseEmitters.get(user.getId());
-        log.info("본인 " + userName);
+//        log.info("본인 " + userName);
 
         Long unreadMessageCount = chatRoomRepository.getUnreadMessageCountsForUser(userName);
         log.info("본인 " + unreadMessageCount);
@@ -246,6 +247,8 @@ public class NotificationService {
             log.error("SSE 메시지 전송 중 오류 발생", e);
         }
     }
+
+
 
 //    // 댓글 알림
 //    @Transactional
