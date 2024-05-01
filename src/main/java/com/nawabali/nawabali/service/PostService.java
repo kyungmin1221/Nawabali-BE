@@ -1,7 +1,9 @@
 package com.nawabali.nawabali.service;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.nawabali.nawabali.constant.*;
 import com.nawabali.nawabali.domain.BookMark;
 import com.nawabali.nawabali.domain.Like;
@@ -26,13 +28,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -103,7 +105,7 @@ public class PostService {
         });
 
         Post savedPost = postRepository.save(post);
-        PostSearch postSearch = createPostSearch(savedPost, originalUrls, findUser);
+        PostSearch postSearch = createPostSearch(savedPost, originalUrls, resizedImageUrl, findUser);
         postSearchRepository.save(postSearch);
 
         User userUp = post.getUser();
@@ -231,38 +233,43 @@ public class PostService {
             String objectKey = getObjectKeyFromUrl(dirName, firstImageUrl);
             log.info("objectKey : " + objectKey);
             String contentType = awsS3Service.getContentType(objectKey);
-            log.info(contentType);
+            log.info("contentType : " + contentType);
 
             S3Object s3Object = awsS3Service.getS3Object(objectKey);
             try(S3ObjectInputStream inputStream = s3Object.getObjectContent()){
+                byte[] bytes = inputStream.readAllBytes();
+
                 //로드된 이미지 리사이즈 로직 통과 s3저장 후 빌더로 PostImage 객체 생성
                 //1.로드된 이미지 리사이징
                 log.info("게시글 번호 : " + postId + " 리사이징 진행");
-
+                InputStream compressedInputStream = new ByteArrayInputStream(bytes);
                 ByteArrayOutputStream resizedOs = new ByteArrayOutputStream();
-                Thumbnails.of(inputStream)
+                Thumbnails.of(compressedInputStream)
                         .size(60,60)
                         .outputQuality(0.75)
                         .toOutputStream(resizedOs);
+                byte[] compressedImage = resizedOs.toByteArray();
 //                log.info("ByteArrayOutputStream : " + resizedOs);
                 log.info("게시글 번호 : " + postId + " 리사이징 완료");
 
                 //2.s3저장
                 log.info("게시글 번호 : " +postId + " s3 저장 시작");
-                byte[] resizedImageBytes = resizedOs.toByteArray();
-                log.info("resizedImageBytes : "+ resizedImageBytes.length);
-                long contentLength = resizedImageBytes.length;
-                String resizedFilePath = "compressed_postImages/" + firstImageUrl;
-                log.info("resizedFilePath : " + resizedFilePath);
+
+                ByteArrayInputStream uploadInputStream = new ByteArrayInputStream(compressedImage);
+
+                long contentLength = compressedImage.length;
+                String compressedFilePath = "compressed_" + objectKey;
+                log.info("compressedFilePath : " + compressedFilePath);
+
                 ObjectMetadata resizedMetadata = new ObjectMetadata();
                 resizedMetadata.setContentLength(contentLength);
                 resizedMetadata.setContentType(contentType);
                 log.info("이미지 저장시작");
-                amazonS3.putObject(new PutObjectRequest(bucket, resizedFilePath, inputStream, resizedMetadata)
-                        .withCannedAcl(CannedAccessControlList.PublicRead));
+                log.info(s3Object.getKey());
 
 
-                String resizedImageUrl = awsS3Service.saveAndGetUrl(resizedFilePath, inputStream, resizedMetadata);
+
+                String resizedImageUrl = awsS3Service.saveAndGetUrl(compressedFilePath, uploadInputStream, resizedMetadata);
                 log.info("S3저장완료. 저장된 이미지 주소 : " + resizedImageUrl);
 
 
@@ -273,14 +280,13 @@ public class PostService {
                         .post(post)
                         .build();
 
-                existImages.add(0, resizedImage);
                 post.updateImages(existImages);
                 log.info("추가 후 이미지 사진 갯수 : " + existImages.size());
 
                 //4.ES에 저장
                 User writer = post.getUser();
                 List<String> existImagesUrls = existImages.stream().map(PostImage::getImgUrl).toList();
-                PostSearch postSearch = createPostSearch(post, existImagesUrls, writer);
+                PostSearch postSearch = createPostSearch(post, existImagesUrls, resizedImageUrl, writer);
                 postSearchRepository.save(postSearch);
                 log.info("Document PK : "  + postSearch.getId());
                 log.info("게시글 PK : "+ postSearch.getPostId());
@@ -460,7 +466,7 @@ public class PostService {
     }
 
 
-    private PostSearch createPostSearch(Post post, List<String> imageUrls, User user) {
+    private PostSearch createPostSearch(Post post, List<String> imageUrls, String resizedImageUrl, User user) {
         PostSearch postSearch = new PostSearch();
 
         postSearch.setId(post.getId().toString());
@@ -479,6 +485,7 @@ public class PostService {
         postSearch.setModifiedAt(post.getModifiedAt());
         postSearch.setMainImageUrl(imageUrls.isEmpty() ? null : imageUrls.get(0));
         postSearch.setMultiImages(imageUrls.size() > 1);
+        postSearch.setResizedImageUrl(resizedImageUrl);
         postSearch.setLikesCount(0L);
         postSearch.setLocalLikesCount(0L);
         postSearch.setCommentCount(0);

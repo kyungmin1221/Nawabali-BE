@@ -69,6 +69,9 @@ public class PostController {
         return ResponseEntity.ok(postsSlice);
     }
     // 전체 게시물 조회(지도용)
+    @Operation(
+            summary = "전체 게시글 조회",
+            description = "ES로 전체 조회, 등록일 기준 내림차순 정렬")
     @GetMapping("/searchAll")
     public List<PostSearch> searchAll(){
         return postService.searchAllPosts();

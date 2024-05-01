@@ -120,7 +120,7 @@ public class AwsS3Service {
         return s3Object.getObjectMetadata().getContentType();
     }
 
-    public String saveAndGetUrl(String resizedFilePath, S3ObjectInputStream inputStream, ObjectMetadata resizedMetadata){
+    public String saveAndGetUrl(String resizedFilePath, ByteArrayInputStream inputStream, ObjectMetadata resizedMetadata){
         amazonS3.putObject(new PutObjectRequest(bucket, resizedFilePath, inputStream, resizedMetadata)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
         return amazonS3.getUrl(bucket, resizedFilePath).toString();
