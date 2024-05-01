@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface LikeRepository extends JpaRepository <Like, Long> {
 
-    Optional<Like> findByUserAndPost (User user, Post post);
+//    Optional<Like> findByUserAndPost (User user, Post post);
     Long countByPostIdAndLikeCategoryEnum(Long postId, LikeCategoryEnum likeCategory);
     Long countByPostIdInAndLikeCategoryEnum(List<Long> postIds, LikeCategoryEnum likeCategoryEnum);
     Like findByUserIdAndPostIdAndLikeCategoryEnum(Long userId, Long postId, LikeCategoryEnum likeCategoryEnum);

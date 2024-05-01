@@ -12,6 +12,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import com.nawabali.nawabali.dto.ChatDto.*;
+import com.nawabali.nawabali.domain.Chat.*;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -86,10 +88,10 @@ public class NotificationService {
         Long userId = user.getId();
         User userSender = getUserNickName(sender);
 
-        Chat.ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
-        List<Chat.ChatMessage> receiveMessageList = chatMessageRepository.findByChatRoomIdOrderByCreatedMessageAtDesc(chatRoom.getId()).orElseThrow(()-> new CustomException(ErrorCode.CHAT_MESSAGE_NOT_FOUND));
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+        List<ChatMessage> receiveMessageList = chatMessageRepository.findByChatRoomIdOrderByCreatedMessageAtDesc(chatRoom.getId()).orElseThrow(()-> new CustomException(ErrorCode.CHAT_MESSAGE_NOT_FOUND));
 
-        Chat.ChatMessage receiveMessage = receiveMessageList.get(0);
+        ChatMessage receiveMessage = receiveMessageList.get(0);
 
         if (NotificationController.sseEmitters.containsKey(userId)) {
 
@@ -131,6 +133,7 @@ public class NotificationService {
         User user = getUserNickName(userName);
         SseEmitter sseEmitter = sseEmitter(user.getId());
         Long unreadMessageCount = chatRoomRepository.getUnreadMessageCountsForUser(userName);
+
         if (sseEmitter != null) {
             try {
                 sseEmitter.send(SseEmitter.event().name("unreadMessageCount").data(unreadMessageCount));
@@ -156,7 +159,7 @@ public class NotificationService {
                 try {
                     sseEmitter.send(SseEmitter.event().name("notificationCount").data(notificationCounts.get(users.getId())));
                 } catch (IOException e) {
-
+                    log.error("SSE 메시지 전송 중 오류 발생", e);
                 }
             }
         }
@@ -172,7 +175,6 @@ public class NotificationService {
         if (user == null) {throw new NullPointerException("해당 회원 정보를 찾을 수 없습니다.: " + userName);}
         return user;
     }
-
     public SseEmitter sseEmitter (Long userId){
         return NotificationController.sseEmitters.get(userId);
     }
