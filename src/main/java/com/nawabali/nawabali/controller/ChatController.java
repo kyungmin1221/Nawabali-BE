@@ -10,6 +10,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
 
+import java.io.IOException;
 import java.security.Principal;
 
 @Controller
@@ -23,7 +24,7 @@ public class ChatController {
     @MessageMapping("/chat/message/{chatRoomId}")
     public void message(@DestinationVariable Long chatRoomId,
                         @Payload ChatDto.ChatMessageDto message,
-                        Principal principal) {
+                        Principal principal) throws IOException {
         chatMessageService.message(chatRoomId, message, principal);
     }
 }

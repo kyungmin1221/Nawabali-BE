@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,7 +33,7 @@ public class ChatMessageService {
     private final WebSocketChatRoomCount chatRoomCount;
     private final SimpMessageSendingOperations messagingTemplate;
 
-    public void message(Long chatRoomId, ChatDto.ChatMessageDto message, Principal principal) {
+    public void message(Long chatRoomId, ChatDto.ChatMessageDto message, Principal principal) throws IOException {
 
         User userOptional = userRepository.findByEmail(principal.getName())
                 .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
@@ -53,7 +54,7 @@ public class ChatMessageService {
                     chatMessageRepository.save(chatMessages);
                 }
             }
-            notificationService.notifyAllMyMessage(userOptional.getNickname());
+            notificationService.deleteAllNotification(userOptional,chatRoomId);
             return;
         }
 

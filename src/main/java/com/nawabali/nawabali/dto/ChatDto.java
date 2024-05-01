@@ -70,7 +70,6 @@ public class ChatDto {
         private String notice;
     }
 
-    // 채팅방 전체 조회
     @Getter
     @Builder
     @Component
