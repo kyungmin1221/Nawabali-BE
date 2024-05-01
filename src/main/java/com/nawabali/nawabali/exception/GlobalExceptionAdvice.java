@@ -11,6 +11,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 
@@ -18,14 +19,27 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionAdvice {
 
+
+    @Value("${error.detailed-messages}")
+    private boolean detailedMessages;
+
     // CustomException: Error Code에 정의된 비즈니스 로직 오류
+//    @ExceptionHandler(CustomException.class)
+//    public ResponseEntity<ErrorResponse> handleCustomException(CustomException e) {
+//
+//        ErrorCode errorCode = e.getErrorCode();
+//
+//        return getErrorResponse(e, errorCode.getHttpStatus());
+//
+//    }
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ErrorResponse> handleCustomException(CustomException e) {
-
         ErrorCode errorCode = e.getErrorCode();
-
-        return getErrorResponse(e, errorCode.getHttpStatus());
-
+        if (detailedMessages) {
+            return getErrorResponseDetailed(e, errorCode.getHttpStatus());
+        } else {
+            return getErrorResponseGeneric(errorCode.getHttpStatus());
+        }
     }
 
     /*
@@ -124,4 +138,25 @@ public class GlobalExceptionAdvice {
                 e.getClass().getSimpleName(), LocalDateTime.now(), httpStatus.getReasonPhrase(), e.getMessage());
 
     }
+
+    private ResponseEntity<ErrorResponse> getErrorResponseDetailed(CustomException e, HttpStatus status) {
+        return ResponseEntity.status(status).body(new ErrorResponse(
+                LocalDateTime.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                e.getMessage()
+        ));
+    }
+
+    private ResponseEntity<ErrorResponse> getErrorResponseGeneric(HttpStatus status) {
+        return ResponseEntity.status(status).body(new ErrorResponse(
+                LocalDateTime.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                "에러가 발생함. 연결 확인 부탁"
+        ));
+    }
+
+
+
 }
