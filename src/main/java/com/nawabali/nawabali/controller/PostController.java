@@ -2,6 +2,7 @@ package com.nawabali.nawabali.controller;
 
 import com.nawabali.nawabali.constant.Category;
 import com.nawabali.nawabali.constant.Period;
+import com.nawabali.nawabali.domain.elasticsearch.PostSearch;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.PostService;
@@ -66,6 +67,11 @@ public class PostController {
                     direction = Sort.Direction.DESC) Pageable pageable) {
         Slice<PostDto.ResponseDto> postsSlice = postService.getPostsByLatest(pageable);
         return ResponseEntity.ok(postsSlice);
+    }
+
+    @GetMapping("/searchAll")
+    public List<PostSearch> searchAll(){
+        return postService.searchAllPosts();
     }
 
 

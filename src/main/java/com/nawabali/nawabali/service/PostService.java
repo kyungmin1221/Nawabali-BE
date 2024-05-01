@@ -17,10 +17,7 @@ import com.nawabali.nawabali.s3.AwsS3Service;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,6 +26,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.nawabali.nawabali.constant.LikeCategoryEnum.LIKE;
 import static com.nawabali.nawabali.constant.LikeCategoryEnum.LOCAL_LIKE;
@@ -114,6 +112,14 @@ public class PostService {
                 .collect(Collectors.toList());
 
         return new SliceImpl<>(responseDtos, pageable, postSlice.hasNext());
+    }
+
+    // 전체 게시물 조회(지도용)
+    public List<PostSearch> searchAllPosts(){
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        return StreamSupport.stream(
+                        postSearchRepository.findAll(sort).spliterator(), false)
+                .toList();
     }
 
 
