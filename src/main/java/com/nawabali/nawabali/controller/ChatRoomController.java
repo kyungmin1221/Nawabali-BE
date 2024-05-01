@@ -19,6 +19,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @Controller
 @RequiredArgsConstructor
@@ -40,18 +42,16 @@ public class ChatRoomController {
     @Operation(summary = "본인 채팅방 전체 목록" , description = "본인 채팅방 전체 목록 조회 API")
     @GetMapping("/rooms")
     @ResponseBody
-    public Slice<ChatRoomListResponseDto> room (@AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                        @PageableDefault(size = 10) Pageable pageable) {
-        return chatRoomService.room(userDetails.getUser(), pageable);
+    public List <ChatRoomListResponseDto> room (@AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return chatRoomService.room(userDetails.getUser());
     }
 
     @Operation(summary = "채팅방 / 메세지 내용 검색" , description = "채팅방 / 메세지 검색 API")
     @GetMapping("/room/found")
     @ResponseBody
-    public Slice <ChatRoomSearchListDto> roomInfo (@RequestParam String roomName,
-                                                   @AuthenticationPrincipal UserDetailsImpl userDetails,
-                                                   @PageableDefault(size = 10) Pageable pageable ) {
-        return chatRoomService.roomInfo(roomName, userDetails.getUser(), pageable);
+    public List <ChatRoomSearchListDto> roomInfo (@RequestParam String roomName,
+                                                   @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return chatRoomService.roomInfo(roomName, userDetails.getUser());
     }
 
     @Operation(summary = "채팅방 전체 대화 내용 조회" , description = "채팅방 전제 대화 내용 조회 API")
@@ -61,8 +61,7 @@ public class ChatRoomController {
                                                                      @PageableDefault(
                                                                              size = 15,
                                                                              sort = "createdMessageAt",
-                                                                             direction = Sort.Direction.DESC)
-                                                                         Pageable pageable) {
+                                                                             direction = Sort.Direction.DESC) Pageable pageable) {
         Slice<ChatMessageResponseDto> messages = chatRoomService.loadMessage(roomId, userDetails.getUser(), pageable);
         return ResponseEntity.ok(messages);
     }

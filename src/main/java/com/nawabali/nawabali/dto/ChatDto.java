@@ -65,6 +65,7 @@ public class ChatDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ChatRoomSearchListDto {
+        private String profileImageUrl;
         private String roomName;
         private String chatMessage;
         private String notice;
