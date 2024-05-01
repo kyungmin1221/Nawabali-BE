@@ -29,7 +29,6 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
-    private final NotificationService notificationService;
     private final UserService userService;
 
     @Transactional
@@ -61,8 +60,6 @@ public class CommentService {
                 .parent(parent)
                 .build();
         commentRepository.save(comment);
-
-//        notificationService.notifyComment(postId);
 
         // 유저, 게시물, 댓글 관련 자료를 response로 보내기
         return new CommentDto.ResponseDto(comment);
