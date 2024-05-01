@@ -34,9 +34,6 @@ public class Chat {
         @Column (nullable = false)
         private String message; // 메시지
 
-//        @Column (nullable = false)
-//        private MessageType type;
-
         @Column (nullable = false)
         private LocalDateTime createdMessageAt;
 
@@ -56,10 +53,6 @@ public class Chat {
         @ManyToOne (fetch = FetchType.LAZY)
         @JoinColumn (name = "room_id")
         private ChatRoom chatRoom;
-
-        public enum MessageType {
-            ENTER, TALK
-        }
 
         private ChatMessage (User user) {
             this.sender = user.getNickname();

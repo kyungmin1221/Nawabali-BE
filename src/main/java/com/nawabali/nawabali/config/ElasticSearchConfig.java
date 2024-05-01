@@ -39,4 +39,3 @@ public class ElasticSearchConfig extends AbstractElasticsearchConfiguration {
         return new ElasticsearchRestTemplate(elasticsearchClient());
     }
 }
-
