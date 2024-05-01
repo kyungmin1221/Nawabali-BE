@@ -79,7 +79,7 @@ public class AwsS3Service {
             }
         }
         Map<String, Object> response = new HashMap<>();
-        response.put("mainUrl", compressedUrl);
+        response.put("resizedUrl", compressedUrl);
         response.put("originalUrls", originalUrls);
         return response;
     }
