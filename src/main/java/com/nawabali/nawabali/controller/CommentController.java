@@ -1,6 +1,7 @@
 package com.nawabali.nawabali.controller;
 
 import com.nawabali.nawabali.dto.CommentDto;
+import com.nawabali.nawabali.dto.querydsl.CommentDslDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,9 +41,9 @@ public class CommentController {
                     @Parameter(name = "size", description = "페이지 당 댓글의 수", example = "5")
             })
     @GetMapping("/check/posts/{postId}")
-    public ResponseEntity<Slice<CommentDto.GetResponseDto>> getComments(@PathVariable Long postId,
+    public ResponseEntity<Slice<CommentDslDto.ResponseDto>> getComments(@PathVariable Long postId,
                                                                         @PageableDefault(size = 5) Pageable pageable) {
-        Slice<CommentDto.GetResponseDto> comments = commentService.getComments(postId, pageable);
+        Slice<CommentDslDto.ResponseDto> comments = commentService.getComments(postId, pageable);
         return ResponseEntity.ok(comments);
     }
 

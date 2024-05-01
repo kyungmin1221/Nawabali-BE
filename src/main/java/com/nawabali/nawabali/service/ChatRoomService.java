@@ -87,14 +87,13 @@ public class ChatRoomService {
                 .roomName(roomName)
                 .userId(user.getId())
                 .otherUserId(otherUser.getId())
-                .profileImageUrl(otherUser.getProfileImage().getImgUrl()) // 상대방 프로필 사진
+                .profileImageId(otherUser.getProfileImage().getId()) // 상대방 프로필 사진
                 .roomNumber(chatRoom.getRoomNumber())
                 .build();
 
         return chatRoomDto;
     }
 
-    // 서버에 반영이 왜 안되지?
     // 본인 전체 채팅방 목록 반환
     public Slice<ChatDto.ChatRoomListDto> room(Long userId, Pageable pageable) {
 
@@ -109,26 +108,49 @@ public class ChatRoomService {
     // 특정 채팅방 조회
     public Slice <ChatDto.ChatRoomListDto> roomInfo(String roomName, User user, Pageable pageable) {
 
-        userService.getUserId(user.getId());
+        userRepository.findById(user.getId())
+                .orElseThrow(()-> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
 
-        // 채팅방 이름으로 검색
-        Slice <ChatDto.ChatRoomListDto> chatRoomSlice = chatRoomRepository.queryRoomsByName(roomName, user.getId(), pageable);
+        List<Chat.ChatRoom> chatRooms = chatRoomRepository.findByRoomNameContainingIgnoreCase(roomName)
+                .orElseThrow(()-> new CustomException(ErrorCode.CHATROOM_NOT_FOUND));
 
-        // 채팅방 메시지로 검색
-        Slice <ChatDto.ChatRoomListDto> chatRoomMessageSlice = chatRoomRepository.queryRoomsByMessage(roomName, user.getId(), pageable);
+        List<LocalDateTime> messageCreationDates = new ArrayList<>(); // 이게 아닌듯?
+        for (Chat.ChatRoom chatRoom : chatRooms) {
+            chatRoom.getLatestMessage().ifPresent(chatMessage -> {
+                messageCreationDates.add(chatMessage.getCreatedMessageAt());
+            });
+        }
 
-        // 두 결과를 합치기
-        List<ChatDto.ChatRoomListDto> roomList = new ArrayList<>(chatRoomSlice.getContent());
-        roomList.addAll(chatRoomMessageSlice.getContent());
+        // 최신 메시지 개수를 제한하고, 해당 메시지에서 검색어를 포함하는 채팅방만 필터링합니다.
+        List<Chat.ChatRoom> filteredChatRooms = chatRooms.stream()
+                .filter(chatRoom -> {
+                    List<Chat.ChatMessage> latestMessages = chatRoom.getChatMessageList().stream()
+                            .sorted(Comparator.comparing(Chat.ChatMessage::getCreatedMessageAt).reversed())
+                            .limit(10)
+                            .collect(Collectors.toList());
+                    return latestMessages.stream()
+                            .anyMatch(message -> message.getMessage().contains(roomName));
+                })
+                .collect(Collectors.toList());
 
-        // 페이지네이션 적용
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), roomList.size());
-        List<ChatDto.ChatRoomListDto> pagedRoomList = roomList.subList(start, end);
+        // 채팅방을 최신 메시지 생성일을 기준으로 내림차순으로 정렬합니다.
+        filteredChatRooms.sort((room1, room2) -> {
+            LocalDateTime latestMessageDate1 = room1.getLatestMessage().map(Chat.ChatMessage::getCreatedMessageAt).orElse(LocalDateTime.MIN);
+            LocalDateTime latestMessageDate2 = room2.getLatestMessage().map(Chat.ChatMessage::getCreatedMessageAt).orElse(LocalDateTime.MIN);
+            return latestMessageDate2.compareTo(latestMessageDate1);
+        });
 
-        boolean hasNext = end < roomList.size();
+        // ID에 따라 내림차순으로 정렬
+        chatRooms.sort(Comparator.comparing(Chat.ChatRoom::getId).reversed());
 
-        return new SliceImpl<>(pagedRoomList, pageable, hasNext);
+        Slice <ChatDto.ChatRoomListDto> slice = new SliceImpl<>(chatRooms.stream()
+                .map(chatRoom -> ChatDto.ChatRoomListDto.builder()
+                        .roomId(chatRoom.getId())
+                        .roomName(chatRoom.getRoomName())
+                        .build())
+                .collect(Collectors.toList()));
+
+        return slice;
     }
 
     // 대화 조회
@@ -143,13 +165,13 @@ public class ChatRoomService {
         List<Chat.ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdOrderByIdDesc(chatRoom.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
 
-//        if (chatMessages.isEmpty()) {
-//            return Collections.singletonList(
-//                    ChatDto.ChatMessageResponseDto.builder()
-//                            .message("채팅방에 메세지가 존재하지 않습니다.")
-//                            .build()
-//            );
-//        }
+        if (chatMessages.isEmpty()) {
+            return Collections.singletonList(
+                    ChatDto.ChatMessageResponseDto.builder()
+                            .message("채팅방에 메세지가 존재하지 않습니다.")
+                            .build()
+            );
+        }
 
         // ChatMessage를 ChatDto.ChatMessage로 변환하여 반환
         return chatMessages.stream()
@@ -168,8 +190,4 @@ public class ChatRoomService {
                 .collect(Collectors.toList());
     }
 
-//    public String getUnreadMessageCountsForUser(Long userId) {
-//        List<Long> unreadMessageCount = chatRoomRepository.getUnreadMessageCountsForUser(userId);
-//        return "읽지 않은 메세지 수 : " + unreadMessageCount + "개";
-//    }
 }

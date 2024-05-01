@@ -84,12 +84,11 @@ public class ChatMessageService {
 
         List <Chat.ChatMessage> chatMessageList1 = chatMessageRepository.findByChatRoomIdOrderByIdDesc(chatRoom.getId())
                 .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
-        log.debug("메세지 리스트" + chatMessageList1);
+        log.debug("메세지 리스트" + chatMessageList);
 
         for (Chat.ChatMessage chatMessage : chatMessageList) {
            if (!chatMessage.getUser().getId().equals(userOptional.getId())) {
                chatMessage.setReceiverRead(true);
-               log.info("다시 들어갔을때 true로 바꿈");
                chatMessageRepository.save(chatMessage);
            }
         }
@@ -100,122 +99,95 @@ public class ChatMessageService {
     public void message(Long chatRoomId, ChatDto.ChatMessageDto message, Principal principal) {
 
         User userOptional = userRepository.findByEmail(principal.getName())
-                .orElseThrow(() -> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
+                .orElseThrow(()-> new CustomException(ErrorCode.MEMBER_NOT_FOUND));
         log.info("본인인증" + userOptional);
 
         Chat.ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
+                .orElseThrow(()-> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
         log.info("방번호" + chatRoom);
 
         // 이걸로 현재 방에 있는 사람들 count로 받기
         int memberInRoom = chatRoomCount.getChatRoomUserCountInRoom(chatRoomId);
         log.info("현재 방에 있는 사람" + memberInRoom);
 
-        if (message.getType().equals(Chat.ChatMessage.MessageType.ENTER)) {
-
-            List<Chat.ChatMessage> chatMessageList = chatMessageRepository.findByChatRoomId(chatRoom.getId())
-                    .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
-            log.info("받은 메세지" + chatMessageList);
-
-            for (Chat.ChatMessage chatMessages : chatMessageList) {
-                if (!chatMessages.getUser().getId().equals(userOptional.getId())) {
-                    chatMessages.setReceiverRead(true);
-                    log.info("다시 들어갔을때 true로 바꿈");
-                    chatMessageRepository.save(chatMessages);
-                }
+        String receiver = "";
+        if (userOptional.getNickname().equals(chatRoom.getUser().getNickname())) {
+            if (chatRoom.getOtherUser() != null) {
+                receiver = chatRoom.getOtherUser().getNickname();
             }
+        } else { receiver = chatRoom.getUser().getNickname();}
+
+        if (memberInRoom == 2) {
+            log.info("몇명?" +memberInRoom);
+
+            Chat.ChatMessage sendMessage = Chat.ChatMessage.builder()
+                    .sender(userOptional.getNickname())
+                    .receiver(receiver)
+                    .message(message.getMessage())
+                    .createdMessageAt(LocalDateTime.now())
+                    .isRead(true)
+                    .isReceiverRead(true)
+                    .user(userOptional)
+                    .chatRoom(chatRoom)
+                    .build();
+
+            chatMessageRepository.save(sendMessage);
+            log.info("저장" + sendMessage);
+
+            ChatDto.ChatMessageResponseDto chatMessageResponseDto = ChatDto.ChatMessageResponseDto.builder()
+                    .id(sendMessage.getId()) // 채팅 메세지 ID
+                    .roomId(sendMessage.getChatRoom().getId())
+                    .userId(sendMessage.getUser().getId())
+                    .sender(sendMessage.getSender())
+                    .message(sendMessage.getMessage())
+                    .receiver(sendMessage.getReceiver())
+                    .isRead(sendMessage.isRead())
+                    .isReceiverRead(sendMessage.isReceiverRead())
+                    .createdMessageAt(LocalDateTime.now())
+                    .build();
+
+            log.info("현재 채팅방에 " + memberInRoom + "명이 있는 채팅방에 메세지를 보내셨습니다" );
+            messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, chatMessageResponseDto);
+            log.info("정보확인 {} 이 방에서 새로운 메시지가 도착했습니다. 보낸 사람: {}, 메시지 내용: {}, 유저 아이디 : {}, 만든 시간 {}", chatRoomId, chatMessageResponseDto.getSender(), chatMessageResponseDto.getMessage(), chatMessageResponseDto.getUserId(), chatMessageResponseDto.getCreatedMessageAt());
+
         }
 
-        if (message.getType().equals(Chat.ChatMessage.MessageType.TALK)) {
+        if (memberInRoom == 1) {
+            log.info("몇명?" +memberInRoom);
+            Chat.ChatMessage sendMessage = Chat.ChatMessage.builder()
+                    .sender(userOptional.getNickname())
+                    .receiver(receiver)
+                    .message(message.getMessage())
+                    .createdMessageAt(LocalDateTime.now())
+                    .isRead(true)
+                    .isReceiverRead(false)
+                    .user(userOptional)
+                    .chatRoom(chatRoom)
+                    .build();
 
-            String receiver = "";
-            if (userOptional.getNickname().equals(chatRoom.getUser().getNickname())) {
-                if (chatRoom.getOtherUser() != null) {
-                    receiver = chatRoom.getOtherUser().getNickname();
-                }
-            } else {
-                receiver = chatRoom.getUser().getNickname();
-            }
+            chatMessageRepository.save(sendMessage);
+            log.info("저장" + sendMessage);
 
-            if (memberInRoom == 2) {
-                log.info("몇명?" + memberInRoom);
+            ChatDto.ChatMessageResponseDto chatMessageResponseDto = ChatDto.ChatMessageResponseDto.builder()
+                    .id(sendMessage.getId()) // 채팅 메세지 ID
+                    .roomId(sendMessage.getChatRoom().getId())
+                    .userId(sendMessage.getUser().getId())
+                    .sender(sendMessage.getSender())
+                    .message(sendMessage.getMessage())
+                    .receiver(sendMessage.getReceiver())
+                    .isRead(sendMessage.isRead())
+                    .isReceiverRead(sendMessage.isReceiverRead())
+                    .createdMessageAt(LocalDateTime.now())
+                    .build();
 
-                Chat.ChatMessage sendMessage = Chat.ChatMessage.builder()
-                        .sender(userOptional.getNickname())
-                        .receiver(receiver)
-                        .message(message.getMessage())
-                        .createdMessageAt(LocalDateTime.now())
-                        .isRead(true)
-                        .isReceiverRead(true)
-                        .user(userOptional)
-                        .chatRoom(chatRoom)
-                        .build();
-
-                chatMessageRepository.save(sendMessage);
-                log.info("저장" + sendMessage);
-
-                ChatDto.ChatMessageResponseDto chatMessageResponseDto = ChatDto.ChatMessageResponseDto.builder()
-                        .id(sendMessage.getId()) // 채팅 메세지 ID
-                        .roomId(sendMessage.getChatRoom().getId())
-                        .userId(sendMessage.getUser().getId())
-                        .sender(sendMessage.getSender())
-                        .message(sendMessage.getMessage())
-                        .receiver(sendMessage.getReceiver())
-                        .isRead(sendMessage.isRead())
-                        .isReceiverRead(sendMessage.isReceiverRead())
-                        .createdMessageAt(LocalDateTime.now())
-                        .build();
-
-                log.info("현재 채팅방에 " + memberInRoom + "명이 있는 채팅방에 메세지를 보내셨습니다");
-                messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, chatMessageResponseDto);
-                log.info("정보확인 {} 이 방에서 새로운 메시지가 도착했습니다. 보낸 사람: {}, 메시지 내용: {}, 유저 아이디 : {}, 만든 시간 {}", chatRoomId, chatMessageResponseDto.getSender(), chatMessageResponseDto.getMessage(), chatMessageResponseDto.getUserId(), chatMessageResponseDto.getCreatedMessageAt());
-
-            }
-
-            if (memberInRoom == 1) {
-                log.info("몇명?" + memberInRoom);
-                Chat.ChatMessage sendMessage = Chat.ChatMessage.builder()
-                        .sender(userOptional.getNickname())
-                        .receiver(receiver)
-                        .message(message.getMessage())
-                        .createdMessageAt(LocalDateTime.now())
-                        .isRead(true)
-                        .isReceiverRead(false)
-                        .user(userOptional)
-                        .chatRoom(chatRoom)
-                        .build();
-
-                chatMessageRepository.save(sendMessage);
-                log.info("저장" + sendMessage);
-
-                ChatDto.ChatMessageResponseDto chatMessageResponseDto = ChatDto.ChatMessageResponseDto.builder()
-                        .id(sendMessage.getId()) // 채팅 메세지 ID
-                        .roomId(sendMessage.getChatRoom().getId())
-                        .userId(sendMessage.getUser().getId())
-                        .sender(sendMessage.getSender())
-                        .message(sendMessage.getMessage())
-                        .receiver(sendMessage.getReceiver())
-                        .isRead(sendMessage.isRead())
-                        .isReceiverRead(sendMessage.isReceiverRead())
-                        .createdMessageAt(LocalDateTime.now())
-                        .build();
-
-                log.info("현재 채팅방에 {}명이 있는 채팅방에 메세지를 보내셨습니다" + memberInRoom);
-                messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, chatMessageResponseDto);
-                log.info("정보확인 {} 이 방에서 새로운 메시지가 도착했습니다. 보낸 사람: {}, 메시지 내용: {}, 유저 아이디 : {}, 만든 시간 {}", chatRoomId, chatMessageResponseDto.getSender(), chatMessageResponseDto.getMessage(), chatMessageResponseDto.getUserId(), chatMessageResponseDto.getCreatedMessageAt());
-
-                notificationService.notifyMessage(chatRoom.getRoomNumber(), receiver, userOptional.getNickname());
-                log.info("받는 사람이 왜 null이지?" + receiver);
-
-            }
-
-
-//        notificationService.notifyMessage(chatRoom.getRoomNumber(), receiver, userOptional.getNickname());
-
-            notificationService.notifyAllMyMessage(userOptional.getNickname());
-            notificationService.notifyAllYourMessage(receiver);
-            log.info("받는 사람이 왜 null이지?" + receiver);
+            log.info("현재 채팅방에 {}명이 있는 채팅방에 메세지를 보내셨습니다" + memberInRoom);
+            messagingTemplate.convertAndSend("/sub/chat/room/" + chatRoomId, chatMessageResponseDto);
+            log.info("정보확인 {} 이 방에서 새로운 메시지가 도착했습니다. 보낸 사람: {}, 메시지 내용: {}, 유저 아이디 : {}, 만든 시간 {}", chatRoomId, chatMessageResponseDto.getSender(), chatMessageResponseDto.getMessage(), chatMessageResponseDto.getUserId(), chatMessageResponseDto.getCreatedMessageAt());
 
         }
+
+        notificationService.notifyMessage(chatRoom.getRoomNumber(), receiver, userOptional.getNickname());
+
     }
+
 }

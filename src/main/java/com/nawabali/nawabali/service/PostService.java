@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -47,6 +46,7 @@ public class PostService {
     private final PostSearchRepository postSearchRepository;
     private final ProfileImageRepository profileImageRepository;
     private final BookMarkRepository bookMarkRepository;
+    private final UserRepository userRepository;
     private final List <String> seoulDistrictNames = Arrays.asList(
             "강남구", "강동구", "강서구", "강북구", "관악구",
             "광진구", "구로구", "금천구", "노원구", "동대문구",
@@ -58,7 +58,7 @@ public class PostService {
 
     // 게시물 생성
     @Transactional
-    public PostDto.ResponseDto createPost(User user, PostDto.RequestDto requestDto, List<MultipartFile> files) throws IOException {
+    public PostDto.ResponseDto createPost(User user, PostDto.RequestDto requestDto, List<MultipartFile> files) {
         User findUser = userService.getUserId(user.getId());
 
         Town town = new Town(
@@ -78,21 +78,9 @@ public class PostService {
                 .user(findUser)
                 .build();
 
-        // AwsS3Service 변경에 따라 이 부분 수정
-        Map<String, Object> uploadResults = awsS3Service.uploadFile(files, "postImages");
-        String mainImageUrl = (String) uploadResults.get("mainUrl");
-        List<String> originalUrls = (List<String>) uploadResults.get("originalUrls");
+        List<String> imageUrls = awsS3Service.uploadFile(files, "postImages");
 
-        // 메인 이미지 (리사이즈된 이미지) 추가
-        PostImage mainImage = PostImage.builder()
-                .fileName(mainImageUrl)
-                .imgUrl(mainImageUrl)
-                .post(post)
-                .build();
-        post.getImages().add(mainImage);
-
-        // 원본 이미지 URL들을 각각 처리
-        originalUrls.forEach(url -> {
+        imageUrls.forEach(url -> {
             PostImage image = PostImage.builder()
                     .fileName(url)
                     .imgUrl(url)
@@ -101,8 +89,9 @@ public class PostService {
             post.getImages().add(image);
         });
 
+
         Post savedPost = postRepository.save(post);
-        PostSearch postSearch = createPostSearch(savedPost, originalUrls, findUser);
+        PostSearch postSearch = createPostSearch(savedPost, imageUrls, findUser);
         postSearchRepository.save(postSearch);
 
         User userUp = post.getUser();
@@ -110,9 +99,9 @@ public class PostService {
             userUp.updateRank(userUp.getRank());
         }
 
-        return new PostDto.ResponseDto(savedPost);
-    }
+        return new PostDto.ResponseDto(post);
 
+    }
 
     // 전체 게시물 조회
     public Slice<PostDto.ResponseDto> getPostsByLatest(Pageable pageable) {
@@ -246,6 +235,16 @@ public class PostService {
     }
 
 
+    // 게시물 검색
+//    public Slice<PostDto.ResponseDto> searchAndFilterPosts(String contents, Pageable pageable) {
+//        List<PostSearch> searchResults = postSearchRepository.findByContentsContaining(contents);
+//
+//        List<Long> postIds = searchResults.stream()
+//                .map(PostSearch::getPostId)
+//                .collect(Collectors.toList());
+//
+//        return postRepository.searchAndFilterPosts(postIds, pageable);
+//    }
 
     // 게시물 검색(ES)
     public Slice<PostDto.ResponseDto> searchAndFilterPosts(String contents, Pageable pageable) {
@@ -258,6 +257,8 @@ public class PostService {
 
         return new SliceImpl<>(responseDtos, pageable, searchResultsPage.hasNext());
     }
+
+
 
 
 
@@ -356,7 +357,6 @@ public class PostService {
                 post.getCreatedAt(),
                 post.getModifiedAt(),
                 post.getMainImageUrl(),
-                post.getResizedImageUrl(),
                 post.isMultiImages(),
                 likesCount,
                 localLikesCount,
@@ -417,5 +417,7 @@ public class PostService {
                 .profileImageUrl(postSearch.getProfileImageUrl())
                 .build();
     }
+
+
 
 }

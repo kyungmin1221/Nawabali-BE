@@ -4,16 +4,10 @@ import com.nawabali.nawabali.dto.ChatDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 
-import java.util.List;
-
 public interface ChatDslRepositoryCustom {
 
     Slice<ChatDto.ChatRoomListDto> findAllByUserId(Long userId, Pageable pageable);
 
-    Slice<ChatDto.ChatRoomListDto> queryRoomsByName(String roomName, Long userId, Pageable pageable);
-
-    Slice<ChatDto.ChatRoomListDto> queryRoomsByMessage(String roomName, Long userId, Pageable pageable);
-
-    Long getUnreadMessageCountsForUser (String userName);
+    Slice <ChatDto.ChatRoomListDto> findChatRoomByRoomName (String roomName, Pageable pageable);
 
 }
