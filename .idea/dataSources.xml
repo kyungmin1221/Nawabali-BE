@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="nawabali@localhost" uuid="32a8ba5b-8af3-455e-937f-c7013eec3dad">
-    <data-source source="LOCAL" name="nawabali@localhost" uuid="0f743641-d84e-4645-bf85-1413ed7f6265">
+    <data-source source="LOCAL" name="nawabali@localhost" uuid="708298ed-13f4-44e6-b4f6-7b2a9b85e5f0">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
+      <imported>true</imported>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://localhost:3306/nawabali</jdbc-url>
       <jdbc-additional-properties>
@@ -12,8 +12,6 @@
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
         <property name="com.intellij.clouds.kubernetes.db.container.port" />
       </jdbc-additional-properties>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
