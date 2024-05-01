@@ -122,7 +122,8 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
         List<Chat.ChatMessage> chatMessageList = queryFactory.selectFrom(chatMessage)
                 .leftJoin(chatMessage.chatRoom, chatRoom)
                 .where(chatMessage.message.contains(roomName)
-                        .and(chatRoom.user.id.eq(userId)).or(chatRoom.otherUser.id.eq(userId)))
+                        .and(chatRoom.user.id.eq(userId)
+                        .or(chatRoom.otherUser.id.eq(userId))))
                 .orderBy(chatMessage.createdMessageAt.desc())
                 .fetch();
 
