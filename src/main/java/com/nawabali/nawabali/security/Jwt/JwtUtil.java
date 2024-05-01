@@ -8,9 +8,11 @@ import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -111,8 +113,21 @@ public class JwtUtil {
         cookie.setSecure(true);
         cookie.setHttpOnly(true);
         cookie.setMaxAge(ACCESS_EXPIRATION_TIME);
-//        cookie.setDomain("/"); // 도메인 설정 추가
         return cookie;
+    }
+
+
+    public String createResponseCookie(String token) {
+        String accessToken = URLEncoder.encode(token, UTF_8);
+        ResponseCookie cookie = ResponseCookie.from(AUTHORIZATION_HEADER, token)
+                .path("/")
+                .secure(true)
+                .httpOnly(true)
+                .maxAge(ACCESS_EXPIRATION_TIME)
+                .domain(".dongnaebangnae.com")
+                .sameSite("None")
+                .build();
+        return cookie.toString();
     }
 
     // header 에서 JWT 가져오기
