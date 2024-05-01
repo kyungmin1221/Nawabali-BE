@@ -1,16 +1,10 @@
 package com.nawabali.nawabali.service;
 
 import com.nawabali.nawabali.controller.NotificationController;
-import com.nawabali.nawabali.domain.Chat.ChatMessage;
-import com.nawabali.nawabali.domain.Chat.ChatRoom;
-import com.nawabali.nawabali.domain.Notification;
-import com.nawabali.nawabali.domain.User;
+import com.nawabali.nawabali.domain.*;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
-import com.nawabali.nawabali.repository.ChatMessageRepository;
-import com.nawabali.nawabali.repository.ChatRoomRepository;
-import com.nawabali.nawabali.repository.NotificationRepository;
-import com.nawabali.nawabali.repository.UserRepository;
+import com.nawabali.nawabali.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -18,6 +12,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import com.nawabali.nawabali.dto.ChatDto.*;
+import com.nawabali.nawabali.domain.Chat.*;
 
 import java.io.IOException;
 import java.util.HashMap;
