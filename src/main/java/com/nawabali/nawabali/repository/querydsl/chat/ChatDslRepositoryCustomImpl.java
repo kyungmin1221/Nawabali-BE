@@ -2,24 +2,25 @@ package com.nawabali.nawabali.repository.querydsl.chat;
 
 import com.nawabali.nawabali.constant.ChatRoomEnum;
 import com.nawabali.nawabali.domain.Chat;
+import com.nawabali.nawabali.domain.Chat.ChatMessage;
+import com.nawabali.nawabali.domain.Chat.ChatRoom;
 import com.nawabali.nawabali.domain.QChat_ChatMessage;
 import com.nawabali.nawabali.domain.QChat_ChatRoom;
 import com.nawabali.nawabali.domain.QUser;
 import com.nawabali.nawabali.domain.image.QProfileImage;
-import com.nawabali.nawabali.dto.ChatDto;
+import com.nawabali.nawabali.dto.ChatDto.ChatRoomListResponseDto;
+import com.nawabali.nawabali.dto.ChatDto.ChatRoomSearchListDto;
+import com.nawabali.nawabali.dto.ChatDto.MessageInfo;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
-import com.nawabali.nawabali.domain.Chat.*;
-import com.nawabali.nawabali.dto.ChatDto.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.nawabali.nawabali.domain.QChat_ChatRoom.chatRoom;
 
 
 @Repository
@@ -39,8 +40,8 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
                 .selectFrom(chatRoom)
                 .leftJoin(chatRoom.user, user).fetchJoin()
                 .leftJoin(chatRoom.otherUser).fetchJoin()
-                .where(user.id.eq(userId)
-                        .or(chatRoom.otherUser.id.eq(userId)))
+                .where(userEq(userId)
+                        .or(otherUserEq(userId)))
                 .orderBy(chatRoom.Id.desc())
                 .fetch();
 
@@ -82,7 +83,6 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
         return chatRoomDtos;
     }
 
-
     public List <ChatRoomSearchListDto> queryRoomsByName(String roomName, Long userId) {
 
         QChat_ChatMessage chatMessage = QChat_ChatMessage.chatMessage;
@@ -92,9 +92,9 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
         List<ChatRoom> chatRooms = queryFactory.selectFrom(chatRoom)
                 .leftJoin(chatRoom.user.profileImage, profileImage)
                 .leftJoin(chatRoom.chatMessageList, chatMessage)
-                .where(chatRoom.user.id.eq(userId).and(chatRoom.roomName.contains(roomName))
-                                .or(chatRoom.user.id.eq(Long.valueOf(userId)).and(chatRoom.otherUser.nickname.contains(roomName)))
-                                .or(chatRoom.otherUser.isNotNull().and(chatRoom.otherUser.id.eq(Long.valueOf(userId))).and(chatRoom.user.nickname.contains(roomName))))
+                .where(userEq(userId).and(chatRoom.roomName.contains(roomName))
+                                .or(userEq(Long.valueOf(userId)).and(chatRoom.otherUser.nickname.contains(roomName)))
+                                .or(chatRoom.otherUser.isNotNull().and(otherUserEq(Long.valueOf(userId))).and(chatRoom.user.nickname.contains(roomName))))
                 .orderBy(chatMessage.createdMessageAt.desc())
                 .fetch();
 
@@ -125,8 +125,8 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
         List<ChatMessage> chatMessageList = queryFactory.selectFrom(chatMessage)
                 .leftJoin(chatMessage.chatRoom, chatRoom)
                 .where(chatMessage.message.contains(roomName)
-                        .and(chatRoom.user.id.eq(userId)
-                        .or(chatRoom.otherUser.id.eq(userId))))
+                        .and(userEq(userId)
+                        .or(otherUserEq(userId))))
                 .orderBy(chatMessage.createdMessageAt.desc())
                 .fetch();
 
@@ -167,6 +167,22 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
         for (Long count : receiverUnreadCounts) {
             totalUnreadCount += count;}
         return totalUnreadCount;
+    }
+
+    private BooleanExpression userEq (Long userId) {
+        if (userId == null) {
+            return null;
+        } else {
+            return chatRoom.user.id.eq(userId);
+        }
+    }
+
+    private BooleanExpression otherUserEq (Long userId) {
+        if (userId == null) {
+            return null;
+        } else {
+            return chatRoom.otherUser.id.eq(userId);
+        }
     }
 
     private MessageInfo info (Chat.ChatRoom chatRoom, Long userId) {
