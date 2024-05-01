@@ -80,17 +80,14 @@ public class ChatRoomService {
     public List <ChatRoomSearchListDto> roomInfo (String roomName, User user) {
 
         getUserId(user.getId());
+        if (roomName.isEmpty()) {
+            throw new IllegalArgumentException("검색어를 입력해주세요");}
 
         List <ChatRoomSearchListDto> chatRoomList = chatRoomRepository.queryRoomsByName(roomName, user.getId());
         List <ChatRoomSearchListDto> chatRoomMessageList = chatRoomRepository.queryRoomsByMessage(roomName, user.getId());
 
         List<ChatRoomSearchListDto> roomList = new ArrayList<>(chatRoomList);
         roomList.addAll(chatRoomMessageList);
-
-//        int start = (int) pageable.getOffset();
-//        int end = Math.min((start + pageable.getPageSize()), roomList.size());
-//        List<ChatRoomSearchListDto> pagedRoomList = roomList.subList(start, end);
-//        boolean hasNext = end < roomList.size();
 
         return roomList;
     }
