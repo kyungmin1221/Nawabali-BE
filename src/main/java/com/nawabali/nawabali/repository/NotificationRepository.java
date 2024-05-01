@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.Optional;
 
 public interface NotificationRepository extends JpaRepository <Notification, Long> {
-    Optional<List<Notification>> findAllByReceiverAndChatRoomId(String nickname, Long chatRoomId);
+    List<Notification> findAllByReceiverAndChatRoomId(String nickname, Long chatRoomId);
 }
