@@ -1,7 +1,7 @@
 package com.nawabali.nawabali.repository.querydsl.chat;
 
-import com.nawabali.nawabali.dto.ChatDto.ChatRoomListResponseDto;
-import com.nawabali.nawabali.dto.ChatDto.ChatRoomSearchListDto;
+import com.nawabali.nawabali.dto.ChatDto;
+import com.nawabali.nawabali.dto.ChatDto.*;
 
 import java.util.List;
 

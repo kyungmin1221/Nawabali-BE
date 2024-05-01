@@ -67,7 +67,7 @@ public class ChatRoomService {
                 .roomName(roomName)
                 .userId(user.getId())
                 .otherUserId(otherUser.getId())
-                .profileImageUrl(otherUser.getProfileImage().getImgUrl())
+                .profileImageUrl(otherUser.getProfileImage().getImgUrl()) // 상대방 프로필 사진
                 .build();
         return chatRoomDto;
     }
