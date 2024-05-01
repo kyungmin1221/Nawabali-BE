@@ -59,8 +59,8 @@ public class ChatRoomController {
     public ResponseEntity<Slice<ChatMessageResponseDto>> loadMessage (@PathVariable Long roomId,
                                                                      @AuthenticationPrincipal UserDetailsImpl userDetails,
                                                                      @PageableDefault(
-                                                                             size = 10,
-                                                                             sort = "Id",
+                                                                             size = 15,
+                                                                             sort = "createdMessageAt",
                                                                              direction = Sort.Direction.DESC)
                                                                          Pageable pageable) {
         Slice<ChatMessageResponseDto> messages = chatRoomService.loadMessage(roomId, userDetails.getUser(), pageable);

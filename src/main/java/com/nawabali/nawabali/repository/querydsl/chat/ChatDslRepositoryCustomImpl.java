@@ -61,7 +61,6 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
                         String profileImage = messageInfo.getProfileImageUrl();
                         Long unreadCount = messageInfo.getUnreadCount();
 
-                        // 여기서 가장 최신 메시지를 가져오기
                         List<Chat.ChatMessage> latestMessages = queryFactory
                                 .selectFrom(chatMessage)
                                 .where(chatMessage.chatRoom.Id.eq(newchatRoom.getId()))
@@ -111,11 +110,6 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
 
             ChatDto.MessageInfo messageInfo = info(chatRoomEntity, userId);
             String roomNameDto = messageInfo.getRoomName();
-
-            Optional<Chat.ChatMessage> latestMessage = chatRoomEntity.getLatestMessage();
-            if (latestMessage.isPresent()) {
-                Long messageId = latestMessage.get().getId();
-            }
 
             ChatDto.ChatRoomSearchListDto chatRoomDto = ChatDto.ChatRoomSearchListDto.builder()
                     .roomName(roomNameDto)
