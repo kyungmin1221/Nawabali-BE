@@ -71,28 +71,25 @@ public class ChatRoomService {
         return chatRoomDto;
     }
 
-    public Slice<ChatRoomListResponseDto> room (User user, Pageable pageable) {
+    public List <ChatRoomListResponseDto> room (User user) {
         getUserId(user.getId());
-        Slice <ChatRoomListResponseDto> chatRoomSlice = chatRoomRepository.findAllByUserId(user.getId(), pageable);
-        return new SliceImpl<>(chatRoomSlice.getContent(), pageable, chatRoomSlice.hasNext());
+        List <ChatRoomListResponseDto> chatRoomList = chatRoomRepository.findAllByUserId(user.getId());
+        return chatRoomList;
     }
 
-    public Slice <ChatRoomSearchListDto> roomInfo (String roomName, User user, Pageable pageable) {
+    public List <ChatRoomSearchListDto> roomInfo (String roomName, User user) {
 
         getUserId(user.getId());
+        if (roomName.isEmpty()) {
+            throw new IllegalArgumentException("검색어를 입력해주세요");}
 
-        Slice <ChatRoomSearchListDto> chatRoomSlice = chatRoomRepository.queryRoomsByName(roomName, user.getId(), pageable);
-        Slice <ChatRoomSearchListDto> chatRoomMessageSlice = chatRoomRepository.queryRoomsByMessage(roomName, user.getId(), pageable);
+        List <ChatRoomSearchListDto> chatRoomList = chatRoomRepository.queryRoomsByName(roomName, user.getId());
+        List <ChatRoomSearchListDto> chatRoomMessageList = chatRoomRepository.queryRoomsByMessage(roomName, user.getId());
 
-        List<ChatRoomSearchListDto> roomList = new ArrayList<>(chatRoomSlice.getContent());
-        roomList.addAll(chatRoomMessageSlice.getContent());
+        List<ChatRoomSearchListDto> roomList = new ArrayList<>(chatRoomList);
+        roomList.addAll(chatRoomMessageList);
 
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), roomList.size());
-        List<ChatRoomSearchListDto> pagedRoomList = roomList.subList(start, end);
-        boolean hasNext = end < roomList.size();
-
-        return new SliceImpl<>(pagedRoomList, pageable, hasNext);
+        return roomList;
     }
 
     public Slice<ChatMessageResponseDto> loadMessage (Long roomId, User user, Pageable pageable) {

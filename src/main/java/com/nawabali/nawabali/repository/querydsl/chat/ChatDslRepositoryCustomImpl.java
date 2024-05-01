@@ -27,7 +27,7 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice <ChatDto.ChatRoomListResponseDto> findAllByUserId (Long userId, Pageable pageable){
+    public List <ChatDto.ChatRoomListResponseDto> findAllByUserId (Long userId){
 
         QUser user = QUser.user;
         QChat_ChatMessage chatMessage = QChat_ChatMessage.chatMessage;
@@ -40,15 +40,7 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
                 .where(user.id.eq(userId)
                         .or(chatRoom.otherUser.id.eq(userId)))
                 .orderBy(chatRoom.Id.desc())
-                .offset(pageable.getOffset())
-                .limit (pageable.getPageSize() + 1)
                 .fetch();
-
-        boolean hasNext = chatRooms.size() > pageable.getPageSize();
-
-        if (hasNext) {
-            chatRooms.remove(chatRooms.size() -1);
-        }
 
         List <ChatDto.ChatRoomListResponseDto> chatRoomDtos = chatRooms.stream()
                 .map(newchatRoom -> {
@@ -85,11 +77,11 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
                 })
                 .collect(Collectors.toList());
 
-        return new SliceImpl<>(chatRoomDtos, pageable, hasNext);
+        return chatRoomDtos;
     }
 
 
-    public Slice<ChatDto.ChatRoomSearchListDto> queryRoomsByName(String roomName, Long userId, Pageable pageable) {
+    public List <ChatDto.ChatRoomSearchListDto> queryRoomsByName(String roomName, Long userId) {
 
         QChat_ChatMessage chatMessage = QChat_ChatMessage.chatMessage;
         QChat_ChatRoom chatRoom = QChat_ChatRoom.chatRoom;
@@ -112,25 +104,17 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
             String roomNameDto = messageInfo.getRoomName();
 
             ChatDto.ChatRoomSearchListDto chatRoomDto = ChatDto.ChatRoomSearchListDto.builder()
+                    .profileImageUrl(messageInfo.getProfileImageUrl())
                     .roomName(roomNameDto)
                     .chatMessage(chatRoomEntity.getLatestMessage().map(Chat.ChatMessage::getMessage).orElse(""))
                     .notice("***** 채팅방 검색 결과")
                     .build();
             chatRoomss.add(chatRoomDto);
         }
-
-        if (chatRoomss.isEmpty()) {
-            ChatDto.ChatRoomSearchListDto chatRoomDto = ChatDto.ChatRoomSearchListDto.builder()
-                            .roomName(null)
-                            .chatMessage(null)
-                            .notice("***** 채팅방 검색 결과 없음 *****")
-                            .build();
-            chatRoomss.add(chatRoomDto);
-        }
-        return new SliceImpl<>(chatRoomss);
+        return chatRoomss;
     }
 
-    public Slice<ChatDto.ChatRoomSearchListDto> queryRoomsByMessage(String roomName, Long userId, Pageable pageable) {
+    public List <ChatDto.ChatRoomSearchListDto> queryRoomsByMessage(String roomName, Long userId) {
 
         QChat_ChatMessage chatMessage = QChat_ChatMessage.chatMessage;
         QChat_ChatRoom chatRoom = QChat_ChatRoom.chatRoom;
@@ -150,22 +134,14 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
             String roomNameDto = messageInfo.getRoomName();
 
             ChatDto.ChatRoomSearchListDto chatRoomDto = ChatDto.ChatRoomSearchListDto.builder()
+                    .profileImageUrl(messageInfo.getProfileImageUrl())
                     .roomName(roomNameDto)
                     .chatMessage(chatMessageEntity.getMessage())
                     .notice("::::: 채팅메세지 검색 결과")
                     .build();
             chatMessages.add(chatRoomDto);
         }
-
-        if (chatMessages.isEmpty()){
-            ChatDto.ChatRoomSearchListDto chatRoomListDto = ChatDto.ChatRoomSearchListDto.builder()
-                    .roomName(null)
-                    .chatMessage(null)
-                    .notice("::::: 채팅메세지 검색 결과 없음 :::::")
-                    .build();
-            chatMessages.add(chatRoomListDto);
-        }
-        return new SliceImpl<>(chatMessages);
+        return chatMessages;
     }
 
     public Long getUnreadMessageCountsForUser (String userName) {
