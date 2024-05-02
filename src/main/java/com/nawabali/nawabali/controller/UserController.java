@@ -92,5 +92,4 @@ public class UserController {
         return userService.searchNickname(nickname);
     }
 
-
 }

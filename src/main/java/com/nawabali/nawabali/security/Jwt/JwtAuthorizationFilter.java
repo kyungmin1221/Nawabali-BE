@@ -36,8 +36,9 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
-//        String accessToken = jwtUtil.getTokenFromCookieAndName(req, JwtUtil.AUTHORIZATION_HEADER);
-        String accessToken = jwtUtil.getJwtFromHeader(req);
+        String bearerAccessToken = jwtUtil.getTokenFromCookieAndName(req, JwtUtil.AUTHORIZATION_HEADER);
+        String accessToken = jwtUtil.substringToken(bearerAccessToken);
+//        String accessToken = jwtUtil.getJwtFromHeader(req);
 //        log.info("accessToken : "+ accessToken);
         if(StringUtils.hasText(accessToken)){
             // 토큰 유무 확인

@@ -16,6 +16,7 @@ import com.nawabali.nawabali.repository.ProfileImageRepository;
 import com.nawabali.nawabali.repository.UserRepository;
 import com.nawabali.nawabali.repository.elasticsearch.UserSearchRepository;
 import com.nawabali.nawabali.security.Jwt.JwtUtil;
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
