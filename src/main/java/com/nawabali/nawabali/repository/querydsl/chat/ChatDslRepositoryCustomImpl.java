@@ -7,17 +7,22 @@ import com.nawabali.nawabali.domain.QChat_ChatRoom;
 import com.nawabali.nawabali.domain.QUser;
 import com.nawabali.nawabali.domain.image.QProfileImage;
 import com.nawabali.nawabali.dto.ChatDto;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
+import com.nawabali.nawabali.domain.Chat.*;
+import com.nawabali.nawabali.dto.ChatDto.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.nawabali.nawabali.domain.QChat_ChatRoom.chatRoom;
 
 
 @Repository
@@ -27,7 +32,7 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List <ChatDto.ChatRoomListResponseDto> findAllByUserId (Long userId){
+    public List <ChatRoomListResponseDto> findAllByUserId (Long userId){
 
         QUser user = QUser.user;
         QChat_ChatMessage chatMessage = QChat_ChatMessage.chatMessage;
@@ -37,23 +42,23 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
                 .selectFrom(chatRoom)
                 .leftJoin(chatRoom.user, user).fetchJoin()
                 .leftJoin(chatRoom.otherUser).fetchJoin()
-                .where(user.id.eq(userId)
-                        .or(chatRoom.otherUser.id.eq(userId)))
+                .where(userEq(userId)
+                        .or(otherUserEq(userId)))
                 .orderBy(chatRoom.Id.desc())
                 .fetch();
 
-        List <ChatDto.ChatRoomListResponseDto> chatRoomDtos = chatRooms.stream()
+        List <ChatRoomListResponseDto> chatRoomDtos = chatRooms.stream()
                 .map(newchatRoom -> {
 
                     if (newchatRoom.getChatRoomEnum().equals(ChatRoomEnum.PERSONAL)) {
 
-                        ChatDto.MessageInfo messageInfo = info(newchatRoom, userId);
+                        MessageInfo messageInfo = info(newchatRoom, userId);
 
                         String roomName = messageInfo.getRoomName();
                         String profileImage = messageInfo.getProfileImageUrl();
                         Long unreadCount = messageInfo.getUnreadCount();
 
-                        List<Chat.ChatMessage> latestMessages = queryFactory
+                        List<ChatMessage> latestMessages = queryFactory
                                 .selectFrom(chatMessage)
                                 .where(chatMessage.chatRoom.Id.eq(newchatRoom.getId()))
                                 .orderBy(chatMessage.createdMessageAt.desc())
@@ -65,7 +70,7 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
                             latestMessageContent = latestMessages.get(0).getMessage();
                         }
 
-                        return ChatDto.ChatRoomListResponseDto.builder()
+                        return ChatRoomListResponseDto.builder()
                                 .roomId(newchatRoom.getId())
                                 .roomName(roomName)
                                 .chatMessage(latestMessageContent)
@@ -81,29 +86,29 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
     }
 
 
-    public List <ChatDto.ChatRoomSearchListDto> queryRoomsByName(String roomName, Long userId) {
+    public List <ChatRoomSearchListDto> queryRoomsByName(String roomName, Long userId) {
 
         QChat_ChatMessage chatMessage = QChat_ChatMessage.chatMessage;
         QChat_ChatRoom chatRoom = QChat_ChatRoom.chatRoom;
         QProfileImage profileImage = QProfileImage.profileImage;
 
-        List<Chat.ChatRoom> chatRooms = queryFactory.selectFrom(chatRoom)
+        List<ChatRoom> chatRooms = queryFactory.selectFrom(chatRoom)
                 .leftJoin(chatRoom.user.profileImage, profileImage)
                 .leftJoin(chatRoom.chatMessageList, chatMessage)
-                .where(chatRoom.user.id.eq(userId).and(chatRoom.roomName.contains(roomName))
-                                .or(chatRoom.user.id.eq(Long.valueOf(userId)).and(chatRoom.otherUser.nickname.contains(roomName)))
-                                .or(chatRoom.otherUser.isNotNull().and(chatRoom.otherUser.id.eq(Long.valueOf(userId))).and(chatRoom.user.nickname.contains(roomName))))
+                .where(userEq(userId).and(chatRoom.roomName.contains(roomName))
+                                .or(userEq(Long.valueOf(userId)).and(chatRoom.otherUser.nickname.contains(roomName)))
+                                .or(chatRoom.otherUser.isNotNull().and(otherUserEq(Long.valueOf(userId))).and(chatRoom.user.nickname.contains(roomName))))
                 .orderBy(chatMessage.createdMessageAt.desc())
                 .fetch();
 
-        List<ChatDto.ChatRoomSearchListDto> chatRoomss = new ArrayList<>();
+        List<ChatRoomSearchListDto> chatRoomss = new ArrayList<>();
 
-        for (Chat.ChatRoom chatRoomEntity : chatRooms) {
+        for (ChatRoom chatRoomEntity : chatRooms) {
 
-            ChatDto.MessageInfo messageInfo = info(chatRoomEntity, userId);
+            MessageInfo messageInfo = info(chatRoomEntity, userId);
             String roomNameDto = messageInfo.getRoomName();
 
-            ChatDto.ChatRoomSearchListDto chatRoomDto = ChatDto.ChatRoomSearchListDto.builder()
+            ChatRoomSearchListDto chatRoomDto = ChatRoomSearchListDto.builder()
                     .roomId(chatRoomEntity.getId())
                     .profileImageUrl(messageInfo.getProfileImageUrl())
                     .roomName(roomNameDto)
@@ -115,27 +120,27 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
         return chatRoomss;
     }
 
-    public List <ChatDto.ChatRoomSearchListDto> queryRoomsByMessage(String roomName, Long userId) {
+    public List <ChatRoomSearchListDto> queryRoomsByMessage(String roomName, Long userId) {
 
         QChat_ChatMessage chatMessage = QChat_ChatMessage.chatMessage;
         QChat_ChatRoom chatRoom = QChat_ChatRoom.chatRoom;
 
-        List<Chat.ChatMessage> chatMessageList = queryFactory.selectFrom(chatMessage)
+        List<ChatMessage> chatMessageList = queryFactory.selectFrom(chatMessage)
                 .leftJoin(chatMessage.chatRoom, chatRoom)
                 .where(chatMessage.message.contains(roomName)
-                        .and(chatRoom.user.id.eq(userId)
-                        .or(chatRoom.otherUser.id.eq(userId))))
+                        .and(userEq(userId)
+                        .or(otherUserEq(userId))))
                 .orderBy(chatMessage.createdMessageAt.desc())
                 .fetch();
 
-        List<ChatDto.ChatRoomSearchListDto> chatMessages = new ArrayList<>();
+        List<ChatRoomSearchListDto> chatMessages = new ArrayList<>();
 
-        for (Chat.ChatMessage chatMessageEntity : chatMessageList) {
+        for (ChatMessage chatMessageEntity : chatMessageList) {
 
-            ChatDto.MessageInfo messageInfo = info(chatMessageEntity.getChatRoom(), userId);
+            MessageInfo messageInfo = info(chatMessageEntity.getChatRoom(), userId);
             String roomNameDto = messageInfo.getRoomName();
 
-            ChatDto.ChatRoomSearchListDto chatRoomDto = ChatDto.ChatRoomSearchListDto.builder()
+            ChatRoomSearchListDto chatRoomDto = ChatRoomSearchListDto.builder()
                     .roomId(chatMessageEntity.getChatRoom().getId())
                     .profileImageUrl(messageInfo.getProfileImageUrl())
                     .roomName(roomNameDto)
@@ -167,7 +172,23 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
         return totalUnreadCount;
     }
 
-    private ChatDto.MessageInfo info (Chat.ChatRoom chatRoom, Long userId) {
+    private BooleanExpression userEq (Long userId) {
+        if (userId == null) {
+            return null;
+        } else {
+            return chatRoom.user.id.eq(userId);
+        }
+    }
+
+    private BooleanExpression otherUserEq (Long userId) {
+        if (userId == null) {
+            return null;
+        } else {
+            return chatRoom.otherUser.id.eq(userId);
+        }
+    }
+
+    private MessageInfo info (Chat.ChatRoom chatRoom, Long userId) {
 
         QChat_ChatMessage chatMessage = QChat_ChatMessage.chatMessage;
 
@@ -199,7 +220,7 @@ public class ChatDslRepositoryCustomImpl implements ChatDslRepositoryCustom{
                     .fetchOne();
         }
 
-        ChatDto.MessageInfo info = ChatDto.MessageInfo.builder()
+        MessageInfo info = MessageInfo.builder()
                         .roomName(roomName)
                         .profileImageUrl(profileImage)
                         .unreadCount(unreadcount)
