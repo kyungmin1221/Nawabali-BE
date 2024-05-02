@@ -1,8 +1,9 @@
 ![header](https://capsule-render.vercel.app/api?type=waving&color=6994CDEE&text=&animation=twinkling&height=80)
 
-![readme_mockup2](https://github.com/kyungmin1221/BaekJoon/assets/105621255/41dd9ef3-00ce-46a9-b4d8-52a7298108c3)
+![동네방네 썸네일 시안2](https://github.com/Nawabali-project/Nawabali-BE/assets/105621255/674e6c2c-ff01-4987-9356-72c0525ec8b1)
 <br>
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FNawabali-project%2FNawabali-BE&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
+
 
 </div>
 
@@ -35,7 +36,7 @@
 ## 백엔드 팀원 소개
 | **박경민(팀장)** | **유재성** | **김주원** | **이은미** |
 | :------: |  :------: | :------: | :------: |
-| [<img src="https://github.com/kyungmin1221/BaekJoon/assets/105621255/1d1fd83d-ef01-4144-9d65-9b6056d40a43" height=150 width=150> <br/> @kyungmin](https://github.com/kyungmin1221) | [<img src="" height=150 width=150> <br/> @Peter-Yu](https://github.com/Peter-Yu-0402) | [<img src="" height=150 width=150> <br/> @Juwum12](https://github.com/juwum12) | [<img src="https://github.com/kyungmin1221/BaekJoon/assets/105621255/2373d997-73e3-47d7-84f9-fdc0c12cfa28" height=150 width=150> <br/> @minnieming](https://github.com/minnieming) |
+| [<img src="https://github.com/kyungmin1221/BaekJoon/assets/105621255/1d1fd83d-ef01-4144-9d65-9b6056d40a43" height=150 width=150> <br/> @kyungmin](https://github.com/kyungmin1221) | [<img src="https://github.com/Nawabali-project/Nawabali-BE/assets/105621255/dd34e52f-3038-470a-9aca-1833b42a0ace" height=150 width=150> <br/> @Peter-Yu](https://github.com/Peter-Yu-0402) | [<img src="" height=150 width=150> <br/> @Juwum12](https://github.com/juwum12) | [<img src="https://github.com/kyungmin1221/BaekJoon/assets/105621255/2373d997-73e3-47d7-84f9-fdc0c12cfa28" height=150 width=150> <br/> @minnieming](https://github.com/minnieming) |
 
 
 | 이름    | 역할    | 깃허브    |
