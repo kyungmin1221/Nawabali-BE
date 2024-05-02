@@ -76,7 +76,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         log.info("refreshCookie value : " + refreshCookie.getValue());
 
 
-//        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
 
         // same-site 없는 버전
         response.addCookie(accessCookie);

@@ -4,6 +4,7 @@ import com.nawabali.nawabali.constant.*;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.domain.elasticsearch.UserSearch;
 import com.nawabali.nawabali.domain.image.ProfileImage;
+import com.nawabali.nawabali.dto.OAuthDto;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.dto.SignupDto;
 import com.nawabali.nawabali.dto.UserDto;
@@ -255,4 +256,8 @@ public class UserService {
                 .toList();
     }
 
+    public OAuthDto.oAuthResponseDto getOAuthUserInfo(User user) {
+        User existUser = getUserId(user.getId());
+        return new OAuthDto.oAuthResponseDto(existUser);
+    }
 }

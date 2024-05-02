@@ -6,6 +6,7 @@ import com.nawabali.nawabali.domain.elasticsearch.UserSearch;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.dto.SignupDto;
 import com.nawabali.nawabali.dto.UserDto;
+import com.nawabali.nawabali.dto.OAuthDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -90,6 +91,11 @@ public class UserController {
     @GetMapping("/search")
     public List<UserSearch> searchNickname(@RequestParam(name = "nickname", required = false) String nickname){
         return userService.searchNickname(nickname);
+    }
+
+    @GetMapping("/authenticated")
+    public OAuthDto.oAuthResponseDto getOAuthUserInfo(@AuthenticationPrincipal UserDetailsImpl userDetails){
+        return userService.getOAuthUserInfo(userDetails.getUser());
     }
 
 }
