@@ -84,8 +84,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         // refresh 토큰 redis에 저장
         // substring 제외
-//        redisTool.setValues(token.substring(7), refreshCookie.getValue(), Duration.ofMillis(jwtUtil.REFRESH_EXPIRATION_TIME));
-        redisTool.setValues(token, refreshCookie.getValue(), Duration.ofMillis(jwtUtil.REFRESH_EXPIRATION_TIME));
+        redisTool.setValues(token.substring(7), refreshCookie.getValue(), Duration.ofMillis(jwtUtil.REFRESH_EXPIRATION_TIME));
+//        redisTool.setValues(token, refreshCookie.getValue(), Duration.ofMillis(jwtUtil.REFRESH_EXPIRATION_TIME));
 
 
         // 로그인 성공 메시지를 JSON 형태로 응답 본문에 추가

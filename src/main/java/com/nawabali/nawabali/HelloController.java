@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class HelloController {
     @GetMapping("/ping")
     public String check() {
-        return "Pong! substring 제거";
+        return "Pong! BEARER_PREFIX 추가";
     }
 }

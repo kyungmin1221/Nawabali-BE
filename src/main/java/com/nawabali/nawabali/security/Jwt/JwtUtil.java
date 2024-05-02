@@ -56,7 +56,7 @@ public class JwtUtil {
     public String createAccessToken(String email, UserRoleEnum role) {
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + ACCESS_EXPIRATION_TIME);
-        return Jwts.builder()
+        return BEARER_PREFIX + Jwts.builder()
                 .setSubject(email) // 사용자 식별자값(ID)
                 .claim(AUTHORIZATION_KEY, role) // 사용자 권한
                 .setIssuedAt(now) // 발급일
