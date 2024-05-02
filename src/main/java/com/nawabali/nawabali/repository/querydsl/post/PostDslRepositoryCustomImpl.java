@@ -196,29 +196,6 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
 
     }
 
-    // es + jpa 검색
-//    @Override
-//    public Slice<PostDto.ResponseDto> searchAndFilterPosts(List<Long> postIds, Pageable pageable) {
-//        QPost post = QPost.post;
-//        QUser user = QUser.user;
-//
-//        List<Post> posts = queryFactory
-//                .selectFrom(post)
-//                .leftJoin(post.user, user).fetchJoin()
-//                .where(post.id.in(postIds))
-//                .orderBy(post.createdAt.desc())
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize() + 1)
-//                .fetch();
-//
-//        boolean hasNext = posts.size() > pageable.getPageSize();
-//        if (hasNext) {
-//            posts.remove(posts.size() - 1);
-//        }
-//
-//        List<PostDto.ResponseDto> responseDtos = convertPostDto(posts);
-//        return new SliceImpl<>(responseDtos, pageable, hasNext);
-//    }
 
 
     @Override
@@ -305,7 +282,8 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
                         .placeAddr(post.getTown().getPlaceAddr())
                         .createdAt(post.getCreatedAt())
                         .modifiedAt(post.getModifiedAt())
-                        .mainImageUrl(post.getImages().get(0).getImgUrl())
+                        .resizedImageUrl(post.getImages().get(0).getImgUrl())
+                        .mainImageUrl(post.getImages().get(1).getImgUrl())
                         .multiImages(post.getImages().size() > 1)
                         .commentCount(post.getComments().size())
                         .latitude(post.getTown().getLatitude())

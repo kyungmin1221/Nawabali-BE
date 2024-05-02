@@ -1,12 +1,17 @@
 package com.nawabali.nawabali.security.Jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nawabali.nawabali.constant.UserRoleEnum;
+import com.nawabali.nawabali.exception.CustomException;
+import com.nawabali.nawabali.exception.ErrorCode;
 import com.nawabali.nawabali.security.UserDetailsServiceImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SecurityException;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.Response;
 import org.slf4j.Logger;
@@ -16,10 +21,13 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -56,7 +64,7 @@ public class JwtUtil {
     public String createAccessToken(String email, UserRoleEnum role) {
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + ACCESS_EXPIRATION_TIME);
-        return Jwts.builder()
+        return BEARER_PREFIX + Jwts.builder()
                 .setSubject(email) // 사용자 식별자값(ID)
                 .claim(AUTHORIZATION_KEY, role) // 사용자 권한
                 .setIssuedAt(now) // 발급일
@@ -110,6 +118,7 @@ public class JwtUtil {
         var accessTokenCookie = URLEncoder.encode(token, UTF_8);
         Cookie cookie = new Cookie(AUTHORIZATION_HEADER, accessTokenCookie);
         cookie.setPath("/");
+        cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setHttpOnly(true);
         cookie.setMaxAge(ACCESS_EXPIRATION_TIME);
@@ -142,22 +151,24 @@ public class JwtUtil {
     }
 
     // 토큰 검증
-    public boolean validateToken(String token) {
+    public boolean validateToken(String token) throws IOException {
         log.info("토큰 검증");
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (SecurityException | MalformedJwtException e) {
             log.error("Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.");
+            throw new CustomException(ErrorCode.INVALID_JWT_SIGNATURE);
         } catch (ExpiredJwtException e) {
             log.error("Expired JWT token, 만료된 JWT token 입니다.");
             return false;
         } catch (UnsupportedJwtException e) {
             log.error("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.");
+            throw new CustomException(ErrorCode.UNSUPPORTED_JWT);
         } catch (IllegalArgumentException e) {
             log.error("JWT claims is empty, 잘못된 JWT 토큰 입니다.");
+            throw new CustomException(ErrorCode.INVALID_JWT_VALUE);
         }
-        return false;
     }
 
     public Claims getUserInfoFromToken(String token) {

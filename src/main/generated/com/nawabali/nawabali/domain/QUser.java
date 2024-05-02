@@ -34,6 +34,8 @@ public class QUser extends EntityPathBase<User> {
 
     public final StringPath nickname = createString("nickname");
 
+    public final BooleanPath oauthStatus = createBoolean("oauthStatus");
+
     public final StringPath password = createString("password");
 
     public final com.nawabali.nawabali.domain.image.QProfileImage profileImage;
