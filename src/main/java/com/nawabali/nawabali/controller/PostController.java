@@ -2,6 +2,7 @@ package com.nawabali.nawabali.controller;
 
 import com.nawabali.nawabali.constant.Category;
 import com.nawabali.nawabali.constant.Period;
+import com.nawabali.nawabali.domain.elasticsearch.PostSearch;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.PostService;
@@ -66,6 +67,19 @@ public class PostController {
                     direction = Sort.Direction.DESC) Pageable pageable) {
         Slice<PostDto.ResponseDto> postsSlice = postService.getPostsByLatest(pageable);
         return ResponseEntity.ok(postsSlice);
+    }
+    // 전체 게시물 조회(지도용)
+    @Operation(
+            summary = "전체 게시글 조회",
+            description = "ES로 전체 조회, 등록일 기준 내림차순 정렬")
+    @GetMapping("/searchAll")
+    public List<PostSearch> searchAll(){
+        return postService.searchAllPosts();
+    }
+
+    @PatchMapping("/updateAll")
+    public void updateAll() throws IOException {
+        postService.updateAll();
     }
 
 

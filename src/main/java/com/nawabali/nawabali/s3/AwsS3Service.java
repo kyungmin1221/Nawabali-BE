@@ -1,10 +1,7 @@
 package com.nawabali.nawabali.s3;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.*;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -112,5 +109,20 @@ public class AwsS3Service {
         } catch (IOException e) {
             throw new CustomException(ErrorCode.PHOTO_UPLOAD_ERROR);
         }
+    }
+
+    public S3Object getS3Object(String objectKey){
+        return amazonS3.getObject(bucket, objectKey);
+    }
+
+    public String getContentType(String objectKey){
+        S3Object s3Object = amazonS3.getObject(bucket, objectKey);
+        return s3Object.getObjectMetadata().getContentType();
+    }
+
+    public String saveAndGetUrl(String resizedFilePath, ByteArrayInputStream inputStream, ObjectMetadata resizedMetadata){
+        amazonS3.putObject(new PutObjectRequest(bucket, resizedFilePath, inputStream, resizedMetadata)
+                .withCannedAcl(CannedAccessControlList.PublicRead));
+        return amazonS3.getUrl(bucket, resizedFilePath).toString();
     }
 }
