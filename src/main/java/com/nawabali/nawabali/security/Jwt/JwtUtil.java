@@ -185,7 +185,7 @@ public class JwtUtil {
         if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
             return token.substring(7);
         }
-        throw new NullPointerException("Not Found Token");
+        return null;
     }
 
 
