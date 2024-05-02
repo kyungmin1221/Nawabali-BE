@@ -120,7 +120,6 @@ public class JwtUtil {
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
-        cookie.setHttpOnly(true);
         cookie.setMaxAge(ACCESS_EXPIRATION_TIME);
         cookie.setDomain("dongnaebangnae.com");
 

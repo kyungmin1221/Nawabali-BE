@@ -1,9 +1,6 @@
 package com.nawabali.nawabali.service;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.nawabali.nawabali.constant.*;
 import com.nawabali.nawabali.domain.BookMark;
 import com.nawabali.nawabali.domain.Like;
@@ -21,17 +18,13 @@ import com.nawabali.nawabali.s3.AwsS3Service;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -225,8 +218,7 @@ public class PostService {
 
         for (Post post : allPosts) {
             Long postId = post.getId();
-            if (1<= postId && postId<=3) {
-
+//            if (2<=postId && postId<=196) {
 
                 List<PostImage> existImages = post.getImages();
                 List<String> deletedList = new ArrayList<>();
@@ -241,7 +233,9 @@ public class PostService {
                     deletedList.add(postId.toString());
                     deletePost(postId);
                 }
+                //
                 int imgSize = existImages.size();
+                List<Long> imageIds = existImages.stream().map(PostImage::getId).toList();
                 PostImage resizedImage = existImages.get(imgSize-1);
                 String resizedImageUrl = resizedImage.getImgUrl();
                 if(resizedImageUrl.equals(existImagesUrls.get(imgSize-1))&&resizedImageUrl.contains("compressed_postImages")){
@@ -249,10 +243,25 @@ public class PostService {
                     existImages.add(0,resizedImage);
                     log.info("First Image URL : "+ existImages.get(0).getImgUrl());
                     post.updateImages(existImages);
-                    log.info("Updated First Image URL : "+post.getImages().get(0).getImgUrl());
-                    Post savedPost = postRepository.save(post);
-                    log.info("savedPost First Image URL : + " +savedPost.getImages().get(0).getImgUrl());
                     log.info(postId + " 번 진행완료");
+                }
+                List<Long> newImageIds = existImages.stream().map(PostImage::getId).toList();
+                List<String> newImageFileName = existImages.stream().map(PostImage::getFileName).toList();
+                List<String> newImageUrls = existImages.stream().map(PostImage::getImgUrl).toList();
+
+                for(int i =0; i<imgSize;i++){
+                    Long imageId = imageIds.get(i);
+                    log.info("수정할 이미지 번호 : " + imageId );
+                    log.info("덮어 씌울 이미지 번호 : " + newImageIds.get(i));
+                    PostImage existImage = postImageRepository.findById(imageId).orElse(null);
+                    if(existImage != null){
+                        log.info("수정할 이미지 : " + existImage.getImgUrl());
+                        log.info("덮어 씌울 이미지 : " + newImageUrls.get(i));
+                        existImage.updateUrls(newImageFileName.get(i), newImageUrls.get(i));
+                    }
+                    else {
+                        log.info("게시글 ID : " + postId);
+                    }
                 }
 
 //                PostImage firstPostImage = existImages.get(0);
@@ -325,7 +334,7 @@ public class PostService {
 //                    log.info("Document PK : " + postSearch.getId());
 //                    log.info("게시글 PK : " + postSearch.getPostId());
 //                }
-            }
+//            }
 
         }
     }

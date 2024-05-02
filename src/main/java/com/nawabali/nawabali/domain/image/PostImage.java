@@ -28,4 +28,10 @@ public class PostImage {
         this.imgUrl = imgUrl;
         this.post = post;
     }
+
+    public void updateUrls(String fileName,String imgUrl) {
+        this.fileName=fileName;
+        this.imgUrl = imgUrl;
+
+    }
 }

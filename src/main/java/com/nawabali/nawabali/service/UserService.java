@@ -78,6 +78,7 @@ public class UserService {
         Cookie cookie = new Cookie(JwtUtil.AUTHORIZATION_HEADER, null);
         cookie.setMaxAge(0);
         cookie.setPath("/");
+        cookie.setDomain("dongnaebangnae.com");
         response.addCookie(cookie);
         return ResponseEntity.ok("로그아웃 성공");
     }
@@ -265,9 +266,9 @@ public class UserService {
     }
 
     public OAuthDto.oAuthResponseDto getOAuthUserInfo(User user, HttpServletRequest request, HttpServletResponse response) {
-        String accessToken = jwtUtil.getJwtFromHeader(request);
-        log.info("accessToken : " + JwtUtil.BEARER_PREFIX + accessToken);
-        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
+        String cookieFromAccesstoken = jwtUtil.getTokenFromCookieAndName(request, JwtUtil.AUTHORIZATION_HEADER);
+        log.info("cookie Token : "+ cookieFromAccesstoken);
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, cookieFromAccesstoken);
 
         User existUser = getUserId(user.getId());
         return new OAuthDto.oAuthResponseDto(existUser);
