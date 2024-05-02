@@ -34,6 +34,7 @@ echo "> $JAR_NAME 를 profile=$IDLE_PROFILE 로 실행합니다."
 nohup java -jar \
     -Dspring.config.location="classpath:/application.properties, /home/ubuntu/app/step3/zip/application-$IDLE_PROFILE.properties" \
     -Dspring.profiles.active=$IDLE_PROFILE \
+    -Duser.timezone=Asia/Seoul \
     $JAR_NAME > $REPOSITORY/application.log 2>&1 &
 
 # Deploy 로그
