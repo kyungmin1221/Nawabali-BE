@@ -41,8 +41,8 @@
 
 | 이름    | 역할    | 깃허브    |
 | -----    | -----    | -----    |
-| 박경민    | 게시물 관련 기능(게시물 조회 무한스크롤, QueryDSL 동적 쿼리를 사용한 조회), 북마크 관련 기능, 이미지 최적화 처리, 이메일 인증 구현(Redis), ElasticSearch 를 사용한 검색 기능 |https://github.com/kyungmin1221 | 
-| 유재성    | -- | https://github.com/Peter-Yu-0402|
+| 박경민    | 게시물 관련 기능(게시물 조회 무한스크롤, QueryDSL 동적 쿼리를 사용한 조회), 북마크 관련 기능, AWS S3 이미지 관리, 지도 이미지 최적화 처리, 이메일 인증 구현(Redis), ElasticSearch 를 사용한 검색 기능, 예외처리 |https://github.com/kyungmin1221 | 
+| 유재성    | CI/CD 구축, AWS 서버 관리, Nginx HTTPS, 블루그린 무중단배포, CORS, 프로필이미지, 댓글 페이지네이션, PPT 제작 및 최종 발표 | https://github.com/Peter-Yu-0402|
 | 김주원    |  -- | https://github.com/DoKkangs|
 | 이은미    | 댓글 CRUD, 좋아요 CRUD, 채팅 및 알림 기능 | https://github.com/minnieming |
 
