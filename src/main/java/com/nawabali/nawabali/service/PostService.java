@@ -218,7 +218,7 @@ public class PostService {
 
         for (Post post : allPosts) {
             Long postId = post.getId();
-//            if (2<=postId && postId<=196) {
+
 
                 List<PostImage> existImages = post.getImages();
                 List<String> deletedList = new ArrayList<>();
@@ -228,41 +228,51 @@ public class PostService {
                 log.info("기존 이미지 사진 갯수 :" + existImages.size());
                 log.info("기존 이미지파일 : " + existImageFileName);
                 log.info("기존 이미지들 : " + existImagesUrls);
-                if (existImages.isEmpty()) {
-                    log.info("이미지 없는 게시글 삭제 : " + postId);
-                    deletedList.add(postId.toString());
-                    deletePost(postId);
-                }
-                //
-                int imgSize = existImages.size();
-                List<Long> imageIds = existImages.stream().map(PostImage::getId).toList();
-                PostImage resizedImage = existImages.get(imgSize-1);
-                String resizedImageUrl = resizedImage.getImgUrl();
-                if(resizedImageUrl.equals(existImagesUrls.get(imgSize-1))&&resizedImageUrl.contains("compressed_postImages")){
-                    resizedImage = existImages.remove(imgSize-1);
-                    existImages.add(0,resizedImage);
-                    log.info("First Image URL : "+ existImages.get(0).getImgUrl());
-                    post.updateImages(existImages);
-                    log.info(postId + " 번 진행완료");
-                }
-                List<Long> newImageIds = existImages.stream().map(PostImage::getId).toList();
-                List<String> newImageFileName = existImages.stream().map(PostImage::getFileName).toList();
-                List<String> newImageUrls = existImages.stream().map(PostImage::getImgUrl).toList();
+//            if (existImages.isEmpty()) {
+//                log.info("이미지 없는 게시글 삭제 : " + postId);
+//                deletedList.add(postId.toString());
+//                deletePost(postId);
+//            }
 
-                for(int i =0; i<imgSize;i++){
-                    Long imageId = imageIds.get(i);
-                    log.info("수정할 이미지 번호 : " + imageId );
-                    log.info("덮어 씌울 이미지 번호 : " + newImageIds.get(i));
-                    PostImage existImage = postImageRepository.findById(imageId).orElse(null);
-                    if(existImage != null){
-                        log.info("수정할 이미지 : " + existImage.getImgUrl());
-                        log.info("덮어 씌울 이미지 : " + newImageUrls.get(i));
-                        existImage.updateUrls(newImageFileName.get(i), newImageUrls.get(i));
-                    }
-                    else {
-                        log.info("게시글 ID : " + postId);
-                    }
-                }
+                // 4.ES에 저장
+                User writer = post.getUser();
+                String resizedImageUrl = existImages.remove(0).getImgUrl();
+                log.info("리사이즈 이미지 주소 : " + resizedImageUrl);
+                List<String> originalUrls = existImages.stream().map(PostImage::getImgUrl).toList();
+                PostSearch postSearch = createPostSearch(post, originalUrls, resizedImageUrl, writer);
+                postSearchRepository.save(postSearch);
+                log.info("Document PK : " + postSearch.getId());
+                log.info("게시글 PK : " + postSearch.getPostId());
+
+//
+//            int imgSize = existImages.size();
+//            List<Long> imageIds = existImages.stream().map(PostImage::getId).toList();
+//            PostImage resizedImage = existImages.get(imgSize - 1);
+//            String resizedImageUrl = resizedImage.getImgUrl();
+//            if (resizedImageUrl.equals(existImagesUrls.get(imgSize - 1)) && resizedImageUrl.contains("compressed_postImages")) {
+//                resizedImage = existImages.remove(imgSize - 1);
+//                existImages.add(0, resizedImage);
+//                log.info("First Image URL : " + existImages.get(0).getImgUrl());
+//                post.updateImages(existImages);
+//                log.info(postId + " 번 진행완료");
+//            }
+//            List<Long> newImageIds = existImages.stream().map(PostImage::getId).toList();
+//            List<String> newImageFileName = existImages.stream().map(PostImage::getFileName).toList();
+//            List<String> newImageUrls = existImages.stream().map(PostImage::getImgUrl).toList();
+//
+//            for (int i = 0; i < imgSize; i++) {
+//                Long imageId = imageIds.get(i);
+//                log.info("수정할 이미지 번호 : " + imageId);
+//                log.info("덮어 씌울 이미지 번호 : " + newImageIds.get(i));
+//                PostImage existImage = postImageRepository.findById(imageId).orElse(null);
+//                if (existImage != null) {
+//                    log.info("수정할 이미지 : " + existImage.getImgUrl());
+//                    log.info("덮어 씌울 이미지 : " + newImageUrls.get(i));
+//                    existImage.updateUrls(newImageFileName.get(i), newImageUrls.get(i));
+//                } else {
+//                    log.info("게시글 ID : " + postId);
+//                }
+//            }
 
 //                PostImage firstPostImage = existImages.get(0);
 //                String firstImageUrl = firstPostImage.getImgUrl();
@@ -326,13 +336,7 @@ public class PostService {
 //                        oversizedPosts.add(postId.toString());
 //                    }
 //                    log.info("oversizedPosts:" + oversizedPosts);
-////                4.ES에 저장
-//                    User writer = post.getUser();
-////                    List<String> existImagesUrls = existImages.stream().map(PostImage::getImgUrl).toList();
-//                    PostSearch postSearch = createPostSearch(post, existImagesUrls, resizedImageUrl, writer);
-//                    postSearchRepository.save(postSearch);
-//                    log.info("Document PK : " + postSearch.getId());
-//                    log.info("게시글 PK : " + postSearch.getPostId());
+
 //                }
 //            }
 
