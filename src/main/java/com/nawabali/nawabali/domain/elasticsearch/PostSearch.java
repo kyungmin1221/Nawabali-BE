@@ -62,6 +62,9 @@ public class PostSearch {
     @Field(type = FieldType.Keyword)
     private String mainImageUrl;
 
+    @Field(type=FieldType.Keyword)
+    private String resizedImageUrl;
+
     @Field(type = FieldType.Boolean)
     private boolean multiImages;
 

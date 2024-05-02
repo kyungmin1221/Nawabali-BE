@@ -1,5 +1,9 @@
 package com.nawabali.nawabali.service;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.nawabali.nawabali.constant.*;
 import com.nawabali.nawabali.domain.BookMark;
 import com.nawabali.nawabali.domain.Like;
@@ -17,23 +21,28 @@ import com.nawabali.nawabali.s3.AwsS3Service;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
+import net.coobird.thumbnailator.Thumbnails;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static com.nawabali.nawabali.constant.LikeCategoryEnum.LIKE;
 import static com.nawabali.nawabali.constant.LikeCategoryEnum.LOCAL_LIKE;
 
 @Service
-@Slf4j
+@Slf4j(topic = "PostService")
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PostService {
@@ -46,19 +55,14 @@ public class PostService {
     private final PostSearchRepository postSearchRepository;
     private final ProfileImageRepository profileImageRepository;
     private final BookMarkRepository bookMarkRepository;
-    private final UserRepository userRepository;
-    private final List <String> seoulDistrictNames = Arrays.asList(
-            "강남구", "강동구", "강서구", "강북구", "관악구",
-            "광진구", "구로구", "금천구", "노원구", "동대문구",
-            "도봉구", "동작구", "마포구", "서대문구", "성동구",
-            "성북구", "서초구", "송파구", "영등포구", "용산구",
-            "양천구", "은평구", "종로구", "중구", "중랑구"
-    );
+    private final AmazonS3 amazonS3;
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
 
     // 게시물 생성
     @Transactional
-    public PostDto.ResponseDto createPost(User user, PostDto.RequestDto requestDto, List<MultipartFile> files) {
+    public PostDto.ResponseDto createPost(User user, PostDto.RequestDto requestDto, List<MultipartFile> files) throws IOException {
         User findUser = userService.getUserId(user.getId());
 
         Town town = new Town(
@@ -78,9 +82,20 @@ public class PostService {
                 .user(findUser)
                 .build();
 
-        List<String> imageUrls = awsS3Service.uploadFile(files, "postImages");
+        Map<String, Object> uploadResults = awsS3Service.uploadFile(files, "postImages");
+        String resizedImageUrl = (String) uploadResults.get("resizedUrl");
+        List<String> originalUrls = (List<String>) uploadResults.get("originalUrls");
 
-        imageUrls.forEach(url -> {
+        // 리사이즈된 이미지
+        PostImage resizeImage = PostImage.builder()
+                .fileName(resizedImageUrl)
+                .imgUrl(resizedImageUrl)
+                .post(post)
+                .build();
+        post.getImages().add(resizeImage);
+
+        // 원본 이미지 URL들을 각각 처리
+        originalUrls.forEach(url -> {
             PostImage image = PostImage.builder()
                     .fileName(url)
                     .imgUrl(url)
@@ -89,9 +104,8 @@ public class PostService {
             post.getImages().add(image);
         });
 
-
         Post savedPost = postRepository.save(post);
-        PostSearch postSearch = createPostSearch(savedPost, imageUrls, findUser);
+        PostSearch postSearch = createPostSearch(savedPost, originalUrls, resizedImageUrl, findUser);
         postSearchRepository.save(postSearch);
 
         User userUp = post.getUser();
@@ -99,9 +113,9 @@ public class PostService {
             userUp.updateRank(userUp.getRank());
         }
 
-        return new PostDto.ResponseDto(post);
-
+        return new PostDto.ResponseDto(savedPost);
     }
+
 
     // 전체 게시물 조회
     public Slice<PostDto.ResponseDto> getPostsByLatest(Pageable pageable) {
@@ -111,6 +125,14 @@ public class PostService {
                 .collect(Collectors.toList());
 
         return new SliceImpl<>(responseDtos, pageable, postSlice.hasNext());
+    }
+
+    // 전체 게시물 조회(지도용)
+    public List<PostSearch> searchAllPosts(){
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        return StreamSupport.stream(
+                        postSearchRepository.findAll(sort).spliterator(), false)
+                .toList();
     }
 
 
@@ -195,6 +217,95 @@ public class PostService {
         return postRepository.findCategoryByPost(district);
     }
 
+    @Transactional
+    public void updateAll() throws IOException{
+        Sort sort = Sort.by(Sort.Direction.ASC, "createdAt");
+        List<Post> allPosts = postRepository.findAll(sort);
+
+        for(Post post : allPosts){
+            Long postId = post.getId();
+            List<PostImage> existImages = post.getImages();
+            log.info("기존 이미지 사진 갯수 :" + existImages.size());
+            PostImage firstPostImage = existImages.get(0);
+            String firstImageUrl = firstPostImage.getImgUrl();
+            //URL 파싱하여 S3의 이미지 로드
+            String dirName = "postImages/";
+            String objectKey = getObjectKeyFromUrl(dirName, firstImageUrl);
+            log.info("objectKey : " + objectKey);
+            String contentType = awsS3Service.getContentType(objectKey);
+            log.info("contentType : " + contentType);
+
+            S3Object s3Object = awsS3Service.getS3Object(objectKey);
+            try(S3ObjectInputStream inputStream = s3Object.getObjectContent()){
+                byte[] bytes = inputStream.readAllBytes();
+
+                //로드된 이미지 리사이즈 로직 통과 s3저장 후 빌더로 PostImage 객체 생성
+                //1.로드된 이미지 리사이징
+                log.info("게시글 번호 : " + postId + " 리사이징 진행");
+                InputStream compressedInputStream = new ByteArrayInputStream(bytes);
+                ByteArrayOutputStream resizedOs = new ByteArrayOutputStream();
+                Thumbnails.of(compressedInputStream)
+                        .size(60,60)
+                        .outputQuality(0.75)
+                        .toOutputStream(resizedOs);
+                byte[] compressedImage = resizedOs.toByteArray();
+//                log.info("ByteArrayOutputStream : " + resizedOs);
+                log.info("게시글 번호 : " + postId + " 리사이징 완료");
+
+                //2.s3저장
+                log.info("게시글 번호 : " +postId + " s3 저장 시작");
+
+                ByteArrayInputStream uploadInputStream = new ByteArrayInputStream(compressedImage);
+
+                long contentLength = compressedImage.length;
+                String compressedFilePath = "compressed_" + objectKey;
+                log.info("compressedFilePath : " + compressedFilePath);
+
+                ObjectMetadata resizedMetadata = new ObjectMetadata();
+                resizedMetadata.setContentLength(contentLength);
+                resizedMetadata.setContentType(contentType);
+                log.info("이미지 저장시작");
+                log.info(s3Object.getKey());
+
+
+
+                String resizedImageUrl = awsS3Service.saveAndGetUrl(compressedFilePath, uploadInputStream, resizedMetadata);
+                log.info("S3저장완료. 저장된 이미지 주소 : " + resizedImageUrl);
+
+
+                //3.PostImage 객체 생성 후 리스트에 추가
+                PostImage resizedImage = PostImage.builder()
+                        .fileName(resizedImageUrl)
+                        .imgUrl(resizedImageUrl)
+                        .post(post)
+                        .build();
+
+                post.updateImages(existImages);
+                log.info("추가 후 이미지 사진 갯수 : " + existImages.size());
+
+                //4.ES에 저장
+                User writer = post.getUser();
+                List<String> existImagesUrls = existImages.stream().map(PostImage::getImgUrl).toList();
+                PostSearch postSearch = createPostSearch(post, existImagesUrls, resizedImageUrl, writer);
+                postSearchRepository.save(postSearch);
+                log.info("Document PK : "  + postSearch.getId());
+                log.info("게시글 PK : "+ postSearch.getPostId());
+
+            }
+
+        }
+    }
+
+    private String getObjectKeyFromUrl(String dirName, String imageUrl) {
+        // URL에서 마지막 슬래시('/') 이후의 부분을 객체 키로 반환합니다.
+        int lastSlashIndex = imageUrl.lastIndexOf('/');
+        if (lastSlashIndex != -1 && lastSlashIndex < imageUrl.length() - 1) {
+            return dirName + imageUrl.substring(lastSlashIndex + 1);
+        } else {
+            throw new IllegalArgumentException("Invalid S3 URL: " + imageUrl);
+        }
+    }
+
     // 게시물 수정 - 사용자 신원 확인
     @Transactional
     public PostDto.PatchDto updatePost(Long postId, User user, PostDto.PatchDto patchDto) {
@@ -235,16 +346,6 @@ public class PostService {
     }
 
 
-    // 게시물 검색
-//    public Slice<PostDto.ResponseDto> searchAndFilterPosts(String contents, Pageable pageable) {
-//        List<PostSearch> searchResults = postSearchRepository.findByContentsContaining(contents);
-//
-//        List<Long> postIds = searchResults.stream()
-//                .map(PostSearch::getPostId)
-//                .collect(Collectors.toList());
-//
-//        return postRepository.searchAndFilterPosts(postIds, pageable);
-//    }
 
     // 게시물 검색(ES)
     public Slice<PostDto.ResponseDto> searchAndFilterPosts(String contents, Pageable pageable) {
@@ -260,11 +361,9 @@ public class PostService {
 
 
 
-
-
     // 동네별 점수 조회
     public List<PostDto.DistrictDto> districtMap() {
-        return seoulDistrictNames.stream()
+        return CityEnum.SEOUL.getDistricts().stream()
                 .map(district -> createDistrictDto(
                         district,
                         countPostsByDistrict(district),
@@ -356,6 +455,7 @@ public class PostService {
                 post.getLongitude(),
                 post.getCreatedAt(),
                 post.getModifiedAt(),
+                post.getResizedImageUrl(),
                 post.getMainImageUrl(),
                 post.isMultiImages(),
                 likesCount,
@@ -366,7 +466,7 @@ public class PostService {
     }
 
 
-    private PostSearch createPostSearch(Post post, List<String> imageUrls, User user) {
+    private PostSearch createPostSearch(Post post, List<String> imageUrls, String resizedImageUrl, User user) {
         PostSearch postSearch = new PostSearch();
 
         postSearch.setId(post.getId().toString());
@@ -385,6 +485,7 @@ public class PostService {
         postSearch.setModifiedAt(post.getModifiedAt());
         postSearch.setMainImageUrl(imageUrls.isEmpty() ? null : imageUrls.get(0));
         postSearch.setMultiImages(imageUrls.size() > 1);
+        postSearch.setResizedImageUrl(resizedImageUrl);
         postSearch.setLikesCount(0L);
         postSearch.setLocalLikesCount(0L);
         postSearch.setCommentCount(0);
@@ -417,7 +518,5 @@ public class PostService {
                 .profileImageUrl(postSearch.getProfileImageUrl())
                 .build();
     }
-
-
 
 }

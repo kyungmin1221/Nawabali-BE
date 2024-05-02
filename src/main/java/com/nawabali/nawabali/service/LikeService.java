@@ -68,8 +68,6 @@ public class LikeService {
 
             likeRepository.save(findLike);
 
-//            notificationService.notifyLike(postId,user.getId());
-
         }
         // response 보내기
         return LikeDto.responseDto.builder()
