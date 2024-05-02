@@ -50,7 +50,7 @@ public class UserService {
     public ResponseEntity<String> logout(String accessToken) {
         if (StringUtils.hasText(accessToken)) {
             log.info("accessToken : " + accessToken );
-            accessToken = accessToken.substring(7);
+//            accessToken = accessToken.substring(7);
             String refreshToken = redisTool.getValues(accessToken);
             if (!refreshToken.equals("false")) {
                 log.info("refreshToken 삭제.  key = " + accessToken);

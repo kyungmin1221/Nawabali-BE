@@ -57,7 +57,9 @@ public class WebSocketJwtInterceptor implements ChannelInterceptor {
                 String token = authorizationHeader.get(0); // 첫 번째 Authorization 헤더 값 사용
                 log.info("토큰" +token);
 
-                String accessToken = token.substring(JwtUtil.BEARER_PREFIX.length());
+                // substring 제외
+//                String accessToken = token.substring(JwtUtil.BEARER_PREFIX.length());
+                String accessToken = token;
                 log.info("엑세스토큰" +accessToken);
                 // token 사용
 

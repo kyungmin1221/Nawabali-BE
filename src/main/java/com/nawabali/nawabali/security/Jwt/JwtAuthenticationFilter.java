@@ -77,10 +77,16 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 
 //        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, token);
-//        response.addCookie(accessCookie);
-        response.addHeader("Set-Cookie", jwtUtil.createResponseCookie(token));
+
+        // same-site 없는 버전
+        response.addCookie(accessCookie);
+//        response.addHeader("Set-Cookie", jwtUtil.createResponseCookie(token));
+
         // refresh 토큰 redis에 저장
-        redisTool.setValues(token.substring(7), refreshCookie.getValue(), Duration.ofMillis(jwtUtil.REFRESH_EXPIRATION_TIME));
+        // substring 제외
+//        redisTool.setValues(token.substring(7), refreshCookie.getValue(), Duration.ofMillis(jwtUtil.REFRESH_EXPIRATION_TIME));
+        redisTool.setValues(token, refreshCookie.getValue(), Duration.ofMillis(jwtUtil.REFRESH_EXPIRATION_TIME));
+
 
         // 로그인 성공 메시지를 JSON 형태로 응답 본문에 추가
         response.setContentType("application/json");

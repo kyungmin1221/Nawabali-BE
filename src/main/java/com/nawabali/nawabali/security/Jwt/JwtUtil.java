@@ -113,6 +113,8 @@ public class JwtUtil {
         cookie.setSecure(true);
         cookie.setHttpOnly(true);
         cookie.setMaxAge(ACCESS_EXPIRATION_TIME);
+        cookie.setDomain("dongnaebangnae.com");
+
         return cookie;
     }
 
@@ -124,7 +126,7 @@ public class JwtUtil {
                 .secure(true)
                 .httpOnly(true)
                 .maxAge(ACCESS_EXPIRATION_TIME)
-                .domain(".dongnaebangnae.com")
+                .domain("dongnaebangnae.com")
                 .sameSite("None")
                 .build();
         return cookie.toString();
