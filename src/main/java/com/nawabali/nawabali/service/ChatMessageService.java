@@ -56,6 +56,7 @@ public class ChatMessageService {
                 }
             }
             notificationService.deleteAllNotification(userOptional,chatRoomId);
+            notificationService.notifyAllMyMessage(userOptional.getNickname());
             return;
         }
 
