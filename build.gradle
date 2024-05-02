@@ -80,7 +80,8 @@ dependencies {
 	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-
+	// thumbnailator
+	implementation 'net.coobird:thumbnailator:0.4.14'
 }
 
 // Querydsl 설정부
