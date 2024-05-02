@@ -165,8 +165,8 @@ public class KakaoService {
         response.addCookie(accessCookie);
 
         // 7. refresh 토큰 redis에 저장
-        redisTool.setValues(token.substring(7),
-//        redisTool.setValues(token,
+//        redisTool.setValues(token.substring(7),
+        redisTool.setValues(token,
                         refreshCookie.getValue(),
                 Duration.ofMillis(jwtUtil.REFRESH_EXPIRATION_TIME));
 
