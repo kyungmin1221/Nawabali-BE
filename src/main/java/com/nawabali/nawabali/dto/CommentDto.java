@@ -6,14 +6,12 @@ import com.nawabali.nawabali.domain.Comment;
 import com.nawabali.nawabali.exception.CustomException;
 import com.nawabali.nawabali.exception.ErrorCode;
 import lombok.*;
-import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j(topic = "CommentDto 로그")
 public class CommentDto {
 
     @Getter

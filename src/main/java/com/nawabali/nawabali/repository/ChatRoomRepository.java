@@ -2,6 +2,7 @@ package com.nawabali.nawabali.repository;
 
 import com.nawabali.nawabali.domain.Chat;
 import com.nawabali.nawabali.repository.querydsl.chat.ChatDslRepositoryCustom;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

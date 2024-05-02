@@ -103,11 +103,8 @@ public class CommentService {
             throw new CustomException(ErrorCode.UNAUTHORIZED_COMMENT);
         }
 
-        // 댓글 삭제
         commentRepository.delete(comment);
 
-
-        // commentId랑 메세지 response로 보내기
         return CommentDto.DeleteResponseDto.builder()
                 .commentId(commentId)
                 .message("댓글이 삭제되었습니다.")
