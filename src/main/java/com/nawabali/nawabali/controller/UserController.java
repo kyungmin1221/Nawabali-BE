@@ -93,7 +93,7 @@ public class UserController {
         return userService.searchNickname(nickname);
     }
 
-    @GetMapping("/authenticated")
+    @GetMapping("/authenticate")
     public OAuthDto.oAuthResponseDto getOAuthUserInfo(@AuthenticationPrincipal UserDetailsImpl userDetails){
         return userService.getOAuthUserInfo(userDetails.getUser());
     }
