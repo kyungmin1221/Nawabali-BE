@@ -36,14 +36,14 @@
 ## 백엔드 팀원 소개
 | **박경민(팀장)** | **유재성** | **김주원** | **이은미** |
 | :------: |  :------: | :------: | :------: |
-| [<img src="https://github.com/kyungmin1221/BaekJoon/assets/105621255/1d1fd83d-ef01-4144-9d65-9b6056d40a43" height=150 width=150> <br/> @kyungmin](https://github.com/kyungmin1221) | [<img src="https://github.com/Nawabali-project/Nawabali-BE/assets/105621255/dd34e52f-3038-470a-9aca-1833b42a0ace" height=150 width=150> <br/> @Peter-Yu](https://github.com/Peter-Yu-0402) | [<img src="" height=150 width=150> <br/> @Juwum12](https://github.com/juwum12) | [<img src="https://github.com/kyungmin1221/BaekJoon/assets/105621255/2373d997-73e3-47d7-84f9-fdc0c12cfa28" height=150 width=150> <br/> @minnieming](https://github.com/minnieming) |
+| [<img src="https://github.com/kyungmin1221/BaekJoon/assets/105621255/1d1fd83d-ef01-4144-9d65-9b6056d40a43" height=150 width=150> <br/> @kyungmin](https://github.com/kyungmin1221) | [<img src="https://github.com/Nawabali-project/Nawabali-BE/assets/105621255/dd34e52f-3038-470a-9aca-1833b42a0ace" height=150 width=150> <br/> @Peter-Yu](https://github.com/Peter-Yu-0402) | [<img src="https://github.com/Nawabali-project/Nawabali-BE/assets/105621255/87cd2bd0-62e3-4e01-b4c3-e1d06b29fde2" height=150 width=150> <br/> @Juwum12](https://github.com/juwum12) | [<img src="https://github.com/kyungmin1221/BaekJoon/assets/105621255/2373d997-73e3-47d7-84f9-fdc0c12cfa28" height=150 width=150> <br/> @minnieming](https://github.com/minnieming) |
 
 
 | 이름    | 역할    | 깃허브    |
-| ---    | ---    | ---    |
-| 박경민    | 게시물 관련 기능(게시물 조회 / 무한스크롤, QueryDSL 동적 쿼리를 사용한 조회), 북마크 관련 기능, 이미지 최적화 처리, 이메일 인증 구현, ElasticSearch 를 사용한 검색 기능 |https://github.com/kyungmin1221 | 
-| 유재성    |  | https://github.com/Peter-Yu-0402|
-| 김주원    |  | https://github.com/DoKkangs|
+| -----    | -----    | -----    |
+| 박경민    | 게시물 관련 기능(게시물 조회 무한스크롤, QueryDSL 동적 쿼리를 사용한 조회), 북마크 관련 기능, 이미지 최적화 처리, 이메일 인증 구현(Redis), ElasticSearch 를 사용한 검색 기능 |https://github.com/kyungmin1221 | 
+| 유재성    | -- | https://github.com/Peter-Yu-0402|
+| 김주원    |  -- | https://github.com/DoKkangs|
 | 이은미    | 댓글 CRUD, 좋아요 CRUD, 채팅 및 알림 기능 | https://github.com/minnieming |
 
 
@@ -61,19 +61,17 @@
 | 📌 사용 기술 | 📖 기술 설명 |
 | --- | --- |
 | GitHub Actions | GitHub와의 통합이 용이하며 비교적 설정이 간단하고, 빠른 배포와 프로젝트의 규모가 작은 경우 유리하기 때문에 해당 기술을 선택하였습니다. |
-| Docker | 독립적인 환경을 구성하고, 개발 환경과 운영 환경 간의 일관성을 유지하며 컨테이너 기반의 배포로 가볍게 배포할 수 있기 때문에 해당 기술을 선택하였습니다. |
 | Blue-Green | 사용자에게 영향을 주지 않으면서 신규 버전을 안전하게 테스트하고 점진적으로 전환할 수 있으며, blue-green 두 환경이 독립적이기 때문에 새 버전의 오류가 기존 시스템에 영향을 미치지 않는 이점으로 해당 기술을 선택하였습니다. |
 | Nginx | 한정된 예산을 사용하는 상황에서 하나의 EC2 인스턴스로 서버를 구축하였기 때문에, nginx의 리버스 프록시 기능을 통해 한대의 서버로 무중단배포를 구현하였습니다. |
-| WebSocket | |
-| Stomp | |
-| SockJS | |
-| SSE (Server-Sent Events) | 서버에서 클라이언트로의 메세지 전달만 필요했기 때문에 단방향 통신 기술인 SSE가 가장 적합한 기술이라 판단하여 선택하였습니다. |
 | Social Login(Kakao) | 펀딩 후원에 참여하기 위해 다수가 접근할 수 있는 점을 고려하여, 사용자의 접근성에 중점을 둔 소셜 로그인(Kakao & Google) 기능 구현을 선택하였습니다.  |
 | Spring Security | 인증되지 않은 불특정 다수가 접근할 수 있는 점을 고려하여, 개인정보 보안성에 중점을 둔 Spring Security 기반의 로그인 기능 구현을 선택하였습니다. |
 | ElasticSearch | 원하는 펀딩에 후원을 진행하고, 후원 결제 내역을 수집하기 위해 Kakaopay 온라인 결제 기능 구현을 선택하였습니다. |
-| QueryDSL | 원하는 펀딩에 후원을 진행하고, 후원 결제 내역을 수집하기 위해 Kakaopay 온라인 결제 기능 구현을 선택하였습니다. |
+| QueryDSL | 원하는 펀딩에 후원을 진행하고, 후원 결제 내역을 수집하기 위해 Kakaopay 온라인 결제 기능 구현을 선택하였습니다. |
 | Redis | 사용자들에게 빈번하게 보여지는 정보들은 캐시를 적용하여 처리하면 성능 개선을 할 수 있을 것이라고 생각하였고, 추후 사용자가 늘어남에 따라 동시성 문제도 발생할 수 있다고 생각하여 이를 제어할 수 있는 기능을 제공하는 해당 기술을 선택하였습니다. |
-
+| WebSocket | |
+| SSE (Server-Sent Events) | 서버에서 클라이언트로의 메세지 전달만 필요했기 때문에 단방향 통신 기술인 SSE가 가장 적합한 기술이라 판단하여 선택하였습니다. |
+| Stomp | |
+| SockJS | |
 
 
 
@@ -175,11 +173,12 @@
 ## ✅ 동네 소식
     
 ![동네소식]()
-|1|2|3|4|
-|:--:|:--:|:--:|:--:|
-|![image]()|![image]()|![image]()|![image]()|
+|우리동네 인기글은?|여러동네의 인기들은?|카테고리별로 인기동네는?|
+|:--:|:--:|:--:|
+|![image](https://github.com/Nawabali-project/Nawabali-BE/assets/105621255/b7cff42b-ec6f-4379-a98b-a70a47e93859)|![image](https://github.com/Nawabali-project/Nawabali-BE/assets/105621255/4c64ec9f-d0ce-4795-abe4-447ecb868ca2)|![image](https://github.com/Nawabali-project/Nawabali-BE/assets/105621255/bf8f085b-a8f8-4695-a9bb-263742dc170e)|
     
 - 동네소식 설명란
+
 
 
 ## ✅ 마이페이지
