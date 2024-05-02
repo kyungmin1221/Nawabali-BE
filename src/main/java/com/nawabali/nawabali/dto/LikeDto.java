@@ -1,10 +1,12 @@
 package com.nawabali.nawabali.dto;
 
 import com.nawabali.nawabali.constant.LikeCategoryEnum;
-import lombok.*;
-import lombok.extern.slf4j.Slf4j;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@Slf4j (topic = "LikeDto 로그")
+
 public class LikeDto {
 
     @Getter

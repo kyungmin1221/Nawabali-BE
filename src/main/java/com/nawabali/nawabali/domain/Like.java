@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @Getter
@@ -14,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table (name = "likes")
-@Slf4j (topic = "LikeDomain 로그")
 public class Like {
 
     @Id
@@ -22,13 +20,13 @@ public class Like {
     private Long id;
 
     @Column (nullable = false)
+    private boolean status;
+
+    @Column (nullable = false)
     @Enumerated (EnumType.STRING)
     private LikeCategoryEnum likeCategoryEnum;
 
-    @Column (nullable = false)
-    private boolean status;
-
-    @ManyToOne (fetch = FetchType.LAZY) // 성능향상에 좋다.
+    @ManyToOne (fetch = FetchType.LAZY)
     @JoinColumn (name = "user_id")
     private User user;
 

@@ -33,6 +33,7 @@ public class UserDto {
         String profileImageUrl;
         Long needPosts;
         Long needLikes;
+        boolean oauthStatus;
 
         public UserInfoResponseDto(User user) {
             this.id = user.getId();

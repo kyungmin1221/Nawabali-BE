@@ -21,25 +21,25 @@ public class PostDto {
     @Builder
     public static class RequestDto {
 
-        @NotBlank
+        @NotBlank(message = "내용은 빈 값일 수 없습니다.")
         @Size(max = 500)
         private String contents;
 
-        @NotNull
+        @NotNull(message = "카테고리는 빈 값일 수 없습니다.")
         private Category category;
 
-        @NotNull
+        @NotNull(message = "경도는 빈 값일 수 없습니다.")
         private Double latitude;
 
-        @NotNull
+        @NotNull(message = "위도는 빈 값일 수 없습니다.")
         private Double longitude;
 
-        @NotNull
+        @NotBlank(message = "구는 빈 값일 수 없습니다.")
         private String district;
 
         private String placeName;
 
-        @NotNull
+        @NotBlank(message = "장소 주소는 빈 값일 수 없습니다.")
         private String placeAddr;
 
     }
@@ -77,6 +77,8 @@ public class PostDto {
 
         private LocalDateTime modifiedAt;
 
+        private String resizedImageUrl;
+
         private String mainImageUrl;
 
         private boolean multiImages;
@@ -105,7 +107,8 @@ public class PostDto {
             this.longitude = post.getTown().getLongitude();
             this.createdAt = post.getCreatedAt();
             this.modifiedAt = post.getModifiedAt();
-            this.mainImageUrl = post.getImages().get(0).getImgUrl();
+            this.resizedImageUrl = post.getImages().get(0).getImgUrl();
+            this.mainImageUrl = post.getImages().get(1).getImgUrl();
             this.multiImages = post.getImages().size() > 1;
             this.commentCount = post.getComments().size();
         }
@@ -165,7 +168,8 @@ public class PostDto {
             this.createdAt = post.getCreatedAt();
             this.modifiedAt = post.getModifiedAt();
             this.imageUrls = post.getImages().stream()
-                    .map(PostImage::getImgUrl)
+                    .map(PostImage::getImgUrl) // 리사이즈된 이미지 URL 제외
+                    .filter(imgUrl -> !imgUrl.contains("/compressed_postImages/"))
                     .collect(Collectors.toList());
             this.commentCount = post.getComments().size();
             this.likesCount = likesCount;

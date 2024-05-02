@@ -4,6 +4,7 @@ import com.nawabali.nawabali.constant.Category;
 import com.nawabali.nawabali.constant.Town;
 import com.nawabali.nawabali.domain.image.PostImage;
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,6 +34,7 @@ public class Post {
     private Category category;
 
     @Embedded
+    @Valid
     private Town town;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -66,4 +68,7 @@ public class Post {
     }
 
 
+    public void updateImages(List<PostImage> existsImages) {
+        this.images = existsImages;
+    }
 }

@@ -2,6 +2,7 @@ package com.nawabali.nawabali.controller;
 
 import com.nawabali.nawabali.constant.Category;
 import com.nawabali.nawabali.constant.Period;
+import com.nawabali.nawabali.domain.elasticsearch.PostSearch;
 import com.nawabali.nawabali.dto.PostDto;
 import com.nawabali.nawabali.security.UserDetailsImpl;
 import com.nawabali.nawabali.service.PostService;
@@ -21,6 +22,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Tag(name = "게시물 API", description = "게시물 관련 API 입니다.")
@@ -42,7 +44,7 @@ public class PostController {
     public ResponseEntity<PostDto.ResponseDto> createPost(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @Valid @RequestPart("requestDto") PostDto.RequestDto requestDto,
-            @RequestPart("files") List<MultipartFile> files) {
+            @RequestPart("files") List<MultipartFile> files) throws IOException {
         PostDto.ResponseDto responseDto = postService.createPost(userDetails.getUser(), requestDto, files);
         return ResponseEntity.ok(responseDto);
     }
@@ -65,6 +67,19 @@ public class PostController {
                     direction = Sort.Direction.DESC) Pageable pageable) {
         Slice<PostDto.ResponseDto> postsSlice = postService.getPostsByLatest(pageable);
         return ResponseEntity.ok(postsSlice);
+    }
+    // 전체 게시물 조회(지도용)
+    @Operation(
+            summary = "전체 게시글 조회",
+            description = "ES로 전체 조회, 등록일 기준 내림차순 정렬")
+    @GetMapping("/searchAll")
+    public List<PostSearch> searchAll(){
+        return postService.searchAllPosts();
+    }
+
+    @PatchMapping("/updateAll")
+    public void updateAll() throws IOException {
+        postService.updateAll();
     }
 
 

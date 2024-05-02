@@ -1,5 +1,6 @@
 package com.nawabali.nawabali.security.Jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nawabali.nawabali.constant.UserRoleEnum;
 import com.nawabali.nawabali.domain.User;
 import com.nawabali.nawabali.exception.CustomException;
@@ -15,6 +16,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -25,9 +27,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Slf4j(topic = "JWT 검증 및 인가")
 @RequiredArgsConstructor
+@Order(2)
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
@@ -83,13 +88,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                         return;
                     }
                 }else{
-                    // 쿠키 삭제
+                    log.info("refreshToken 존재하지 않음");
+//                     쿠키 삭제
                     Cookie cookie = new Cookie(JwtUtil.AUTHORIZATION_HEADER, null);
                     cookie.setMaxAge(0);
                     cookie.setPath("/");
                     res.addCookie(cookie);
                     res.addHeader(JwtUtil.AUTHORIZATION_HEADER, null);
-                    throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+                    throw new CustomException(ErrorCode.EXPIRED_JWT);
                 }
             }
             else{
