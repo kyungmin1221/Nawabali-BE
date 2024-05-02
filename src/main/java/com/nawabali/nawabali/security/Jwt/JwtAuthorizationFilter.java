@@ -64,14 +64,16 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     // 새로운 access, refresh Token 발행
                     String newAccessToken = jwtUtil.createAccessToken(email, role);
                     String newRefreshToken = jwtUtil.createRefreshToken(email);
+                    Cookie newAccessCookie = jwtUtil.createAccessCookie(newAccessToken);
                     log.info("발급한 유저의 email : " + email);
 
-                    res.addHeader(JwtUtil.AUTHORIZATION_HEADER, newAccessToken);
-
+//                    res.addHeader(JwtUtil.AUTHORIZATION_HEADER, newAccessToken);
+                    res.addCookie(newAccessCookie);
                     redisTool.deleteValues(accessToken);
                     log.info("기존 refreshToken 삭제 key :" + accessToken );
-                    redisTool.setValues(jwtUtil.substringToken(newAccessToken), newRefreshToken, Duration.ofMillis(jwtUtil.REFRESH_EXPIRATION_TIME));
-                    log.info("refreshToken 재발급 완료 key : " + jwtUtil.substringToken(newAccessToken));
+//                    redisTool.setValues(jwtUtil.substringToken(newAccessToken), newRefreshToken, Duration.ofMillis(jwtUtil.REFRESH_EXPIRATION_TIME));
+                    redisTool.setValues(newAccessToken, newRefreshToken, Duration.ofMillis(jwtUtil.REFRESH_EXPIRATION_TIME));
+                    log.info("refreshToken 재발급 완료 key : " + newAccessToken);
 
                     try{
                         setAuthentication(info.getSubject());
