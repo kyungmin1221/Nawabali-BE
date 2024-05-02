@@ -94,8 +94,8 @@ public class UserController {
     }
 
     @GetMapping("/authenticate")
-    public OAuthDto.oAuthResponseDto getOAuthUserInfo(@AuthenticationPrincipal UserDetailsImpl userDetails){
-        return userService.getOAuthUserInfo(userDetails.getUser());
+    public OAuthDto.oAuthResponseDto getOAuthUserInfo(@AuthenticationPrincipal UserDetailsImpl userDetails, HttpServletRequest request, HttpServletResponse response){
+        return userService.getOAuthUserInfo(userDetails.getUser(), request, response);
     }
 
 }

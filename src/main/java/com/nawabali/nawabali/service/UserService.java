@@ -264,7 +264,11 @@ public class UserService {
                 .toList();
     }
 
-    public OAuthDto.oAuthResponseDto getOAuthUserInfo(User user) {
+    public OAuthDto.oAuthResponseDto getOAuthUserInfo(User user, HttpServletRequest request, HttpServletResponse response) {
+        String accessToken = jwtUtil.getJwtFromHeader(request);
+        log.info("accessToken : " + JwtUtil.BEARER_PREFIX + accessToken);
+        response.addHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken);
+
         User existUser = getUserId(user.getId());
         return new OAuthDto.oAuthResponseDto(existUser);
     }
