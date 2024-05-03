@@ -101,7 +101,7 @@ public class ChatRoomService {
                 .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
         log.info("채팅방" + chatRoom);
 
-        Slice<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdOrderByIdDesc(chatRoom.getId(), pageable)
+        Slice<ChatMessage> chatMessages = chatMessageRepository.findByChatRoomIdOrderByIdAsc(chatRoom.getId(), pageable)
                 .orElseThrow(() -> new CustomException(ErrorCode.FORBIDDEN_CHATMESSAGE));
         log.info("메세지" + chatMessages);
 
