@@ -41,16 +41,16 @@
 
 | 이름    | 역할    | 깃허브    |
 | -----    | -----    | -----    |
-| 박경민    | 게시물 CRUD( 게시물 조회 무한스크롤),QueryDSL 동적 쿼리를 사용한 게시물 조회(동네소식),북마크 생성/취소,마이페이지 본인 게시물 조회,댓글 조회 무한스크롤,AWS S3 다중이미지 업로드,지도 이미지 최적화 처리(리사이즈하여 S3 저장 및 조회),이메일 인증 구현(Redis),ElasticSearch 를 사용한 검색 기능,예외처리|https://github.com/kyungmin1221 | 
-| 유재성    | CI/CD 구축,AWS 서버 관리,Nginx HTTPS, 블루그린 무중단배포,CORS, 프로필이미지,대댓글, 댓글 조회 무한스크롤,PPT 제작 및 최종 발표 | https://github.com/Peter-Yu-0402|
-| 김주원    | 회원가입/ 로그인(SpringSecurity),소셜 로그인(Kakao),SpringSecurity Filter 예외처리,Redis refresh 토큰 관리,회원 CRUD / 유효성검사 ,좋아요 CRUD,ElasticSearch 를 사용한 검색 기능 | https://github.com/juwum12 |
-| 이은미    | 좋아요 (생성, 삭제),댓글 (작성, 수정, 삭제),동네별 점수 조회,WebSocket, SockJs, Stomp,채팅 CRUD, 페이지네이션,SSE 알림 연결 및 삭제 | https://github.com/minnieming |
+| 박경민    | 게시물 CRUD( 게시물 조회 무한스크롤),QueryDSL 동적 쿼리를 사용한 게시물 조회(동네소식), 북마크 생성/취소,댓글 조회 무한스크롤, AWS S3 다중이미지 업로드, 지도 이미지 최적화 처리(리사이즈하여 S3 저장 및 조회), 이메일 인증 구현(Redis),ElasticSearch 를 사용한 검색 기능, 예외처리|https://github.com/kyungmin1221 | 
+| 유재성    | CI/CD 구축, AWS 서버 관리,Nginx HTTPS, 블루그린 무중단배포, CORS, 프로필이미지, 대댓글, 댓글 조회 무한스크롤, PPT 제작 및 최종 발표 | https://github.com/Peter-Yu-0402|
+| 김주원    | 회원가입/ 로그인(SpringSecurity), 소셜 로그인(Kakao), 마이페이지 본인 게시물 조회, SpringSecurity Filter 예외처리, Redis refresh 토큰 관리, 회원 CRUD / 유효성검사 , 좋아요 CRUD, ElasticSearch 를 사용한 검색 기능 | https://github.com/juwum12 |
+| 이은미    | 좋아요(생성, 삭제), 댓글 (작성, 수정, 삭제), 동네별 점수 조회, WebSocket, SockJs, Stomp, 채팅 CRUD, 페이지네이션, SSE 알림 연결 및 삭제 | https://github.com/minnieming |
 
 
 
 ## 🏗️ 서비스 아키텍처
 ### ✅ Back-End
-![back](https://github.com/Nawabali-project/Nawabali-BE/assets/105621255/b85bc0f8-ef9b-438b-8652-2694911f368c)
+![백아키텍처](https://github.com/Nawabali-project/Nawabali-BE/assets/105621255/dae757b2-b6cf-4b1a-9935-1a503ddb3ac4)
 
 
 ## 📌 기술적 의사결정
