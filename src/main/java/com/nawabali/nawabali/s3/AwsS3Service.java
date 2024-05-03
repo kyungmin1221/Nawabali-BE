@@ -59,7 +59,7 @@ public class AwsS3Service {
                     InputStream compressedInputStream = new ByteArrayInputStream(bytes);  // 리사이즈를 위한 복사된 InputStream
                     ByteArrayOutputStream os = new ByteArrayOutputStream();
                     Thumbnails.of(compressedInputStream).size(60, 60)
-                            .outputQuality(0.75)
+                            .outputQuality(1.0)
                             .toOutputStream(os);
                     byte[] compressedImage = os.toByteArray();
                     ByteArrayInputStream uploadInputStream = new ByteArrayInputStream(compressedImage);
