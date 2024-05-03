@@ -217,8 +217,6 @@ public class PostService {
         List<Post> allPosts = postRepository.findAll(sort);
 
         for (Post post : allPosts) {
-            Long postId = post.getId();
-
 
                 List<PostImage> existImages = post.getImages();
                 List<String> deletedList = new ArrayList<>();
@@ -236,9 +234,11 @@ public class PostService {
 
                 // 4.ES에 저장
                 User writer = post.getUser();
-                String resizedImageUrl = existImages.remove(0).getImgUrl();
+                String resizedImageUrl = existImages.get(0).getImgUrl();
                 log.info("리사이즈 이미지 주소 : " + resizedImageUrl);
-                List<String> originalUrls = existImages.stream().map(PostImage::getImgUrl).toList();
+                List<String> originalUrls = existImages.stream().map(PostImage::getImgUrl).filter(url -> !url.contains("compressed_postImages")).toList();
+                log.info("원본 이미지 주소 : " + originalUrls);
+
                 PostSearch postSearch = createPostSearch(post, originalUrls, resizedImageUrl, writer);
                 postSearchRepository.save(postSearch);
                 log.info("Document PK : " + postSearch.getId());
