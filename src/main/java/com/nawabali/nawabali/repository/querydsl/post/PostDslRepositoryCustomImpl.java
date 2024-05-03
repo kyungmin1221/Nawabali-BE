@@ -284,7 +284,7 @@ public class PostDslRepositoryCustomImpl implements PostDslRepositoryCustom{
                         .modifiedAt(post.getModifiedAt())
                         .resizedImageUrl(post.getImages().get(0).getImgUrl())
                         .mainImageUrl(post.getImages().get(1).getImgUrl())
-                        .multiImages(post.getImages().size() > 1)
+                        .multiImages(post.getImages().size() > 2)
                         .commentCount(post.getComments().size())
                         .latitude(post.getTown().getLatitude())
                         .longitude(post.getTown().getLongitude())

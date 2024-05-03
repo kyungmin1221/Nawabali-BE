@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="sparta@db-dongnaebangnae.cbe6ouewo4p0.ap-northeast-2.rds.amazonaws.com" uuid="d7daae93-ba3b-4d88-8c7e-7d5177a86bb9">
+    <data-source source="LOCAL" name="sparta@new-db-dongnaebangnae.cbe6ouewo4p0.ap-northeast-2.rds.amazonaws.com" uuid="b08f3687-7234-409e-9dd3-6b42c01a193a">
       <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
       <imported>true</imported>
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://db-dongnaebangnae.cbe6ouewo4p0.ap-northeast-2.rds.amazonaws.com:3306/sparta</jdbc-url>
+      <jdbc-url>jdbc:mysql://new-db-dongnaebangnae.cbe6ouewo4p0.ap-northeast-2.rds.amazonaws.com:3306/sparta</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
