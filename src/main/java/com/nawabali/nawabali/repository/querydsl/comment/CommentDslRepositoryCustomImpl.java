@@ -2,7 +2,7 @@ package com.nawabali.nawabali.repository.querydsl.comment;
 
 import com.nawabali.nawabali.domain.Comment;
 import com.nawabali.nawabali.domain.QComment;
-import com.nawabali.nawabali.dto.querydsl.CommentDslDto;
+import com.nawabali.nawabali.dto.CommentDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +20,7 @@ public class CommentDslRepositoryCustomImpl implements CommentDslRepositoryCusto
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Slice<CommentDslDto.ResponseDto> findCommentsByPostId(Long postId, Pageable pageable) {
+    public Slice<CommentDto.GetResponseDto> findCommentsByPostId(Long postId, Pageable pageable) {
         QComment comment = QComment.comment;
 
         List<Comment> comments = queryFactory
@@ -41,8 +41,8 @@ public class CommentDslRepositoryCustomImpl implements CommentDslRepositoryCusto
             comments.remove(comments.size() - 1);
         }
 
-        List<CommentDslDto.ResponseDto> responseDtos = comments.stream()
-                .map(CommentDslDto.ResponseDto::new)
+        List<CommentDto.GetResponseDto> responseDtos = comments.stream()
+                .map(CommentDto.GetResponseDto::new)
                 .collect(Collectors.toList());
 
         return new SliceImpl<>(responseDtos, pageable, hasNext);
