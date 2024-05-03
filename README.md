@@ -41,20 +41,16 @@
 
 | 이름    | 역할    | 깃허브    |
 | -----    | -----    | -----    |
-| 박경민    | 게시물 관련 기능(게시물 조회 무한스크롤, QueryDSL 동적 쿼리를 사용한 조회), 북마크 관련 기능, AWS S3 이미지 관리, 지도 이미지 최적화 처리, 이메일 인증 구현(Redis), ElasticSearch 를 사용한 검색 기능, 예외처리 |https://github.com/kyungmin1221 | 
-| 유재성    | CI/CD 구축, AWS 서버 관리, Nginx HTTPS, 블루그린 무중단배포, CORS, 프로필이미지, 댓글 페이지네이션, PPT 제작 및 최종 발표 | https://github.com/Peter-Yu-0402|
-| 김주원    |  -- | https://github.com/juwum12 |
-| 이은미    | 댓글 CRUD, 좋아요 CRUD, 채팅 및 알림 기능 | https://github.com/minnieming |
+| 박경민    | 게시물 CRUD( 게시물 조회 무한스크롤),QueryDSL 동적 쿼리를 사용한 게시물 조회(동네소식),북마크 생성/취소,마이페이지 본인 게시물 조회,댓글 조회 무한스크롤,AWS S3 다중이미지 업로드,지도 이미지 최적화 처리(리사이즈하여 S3 저장 및 조회),이메일 인증 구현(Redis),ElasticSearch 를 사용한 검색 기능,예외처리|https://github.com/kyungmin1221 | 
+| 유재성    | CI/CD 구축,AWS 서버 관리,Nginx HTTPS, 블루그린 무중단배포,CORS, 프로필이미지,대댓글, 댓글 조회 무한스크롤,PPT 제작 및 최종 발표 | https://github.com/Peter-Yu-0402|
+| 김주원    | 회원가입/ 로그인(SpringSecurity),소셜 로그인(Kakao),SpringSecurity Filter 예외처리,Redis refresh 토큰 관리,회원 CRUD / 유효성검사 ,좋아요 CRUD,ElasticSearch 를 사용한 검색 기능 | https://github.com/juwum12 |
+| 이은미    | 좋아요 (생성, 삭제),댓글 (작성, 수정, 삭제),동네별 점수 조회,WebSocket, SockJs, Stomp,채팅 CRUD, 페이지네이션,SSE 알림 연결 및 삭제 | https://github.com/minnieming |
 
 
 
 ## 🏗️ 서비스 아키텍처
-
-### ✅ 전체 아키텍처
-<img width="1231" alt="동네방네 전체 아키텍처" src="">
-
 ### ✅ Back-End
-<img width="1060" alt="동네방네 아키텍처 백엔드" src="">
+![back](https://github.com/Nawabali-project/Nawabali-BE/assets/105621255/b85bc0f8-ef9b-438b-8652-2694911f368c)
 
 
 ## 📌 기술적 의사결정
@@ -62,17 +58,18 @@
 | --- | --- |
 | GitHub Actions | GitHub와의 통합이 용이하며 비교적 설정이 간단하고, 빠른 배포와 프로젝트의 규모가 작은 경우 유리하기 때문에 해당 기술을 선택하였습니다. |
 | Blue-Green | 사용자에게 영향을 주지 않으면서 신규 버전을 안전하게 테스트하고 점진적으로 전환할 수 있으며, blue-green 두 환경이 독립적이기 때문에 새 버전의 오류가 기존 시스템에 영향을 미치지 않는 이점으로 해당 기술을 선택하였습니다. |
-| Nginx | 한정된 예산을 사용하는 상황에서 하나의 EC2 인스턴스로 서버를 구축하였기 때문에, nginx의 리버스 프록시 기능을 통해 한대의 서버로 무중단배포를 구현하였습니다. |
-| Social Login(Kakao) | 펀딩 후원에 참여하기 위해 다수가 접근할 수 있는 점을 고려하여, 사용자의 접근성에 중점을 둔 소셜 로그인(Kakao & Google) 기능 구현을 선택하였습니다.  |
+| Nginx | AWS와 달리, 서버 1대로 블루그린 무중단배포를 구현할 수 있기 때문에 제한된 서버 자원을 최대화하기 위해 nginx 선택 |
+| Social Login(Kakao) | 사용자의 접근성에 중점을 둔 소셜 로그인(Kakao) 기능 구현을 선택하였습니다.  |
 | Spring Security | 인증되지 않은 불특정 다수가 접근할 수 있는 점을 고려하여, 개인정보 보안성에 중점을 둔 Spring Security 기반의 로그인 기능 구현을 선택하였습니다. |
-| ElasticSearch | 원하는 펀딩에 후원을 진행하고, 후원 결제 내역을 수집하기 위해 Kakaopay 온라인 결제 기능 구현을 선택하였습니다. |
-| QueryDSL | 원하는 펀딩에 후원을 진행하고, 후원 결제 내역을 수집하기 위해 Kakaopay 온라인 결제 기능 구현을 선택하였습니다. |
-| Redis | 사용자들에게 빈번하게 보여지는 정보들은 캐시를 적용하여 처리하면 성능 개선을 할 수 있을 것이라고 생각하였고, 추후 사용자가 늘어남에 따라 동시성 문제도 발생할 수 있다고 생각하여 이를 제어할 수 있는 기능을 제공하는 해당 기술을 선택하였습니다. |
-| WebSocket | |
-| SSE (Server-Sent Events) | 서버에서 클라이언트로의 메세지 전달만 필요했기 때문에 단방향 통신 기술인 SSE가 가장 적합한 기술이라 판단하여 선택하였습니다. |
-| Stomp | |
-| SockJS | |
-
+| ElasticSearch | NoSQL 데이터베이스로 활용할 수도 있고 대량의 데이터를 빠르게 검색할 수 있기 때문에 선택 |
+| QueryDSL | 무한 스크롤을 구현하는 경우, 사용자가 요청하는 페이지나 필터링 조건(예: 특정 지역, 카테고리 등)에 따라 결과가 달라져야 한다. 사용자의 요구에 맞춰 콘텐츠를 동적으로 로드해야 하므로, 이는 동적 쿼리가 필수적이라고 생각하였기 때문에 DSL 을 선택 |
+| Redis | 사용자는 로그인시 accessToken과 refreshToken을 받는데 서버에서 refresh를 redis에 저장하여 accessToken을 갱신해줌. 로그아웃 시 블랙리스트를 저장하는데 활용. db를 활용하는 것 보다 속도가 빠르고, 간단한 데이터 구조로 저장이 가능하며 만료시간 설정으로 관리에 보다 효율적이기에 선택하였습니다.|
+| WebSocket |HTTP는 단방향 통신으로 클라이언트가 요청을 보내는 경우만 응답할 수 있어 실시간으로 서로 원할때 데이터를 주고 받을 수 있는 WebSocket을 적용 |
+| SSE (Server-Sent Events) | 단방향 통신만 필요한 알림의 경우, 웹소켓보다 더 경량화되어 쉽게 구현할 수 있고 서버 간의 데이터의 단순한 전달이 목적이므로 SSE 적용 |
+| Stomp | STOMP는 메시지의 전송과 구독, 다양한 프로토콜과의 통합이 용이하여 메시지 전송과 관련된 복잡한 작업을 효과적으로 처리하고 설계, 유지보수 할 수 있기 때문에 WebSocket과 함께적용 |
+| SockJS | WebSocket이 모든 브라우저에서 지원되지 않는 문제로 인해, 다양한 전송 프로토콜을 지원하고 웹서버와 브라우저 간에 최적의 프로토콜을 선택하여 통신할 수 있는 해당 기술을 선택 |
+| AWS S3 | CodeDeploy와도 긴밀히 연결하여 배포할 수 있으며, AWS 콘솔에서 관리가 용이하며 이미지 업로드가 잦은 서비스에 맞게 서버 확장성이 뛰어나 선택함  |
+| AWS RDS | 기존 AWS 서비스(EC2)와 연동 및 관리가 용이하고 자동백업 기능이 있어 선택함 |
 
 
 ## 1. 개발 환경
@@ -183,7 +180,7 @@
 
 ## ✅ 마이페이지
     
-![회원정보변경짤]()
+![회원정보변경짤](https://github.com/Nawabali-project/Nawabali-BE/assets/105621255/760e16b3-b3dc-44f7-a9c5-9d1c176b2d33)
 
 - 마이페이지에서 회원 정보를 변경할 수 있습니다.
 - 프로필 사진, 닉네임, 나의 지역을 변경할 수 있습니다.
@@ -192,25 +189,19 @@
 
 - 마이페이지에서 내가 등록한 게시물들을 확인할 수 있습니다.
 
-![본인의 북마크짤]()
+![본인의 북마크짤](https://github.com/Nawabali-project/Nawabali-BE/assets/105621255/032dd71f-a49d-421f-b9bb-d3cebce953df)
 - 마이페이지에서 내가 등록한 북마크된 게시물들을 볼 수 있습니다.
 
-![등급 짤]()
+![본인등급확인짤]()
 - 마이페이지에서 나의 등급을 확인할 수 있습니다.
 
-## ✅ 실시간 채팅 기능
+## ✅ 실시간 채팅/알림 기능
+![알림짤](https://github.com/Nawabali-project/Nawabali-BE/assets/105621255/a20de69c-9bba-4a81-a7c7-01ac8ba4c115)
+![알림짤](https://github.com/Nawabali-project/Nawabali-BE/assets/105621255/f3495696-4fa7-485c-a9fe-4791c814ce10)
+- 상대방과 1:1 대화를 할 수 있습니다.
+![알림짤](https://github.com/Nawabali-project/Nawabali-BE/assets/105621255/f961b00c-b847-41a2-8d95-a8bcd19a6e8b)
+- 검색을 통해 채팅방이나 메세지 내용을 검색 할 수 있습니다.메세지가 오면 상단에 알림으로 표시되어 어떤 페이지에 있어도 메세지가 왔음을 알 수 있습니다.
 
-
-
-
-## ✅ 실시간 알림 기능
-
-![알림짤]()
-
-- 알림 설명
-
-![화면-기록-2024-05-03-오전-12 32 52-1](https://github.com/Nawabali-project/Nawabali-BE/assets/157681548/f88b4984-633f-43f4-af8b-ae34a6a3af79)
-![화면 기록 2024-05-03 오전 12 32 52-1](https://github.com/Nawabali-project/Nawabali-BE/assets/157681548/badeacbe-1078-43f9-b6df-f6db61e18546)
 
 <br>
 
