@@ -189,15 +189,16 @@
 - 마이페이지에서 회원 정보를 변경할 수 있습니다.
 - 프로필 사진, 닉네임, 나의 지역을 변경할 수 있습니다.
 
-![본인게시물확인짤]()
+![본인게시물확인짤](https://github.com/Nawabali-project/Nawabali-BE/assets/105621255/f39b2b0b-85b2-4ca6-8e75-42d8b7ee871d)
 
 - 마이페이지에서 내가 등록한 게시물들을 확인할 수 있습니다.
 
 ![본인의 북마크짤](https://github.com/Nawabali-project/Nawabali-BE/assets/105621255/032dd71f-a49d-421f-b9bb-d3cebce953df)
 - 마이페이지에서 내가 등록한 북마크된 게시물들을 볼 수 있습니다.
 
-![본인등급확인짤]()
+![본인등급확인짤](https://github.com/Nawabali-project/Nawabali-BE/assets/105621255/570cd66e-0d58-4494-86f9-530dc2a0cfe1)
 - 마이페이지에서 나의 등급을 확인할 수 있습니다.
+- 등급은 좋아요를 받은 수와 게시글 수를 기준으로 **"주민,토박이,터줏대감"** 으로 구분됩니다.
 
 ## ✅ 실시간 채팅/알림 기능
 ![알림짤](https://github.com/Nawabali-project/Nawabali-BE/assets/105621255/a20de69c-9bba-4a81-a7c7-01ac8ba4c115)
