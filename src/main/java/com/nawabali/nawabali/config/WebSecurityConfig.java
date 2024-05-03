@@ -92,9 +92,9 @@ public class WebSecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable);
         http.formLogin(AbstractHttpConfigurer::disable);
         http.httpBasic(AbstractHttpConfigurer::disable);
-//        http.headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
+        http.headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
 
-        http.headers(headers -> headers .addHeaderWriter(new StaticHeadersWriter("X-Frame-Options", "ALLOW-FROM https://prod.dongnaebangnae.com")) );
+//        http.headers(headers -> headers .addHeaderWriter(new StaticHeadersWriter("X-Frame-Options", "ALLOW-FROM https://prod.dongnaebangnae.com")) );
 
         http.sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
