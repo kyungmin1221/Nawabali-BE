@@ -52,12 +52,13 @@ public class UserService {
     private final RedisTool redisTool;
 
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
-        String accessToken = jwtUtil.getJwtFromHeader(request);
+//        String accessToken = jwtUtil.getJwtFromHeader(request);
+        String accessToken = jwtUtil.getTokenFromCookieAndName(request, JwtUtil.AUTHORIZATION_HEADER);
         log.info("accessToken : " + accessToken);
 
         if (StringUtils.hasText(accessToken)) {
             log.info("accessToken : " + accessToken);
-//            accessToken = accessToken.substring(7);
+            accessToken = jwtUtil.substringToken(accessToken);
             String refreshToken = redisTool.getValues(accessToken);
             if (!refreshToken.equals("false")) {
                 log.info("refreshToken 삭제.  key = " + accessToken);
